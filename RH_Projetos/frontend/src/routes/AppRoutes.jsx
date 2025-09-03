@@ -27,10 +27,9 @@ export default function AppRoutes() {
           <Route path="/etapas/:vagaId" element={<Etapas />} />
   
           {/* RH */}
-          <Route path="/rh/dashboard" element={<Dashboard />} />
           <Route path="/rh/cadastro-vaga" element={<CadastroVaga />} />
           <Route path="/rh/vaga/:id" element={<DetalheVaga />} />
-          <Route path="/rh/candidato/:id" element={<GestaoCandidato />} />
+          <Route path="/rh/candidato/:id" element={<GestaoVaga />} />
         </Routes>
       </BrowserRouter>
     );
