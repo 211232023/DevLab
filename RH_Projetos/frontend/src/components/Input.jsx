@@ -1,9 +1,11 @@
-const Input = ({ label, name, type = "text", placeholder, value, onChange }) => {
+import React from "react";
+import "./Input.css";
+
+const Input = ({ label, type = "text", placeholder, value, onChange }) => {
   return (
     <div className="input-group">
-      {label && <label htmlFor={name}>{label}</label>}
+      {label && <label>{label}</label>}
       <input
-        name={name}
         type={type}
         placeholder={placeholder}
         value={value}
@@ -14,4 +16,3 @@ const Input = ({ label, name, type = "text", placeholder, value, onChange }) => 
 };
 
 export default Input;
-
