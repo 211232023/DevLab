@@ -38,21 +38,14 @@ const Login = () => {
                 </div>
                 <div className="form-group">
                     <label htmlFor="senha">Senha:</label>
-                    <div className="senha-container">
                         <Input
-                            type={mostrarSenha ? "text" : "password"}
+                            type={"password"}
                             id="senha"
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                             placeholder="Digite sua senha"
                             required
                         />
-                        <FontAwesomeIcon
-                            icon={mostrarSenha ? faEyeSlash : faEye}
-                            className="icone-olho"
-                            onClick={handleMostrarSenha}
-                        />
-                    </div>
                 </div>
                 <Button type="submit" className="login-btn">Entrar</Button>
             </form>
