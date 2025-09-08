@@ -1,13 +1,16 @@
 .btn {
   background-color: #127067;
+  display: flex;
   color: white;
   border: none;
   padding: 10px 18px;
-  border-radius: 6px;
+  border-radius: 20px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  width: 100%;
+  width: 50%;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .btn:hover {

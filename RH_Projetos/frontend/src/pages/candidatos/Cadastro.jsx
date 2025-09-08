@@ -92,7 +92,7 @@ const Cadastro = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="cadastro-btn">Cadastrar</button>
+                <Button type="submit" className="cadastro-btn">Cadastrar</Button>
             </form>
         </div>
     );
