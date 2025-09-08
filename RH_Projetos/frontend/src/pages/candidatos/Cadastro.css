@@ -5,25 +5,67 @@ body {
 }
 
 .cadastro-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-  
-}
-
-.cadastro-form {
-  background: var(--white);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
   max-width: 400px;
+  margin: 0 auto;
+  margin-top: 50px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: white;
 }
 
-.cadastro-form h2 {
-  margin-bottom: 20px;
+h2 {
   text-align: center;
-  color: var(--primary-green);
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.senha-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.icone-olho {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #127067;
+  font-size: 18px;
+}
+
+.icone-olho:hover {
+  color: #127067;
+}
+
+.cadastro-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #127067;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.cadastro-btn:hover {
+  background-color: #179387;
 }

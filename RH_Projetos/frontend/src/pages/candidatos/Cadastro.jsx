@@ -6,71 +6,96 @@ import Button from "../../components/Button";
 import "./Cadastro.css";
 
 const Cadastro = () => {
-  const [form, setForm] = useState({
-    nome: "",
-    cpf: "",
-    email: "",
-    senha: "",
-    confirmarSenha: "",
-  });
+    // Estado inicial do formulário
+    const [form, setForm] = useState({
+        nomeCompleto: "",
+        cpf: "",
+        email: "",
+        senha: "",
+        confirmarSenha: "",
+    });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    // Função para lidar com mudanças nos campos de entrada
+    const handleChange = (e) => {
+        const { name, value } = e.target; // Obtém o nome e o valor do campo alterado
+        setForm({ ...form, [name]: value }); // Atualiza o estado com base no nome do campo
+    };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Formulário enviado:", form);
-  };
+    // Função para lidar com o envio do formulário
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Formulário enviado:", form);
+        // Adicione aqui a lógica de envio do formulário
+    };
 
-  return (
-    <div className="cadastro-container">
-      <form className="cadastro-form" onSubmit={handleSubmit}>
-        <h2>Cadastro de Candidato</h2>
-
-        <Input
-          label="Nome completo"
-          name="nome"
-          placeholder="Digite seu nome"
-          value={form.nome}
-          onChange={handleChange}
-        />
-        <Input
-          label="CPF"
-          name="cpf"
-          placeholder="Digite seu CPF"
-          value={form.nome}
-          onChange={handleChange}
-        />
-        <Input
-          label="E-mail"
-          name="email"
-          type="email"
-          placeholder="Digite seu e-mail"
-          value={form.email}
-          onChange={handleChange}
-        />
-        <Input
-          label="Senha"
-          name="senha"
-          type="password"
-          placeholder="Digite sua senha"
-          value={form.senha}
-          onChange={handleChange}
-        />
-        <Input
-          label="Confirmar senha"
-          name="confirmarSenha"
-          type="password"
-          placeholder="Confirme sua senha"
-          value={form.confirmarSenha}
-          onChange={handleChange}
-        />
-
-        <Button type="submit">Cadastrar</Button>
-      </form>
-    </div>
-  );
+    return (
+        <div className="cadastro-container">
+            <h2>Cadastro</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="nomeCompleto">Nome Completo:</label>
+                    <Input
+                        type="text"
+                        id="nomeCompleto"
+                        name="nomeCompleto"
+                        placeholder="Digite seu nome completo"
+                        value={form.nomeCompleto}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="cpf">CPF:</label>
+                    <Input
+                        type="text"
+                        id="cpf"
+                        name="cpf"
+                        placeholder="Digite seu CPF"
+                        value={form.cpf}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Digite seu email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="senha">Senha:</label>
+                    <Input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        placeholder="Digite sua senha"
+                        value={form.senha}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="confirmarSenha">Confirmar Senha:</label>
+                    <Input
+                        type="password"
+                        id="confirmarSenha"
+                        name="confirmarSenha"
+                        placeholder="Confirme sua senha"
+                        value={form.confirmarSenha}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <button type="submit" className="cadastro-btn">Cadastrar</button>
+            </form>
+        </div>
+    );
 };
 
 export default Cadastro;
