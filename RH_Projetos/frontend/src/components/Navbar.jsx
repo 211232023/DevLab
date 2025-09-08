@@ -3,9 +3,13 @@ import "./Navbar.css";
 
 const Navbar = () => {
     return (
-        <div>
-            <a href="/cadastro"></a>
-        </div>
+        <nav className="navbar">
+            <ul className="navbar-menu">
+                <li><a href="/minhas-vagas">Minhas Vagas</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/cadastro">Cadastro</a></li>
+            </ul>
+        </nav>
     );
 };
 

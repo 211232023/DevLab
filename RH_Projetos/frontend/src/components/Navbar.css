@@ -1,0 +1,23 @@
+.navbar {
+    background-color: #333;
+    padding: 10px;
+}
+
+.navbar-menu {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-menu li a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+}
+
+.navbar-menu li a:hover {
+    background-color: #555;
+    border-radius: 4px;
+}

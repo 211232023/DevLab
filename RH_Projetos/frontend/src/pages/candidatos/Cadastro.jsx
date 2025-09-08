@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import "./Cadastro.css";
@@ -6,6 +8,7 @@ import "./Cadastro.css";
 const Cadastro = () => {
   const [form, setForm] = useState({
     nome: "",
+    cpf: "",
     email: "",
     senha: "",
     confirmarSenha: "",
@@ -29,6 +32,13 @@ const Cadastro = () => {
           label="Nome completo"
           name="nome"
           placeholder="Digite seu nome"
+          value={form.nome}
+          onChange={handleChange}
+        />
+        <Input
+          label="CPF"
+          name="cpf"
+          placeholder="Digite seu CPF"
           value={form.nome}
           onChange={handleChange}
         />

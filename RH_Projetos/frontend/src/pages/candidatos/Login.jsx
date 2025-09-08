@@ -1,9 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./Login.css";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
 const Login = () => {
+    const [cpf, setCpf] = useState("");
+    const [senha, setSenha] = useState("");
+    const [mostrarSenha, setMostrarSenha] = useState(false);
+
+    const handleMostrarSenha = () => {
+        setMostrarSenha(!mostrarSenha);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("CPF:", cpf);
+        console.log("Senha:", senha);
+        // Adicione aqui a lógica de autenticação
+    };
+
     return (
-        <div></div>
+        <div className="login-container">
+            <h2>Login</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="cpf">CPF:</label>
+                    <Input
+                        type="text"
+                        id="cpf"
+                        value={cpf}
+                        onChange={(e) => setCpf(e.target.value)}
+                        placeholder="Digite seu CPF"
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="senha">Senha:</label>
+                    <div className="senha-container">
+                        <Input
+                            type={mostrarSenha ? "text" : "password"}
+                            id="senha"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            placeholder="Digite sua senha"
+                            required
+                        />
+                        <FontAwesomeIcon
+                            icon={mostrarSenha ? faEyeSlash : faEye}
+                            className="icone-olho"
+                            onClick={handleMostrarSenha}
+                        />
+                    </div>
+                </div>
+                <Button type="submit" className="login-btn">Entrar</Button>
+            </form>
+        </div>
     );
 };
 
