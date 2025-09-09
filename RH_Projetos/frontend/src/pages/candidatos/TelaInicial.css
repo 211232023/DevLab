@@ -1,0 +1,121 @@
+/* Estilo base */
+.vaga-box {
+    display: flex;
+    justify-content: space-between;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    height: auto; /* Altura ajustável para conteúdo dinâmico */
+    flex-wrap: wrap; /* Permite que os elementos se ajustem em telas menores */
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+.vaga-esquerda {
+    flex: 1;
+    padding-right: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.vaga-esquerda h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.vaga-esquerda p {
+    margin: 10px 0 0;
+    color: #555;
+    text-align: justify;
+}
+
+.vaga-direita {
+    flex: 1;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.vaga-direita p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.vaga-botoes {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    justify-content: center; /* Centraliza os botões */
+}
+
+.btn-ver-mais,
+.btn-candidatar {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-ver-mais {
+    background-color: #095bb3;
+    color: #fff;
+}
+
+.btn-candidatar {
+    background-color: #127067;
+    color: #fff;
+}
+
+.btn-ver-mais:hover {
+    background-color: #074a91;
+}
+
+.btn-candidatar:hover {
+    background-color: #0e5a53;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .vaga-box {
+        flex-direction: column; /* Empilha os elementos em telas menores */
+        padding: 15px;
+        width: 80%;
+    }
+
+    .vaga-esquerda {
+        padding-right: 0;
+        border-right: none;
+        margin-bottom: 15px; /* Espaço entre as seções */
+    }
+
+    .vaga-direita {
+        padding-left: 0;
+    }
+
+    .vaga-botoes {
+        flex-direction: column; /* Empilha os botões em telas menores */
+        gap: 10px;
+    }
+
+    .btn-ver-mais,
+    .btn-candidatar {
+        width: 100%; /* Botões ocupam toda a largura */
+    }
+}
+
+@media (max-width: 480px) {
+    .vaga-esquerda h2 {
+        font-size: 1.2rem; /* Reduz o tamanho do título */
+    }
+
+    .btn-ver-mais,
+    .btn-candidatar {
+        font-size: 0.9rem; /* Reduz o tamanho do texto dos botões */
+    }
+}
