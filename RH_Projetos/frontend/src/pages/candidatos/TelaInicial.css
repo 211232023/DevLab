@@ -70,11 +70,13 @@ li {
 .btn-ver-mais {
     background-color: #095bb3;
     color: #fff;
+    margin-top: 10px;
 }
 
 .btn-candidatar {
     background-color: #127067;
     color: #fff;
+    margin-top: 10px;
 }
 
 .btn-ver-mais:hover {
