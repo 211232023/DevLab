@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import "./Cadastro.css";
+import { Link } from "react-router-dom"; 
+
 
 const Cadastro = () => {
     // Estado inicial do formulário
@@ -91,6 +91,9 @@ const Cadastro = () => {
                         onChange={handleChange}
                         required
                     />
+                </div>
+                <div className="form-group">
+                    <Link to="/login" id="linkLogin">Já tem uma conta? Clique aqui</Link>
                 </div>
                 <Button type="submit" className="cadastro-btn">Cadastrar</Button>
             </form>

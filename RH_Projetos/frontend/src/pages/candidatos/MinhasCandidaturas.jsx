@@ -2,9 +2,7 @@ import React from "react";
 import "./MinhasCandidaturas.css";
 
 const MinhasCandidaturas = () => {
-    return (
-        <div></div>
-    );
+    return  <h1>Minhas Candidaturas</h1>;
 };
 
 export default MinhasCandidaturas;

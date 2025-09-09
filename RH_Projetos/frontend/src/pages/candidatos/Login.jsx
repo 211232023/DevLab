@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./Login.css";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import { Link } from "react-router-dom"; 
 
 const Login = () => {
     const [cpf, setCpf] = useState("");
@@ -46,6 +45,9 @@ const Login = () => {
                             placeholder="Digite sua senha"
                             required
                         />
+                </div>
+                <div className="form-group">
+                    <Link to="/cadastro" id="linkLogin">Não tem uma conta? Clique aqui</Link>
                 </div>
                 <Button type="submit" className="login-btn">Entrar</Button>
             </form>
