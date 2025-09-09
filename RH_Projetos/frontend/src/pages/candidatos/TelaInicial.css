@@ -46,6 +46,11 @@
     color: #555;
 }
 
+li {
+    margin: 5px 0;
+    color: #555;
+}
+
 .vaga-botoes {
     display: flex;
     gap: 10px;
