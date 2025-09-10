@@ -5,6 +5,7 @@ import Cadastro from "./pages/candidatos/Cadastro"; // Página de Cadastro
 import TelaInicial from "./pages/candidatos/TelaInicial"; // Página Home
 import MinhasCandidaturas from "./pages/candidatos/MinhasCandidaturas"; // Página Minhas Vagas
 import Login from "./pages/candidatos/Login"; // Página Login
+import Teste from "./pages/candidatos/Teste"; // Página de Teste
 
 const App = () => {
     return (
@@ -16,6 +17,7 @@ const App = () => {
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Cadastro />} />
+                <Route path="/teste" element={<Teste />} />
             </Routes>
         </Router>
     );

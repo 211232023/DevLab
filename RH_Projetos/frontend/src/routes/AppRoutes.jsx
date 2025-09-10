@@ -8,6 +8,7 @@ import InscricaoVaga from "../pages/candidatos/InscricaoVaga";
 import Login from "../pages/candidatos/Login";
 import MinhasCandidaturas from "../pages/candidatos/MinhasCandidaturas";
 import TelaInicial from "../pages/candidatos/TelaInicial";
+import Teste from "../pages/candidatos/Teste";
 
 // Telas Rh
 import CadastroVaga from "../pages/rh/CadastroVaga";
@@ -25,6 +26,7 @@ export default function AppRoutes() {
           <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
           <Route path="/candidaturas" element={<MinhasCandidaturas />} />
           <Route path="/etapas/:vagaId" element={<Etapas />} />
+          <Route path="/teste" element={<Teste />} />
   
           {/* RH */}
           <Route path="/rh/cadastro-vaga" element={<CadastroVaga />} />

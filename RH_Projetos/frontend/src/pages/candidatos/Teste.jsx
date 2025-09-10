@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./Teste.css";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Teste = () => {
   const perguntas = [
