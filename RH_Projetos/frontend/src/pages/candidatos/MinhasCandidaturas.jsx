@@ -1,5 +1,6 @@
 import React from "react";
 import "./MinhasCandidaturas.css";
+import "./TelaInicial.jsx"
 
 const MinhasCandidaturas = () => {
     const candidaturas = JSON.parse(localStorage.getItem("candidaturas")) || [];
@@ -24,5 +25,6 @@ const MinhasCandidaturas = () => {
         </div>
     );
 };
+
 
 export default MinhasCandidaturas;
