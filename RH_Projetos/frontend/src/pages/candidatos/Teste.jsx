@@ -1,142 +1,189 @@
 import React, { useState } from "react";
 import "./Teste.css";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
-const Teste = () => {
-  const perguntas = [
-    {
-      id: 1,
-      categoria: "Português",
-      pergunta: "Qual é a forma correta?",
-      opcoes: [
-        "Houveram muitos problemas.",
-        "Houve muitos problemas.",
-        "Houve muitos problemasos.",
-      ],
-      respostaCorreta: "Houve muitos problemas.",
-    },
-    {
-      id: 2,
-      categoria: "Português",
-      pergunta: "Escolha a palavra correta:",
-      opcoes: ["Conciente", "Consciente", "Conssciente"],
-      respostaCorreta: "Consciente",
-    },
-    {
-      id: 3,
-      categoria: "Matemática",
-      pergunta: "Quanto é 7 x 8?",
-      opcoes: ["54", "56", "58"],
-      respostaCorreta: "56",
-    },
-    {
-      id: 4,
-      categoria: "Matemática",
-      pergunta: "Qual é a raiz quadrada de 81?",
-      opcoes: ["9", "8", "7"],
-      respostaCorreta: "9",
-    },
-  ];
+const perguntas = [
+  // Perguntas mantidas como no seu código anterior
+  {
+    id: 1,
+    categoria: "Português",
+    pergunta: "Qual é a forma correta?",
+    opcoes: [
+      "Houveram muitos problemas.",
+      "Houve muitos problemas.",
+      "Houve muitos problemasos.",
+    ],
+    respostaCorreta: "Houve muitos problemas.",
+  },
+  {
+    id: 2,
+    categoria: "Português",
+    pergunta: "Escolha a palavra correta:",
+    opcoes: ["Conciente", "Consciente", "Conssciente"],
+    respostaCorreta: "Consciente",
+  },
+  {
+    id: 3,
+    categoria: "Português",
+    pergunta: "Qual é o plural correto de 'cidadão'?",
+    opcoes: ["Cidadãos", "Cidadães", "Cidadãoses"],
+    respostaCorreta: "Cidadãos",
+  },
+  {
+    id: 4,
+    categoria: "Português",
+    pergunta: "Qual frase está escrita corretamente?",
+    opcoes: [
+      "Ele fez o trabalho corretamente.",
+      "Ele fez o trabalho correto.",
+      "Ele fez correto o trabalho.",
+    ],
+    respostaCorreta: "Ele fez o trabalho corretamente.",
+  },
+  {
+    id: 5,
+    categoria: "Português",
+    pergunta: "Assinale a frase com concordância correta:",
+    opcoes: [
+      "As meninas chegou cedo.",
+      "As meninas chegaram cedo.",
+      "As meninas chegavam cedo.",
+    ],
+    respostaCorreta: "As meninas chegaram cedo.",
+  },
+  {
+    id: 11,
+    categoria: "Matemática",
+    pergunta: "Quanto é 7 x 8?",
+    opcoes: ["54", "56", "58"],
+    respostaCorreta: "56",
+  },
+  {
+    id: 12,
+    categoria: "Matemática",
+    pergunta: "Qual é a raiz quadrada de 81?",
+    opcoes: ["9", "8", "7"],
+    respostaCorreta: "9",
+  },
+  {
+    id: 13,
+    categoria: "Matemática",
+    pergunta: "Quanto é 15 + 27?",
+    opcoes: ["42", "41", "43"],
+    respostaCorreta: "42",
+  },
+  {
+    id: 14,
+    categoria: "Matemática",
+    pergunta: "Qual é o resultado de 100 ÷ 4?",
+    opcoes: ["25", "24", "20"],
+    respostaCorreta: "25",
+  },
+];
 
-  const [respostas, setRespostas] = useState({});
-  const [resultado, setResultado] = useState(null);
-  const [feedback, setFeedback] = useState({});
+export default function Teste() {
+  const [indice, setIndice] = useState(0);
+  const [respostasUsuario, setRespostasUsuario] = useState({});
+  const [finalizado, setFinalizado] = useState(false);
 
-  const handleChange = (perguntaId, opcao) => {
-    setRespostas({ ...respostas, [perguntaId]: opcao });
+  const perguntaAtual = perguntas[indice] || {};
+
+  const handleResposta = (opcao) => {
+    setRespostasUsuario({ ...respostasUsuario, [perguntaAtual.id]: opcao });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let acertosTotal = 0;
-    let acertosCategoria = {};
-
-    const novoFeedback = {};
-
-    perguntas.forEach((p) => {
-      const acertou = respostas[p.id] === p.respostaCorreta;
-      novoFeedback[p.id] = acertou ? "Certo" : "Errado";
-      if (acertou) {
-        acertosTotal++;
-        acertosCategoria[p.categoria] =
-          (acertosCategoria[p.categoria] || 0) + 1;
-      }
-    });
-
-    setFeedback(novoFeedback);
-    setResultado({ total: acertosTotal, porCategoria: acertosCategoria });
+  const irProxima = () => {
+    if (indice + 1 < perguntas.length) setIndice(indice + 1);
   };
 
-  const handleReiniciar = () => {
-    setRespostas({});
-    setResultado(null);
-    setFeedback({});
+  const irAnterior = () => {
+    if (indice > 0) setIndice(indice - 1);
   };
+
+  const enviarTeste = () => {
+    setFinalizado(true);
+  };
+
+  const getCategoriaClass = (categoria) => {
+    if (categoria === "Português") return "pergunta portugues";
+    if (categoria === "Matemática") return "pergunta matematica";
+    return "pergunta";
+  };
+
+  const pontuacaoTotal = perguntas.filter(
+    (p) => respostasUsuario[p.id] === p.respostaCorreta
+  ).length;
 
   return (
     <div className="teste-container">
-      <h2>Teste de Candidatura</h2>
-      <form onSubmit={handleSubmit}>
-        {perguntas.map((p) => (
-          <div key={p.id} className="pergunta">
-            <h3>
-              {p.categoria}: {p.pergunta}
-            </h3>
-            {p.opcoes.map((opcao) => (
-              <label
-                key={opcao}
-                className={
-                  feedback[p.id] &&
-                  feedback[p.id] === "Errado" &&
-                  respostas[p.id] === opcao
-                    ? "errado"
-                    : ""
-                }
-              >
-                <input
-                  type="radio"
-                  name={`pergunta-${p.id}`}
-                  value={opcao}
-                  checked={respostas[p.id] === opcao}
-                  onChange={() => handleChange(p.id, opcao)}
-                  required
-                  disabled={resultado !== null}
-                />
-                {opcao}
-              </label>
-            ))}
-            {feedback[p.id] && (
-              <div
-                className={
-                  feedback[p.id] === "Certo"
-                    ? "feedback certo"
-                    : "feedback errado"
-                }
-              >
-                {feedback[p.id]}
-              </div>
+      <h1>Teste de Habilidades para Candidatos</h1>
+      <p>
+        Este teste contém questões de Português e Matemática para avaliar
+        conhecimentos de candidatos.
+      </p>
+
+      {!finalizado && perguntaAtual.pergunta && (
+        <>
+          <div className="pergunta-topo">
+            Pergunta {indice + 1} de {perguntas.length}
+          </div>
+
+          <div className={getCategoriaClass(perguntaAtual.categoria)}>
+            <strong>{perguntaAtual.categoria}:</strong> {perguntaAtual.pergunta}
+            <ul className="opcoes-radio">
+              {perguntaAtual.opcoes?.map((opcao, index) => (
+                <li key={index}>
+                  <label
+                    className={
+                      respostasUsuario[perguntaAtual.id] === opcao
+                        ? "selecionado"
+                        : ""
+                    }
+                  >
+                    <span className="radio-btn"></span>
+                    {opcao}
+                    <input
+                      type="radio"
+                      name={`pergunta-${perguntaAtual.id}`}
+                      value={opcao}
+                      checked={respostasUsuario[perguntaAtual.id] === opcao}
+                      onChange={() => handleResposta(opcao)}
+                    />
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="navegacao">
+            <button onClick={irAnterior} disabled={indice === 0}>
+              Anterior
+            </button>
+            {indice + 1 < perguntas.length ? (
+              <button onClick={irProxima}>Próxima</button>
+            ) : (
+              <button onClick={enviarTeste}>Enviar e Finalizar Teste</button>
             )}
           </div>
-        ))}
-        {!resultado ? (
-          <button type="submit">Enviar Respostas</button>
-        ) : (
-          <button type="button" onClick={handleReiniciar}>
-            Reiniciar Teste
-          </button>
-        )}
-      </form>
+        </>
+      )}
 
-      {resultado && (
-        <div className="resultado">
-          <h3>
-            Resultado Total: {resultado.total} de {perguntas.length}
-          </h3>
-          <ul>
-            {Object.entries(resultado.porCategoria).map(([cat, pontos]) => (
-              <li key={cat}>
-                {cat}: {pontos} acertos
+      {finalizado && (
+        <div>
+          <h2>Teste finalizado!</h2>
+          <p>
+            Sua pontuação: {pontuacaoTotal} / {perguntas.length}
+          </p>
+          <h3>Gabarito:</h3>
+          <ul className="gabarito">
+            {perguntas.map((p) => (
+              <li key={p.id} className={getCategoriaClass(p.categoria)}>
+                <strong>{p.categoria}:</strong> {p.pergunta}
+                <br />
+                Sua resposta: {respostasUsuario[p.id] ||
+                  "❌ Não respondida"}{" "}
+                {respostasUsuario[p.id] === p.respostaCorreta
+                  ? "✅ Correta"
+                  : `❌ Errada (Correta: ${p.respostaCorreta})`}
               </li>
             ))}
           </ul>
@@ -144,6 +191,4 @@ const Teste = () => {
       )}
     </div>
   );
-};
-
-export default Teste;
+}

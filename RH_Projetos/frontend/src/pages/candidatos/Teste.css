@@ -1,65 +1,122 @@
-.teste-container {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+body {
+  background-color: #e6ebf2;
   font-family: Arial, sans-serif;
 }
 
+.teste-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pergunta-topo {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
 .pergunta {
+  padding: 15px;
+  border-radius: 10px;
   margin-bottom: 20px;
 }
 
-.pergunta h3 {
-  margin-bottom: 10px;
+.pergunta.portugues {
+  background-color: #e6f2ff;
+  border: 2px solid #4da6ff;
 }
 
-.pergunta label {
-  display: block;
-  margin-bottom: 5px;
-  cursor: pointer;
+.pergunta.matematica {
+  background-color: #e6ffe6;
+  border: 2px solid #33cc33;
 }
 
-.pergunta label.errado {
-  color: red;
-}
-
-.feedback {
-  margin-top: 5px;
-  font-weight: bold;
-}
-
-.feedback.certo {
-  color: green;
-}
-
-.feedback.errado {
-  color: red;
-}
-
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+.opcoes-radio {
+  list-style: none;
+  padding: 0;
   margin-top: 10px;
 }
 
-button:hover {
-  background-color: #0056b3;
+.opcoes-radio li {
+  margin: 10px 0;
 }
 
-.resultado {
-  margin-top: 20px;
-  font-weight: bold;
+.opcoes-radio label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
 }
 
-.resultado ul {
-  margin-top: 5px;
+.opcoes-radio label.selecionado {
+  background-color: #d1e7dd;
+}
+
+.opcoes-radio input[type="radio"] {
+  display: none;
+}
+
+.radio-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  margin-right: 10px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.opcoes-radio label.selecionado .radio-btn::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+}
+
+.navegacao {
+  display: flex;
+  justify-content: space-between;
+}
+
+.navegacao button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  background-color: #127067;
+  color: white;
+  cursor: pointer;
+}
+
+.navegacao button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.gabarito {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
+}
+
+.gabarito li {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.gabarito li.portugues {
+  background-color: #e6f2ff;
+  border: 1px solid #4da6ff;
+}
+
+.gabarito li.matematica {
+  background-color: #e6ffe6;
+  border: 1px solid #33cc33;
 }
