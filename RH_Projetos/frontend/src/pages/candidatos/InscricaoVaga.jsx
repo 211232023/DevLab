@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./InscricaoVaga.css";
 
 const InscricaoVaga = () => {
+    const { vagaId } = useParams();
     const [form, setForm] = useState({
         nome: "",
         cpf: "",

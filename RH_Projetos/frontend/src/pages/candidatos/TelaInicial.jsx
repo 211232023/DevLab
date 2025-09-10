@@ -115,7 +115,7 @@ const TelaInicial = () => {
                             </button>
                             <button
                                 className="btn-candidatar"
-                                onClick={() => navigate("/inscricao-vaga")}
+                                onClick={() => navigate(`/inscricao/${vaga.id}`)}
                             >
                                 Candidatar
                             </button>

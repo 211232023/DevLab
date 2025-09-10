@@ -1,5 +1,5 @@
-import{ BrowserRouter, Routes, Route} from "react-router-dom";
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 // Telas Candidatos
 import Cadastro from "../pages/candidatos/Cadastro";
@@ -17,23 +17,23 @@ import GestaoVaga from "../pages/rh/GestaoVaga";
 
 export default function AppRoutes() {
     return (
-      <BrowserRouter>
-        <Routes>
-          {/* Candidato */}
-          <Route path="/cadastro" element={<Cadastro />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/inicio" element={<TelaInicial />} />
-          <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
-          <Route path="/candidaturas" element={<MinhasCandidaturas />} />
-          <Route path="/etapas/:vagaId" element={<Etapas />} />
-          <Route path="/teste" element={<Teste />} />
-  
-          {/* RH */}
-          <Route path="/rh/cadastro-vaga" element={<CadastroVaga />} />
-          <Route path="/rh/vaga/:id" element={<DetalheVaga />} />
-          <Route path="/rh/candidato/:id" element={<GestaoVaga />} />
-        </Routes>
-      </BrowserRouter>
+        <BrowserRouter>
+            <Navbar />
+            <Routes>
+                {/* Candidato */}
+                <Route path="/cadastro" element={<Cadastro />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/inicio" element={<TelaInicial />} />
+                <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
+                <Route path="/candidaturas" element={<MinhasCandidaturas />} />
+                <Route path="/etapas/:vagaId" element={<Etapas />} />
+                <Route path="/teste" element={<Teste />} />
+
+                {/* RH */}
+                <Route path="/rh/cadastro-vaga" element={<CadastroVaga />} />
+                <Route path="/rh/vaga/:id" element={<DetalheVaga />} />
+                <Route path="/rh/candidato/:id" element={<GestaoVaga />} />
+            </Routes>
+        </BrowserRouter>
     );
-  }
-  
+}
