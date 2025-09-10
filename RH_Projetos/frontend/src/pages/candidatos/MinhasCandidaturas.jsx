@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./MinhasCandidaturas.css";
 import "./TelaInicial.jsx"
 
 const MinhasCandidaturas = () => {
-    const candidaturas = JSON.parse(localStorage.getItem("candidaturas")) || [];
-    
+    const [candidaturas, setCandidaturas] = useState([]);
 
+    useEffect(() => {
+        const vagas = JSON.parse(localStorage.getItem("candidaturas")) || [];
+        setCandidaturas(vagas);
+    }, []);
+ 
     return (
         <div className="minhas-candidaturas">
             <h2>Minhas Candidaturas</h2>
