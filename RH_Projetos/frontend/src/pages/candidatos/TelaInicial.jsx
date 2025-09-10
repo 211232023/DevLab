@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./TelaInicial.css";
+import { useNavigate } from "react-router-dom";
 
 const vagas = [
     {
@@ -64,7 +65,7 @@ const vagas = [
 
 const TelaInicial = () => {
     const [expandido, setExpandido] = useState(null); // Estado para controlar qual box está expandida
-
+    const navigate = useNavigate();
     const toggleExpandir = (id) => {
         setExpandido(expandido === id ? null : id); // Alterna entre expandir e recolher
     };
@@ -112,7 +113,12 @@ const TelaInicial = () => {
                             <button className="btn-ver-mais" onClick={() => toggleExpandir(vaga.id)}>
                                 {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
                             </button>
-                            <button className="btn-candidatar">Candidatar</button>
+                            <button
+                                className="btn-candidatar"
+                                onClick={() => navigate("/inscricao-vaga")}
+                            >
+                                Candidatar
+                            </button>
                         </div>
                     </div>
                 </div>
