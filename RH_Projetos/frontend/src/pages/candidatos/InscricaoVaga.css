@@ -1,10 +1,44 @@
+.inscricao-vaga-main-container {
+  display: flex;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  margin-top: 50px;
+  padding: 0 16px;
+}
+
+h2 {
+  margin: 10px;
+}
+
 .inscricao-vaga-container {
-  max-width: 500px;
+  max-width: 900px;
   margin: 40px auto;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 40px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 32px;
+  padding: 40px;
+}
+
+.inscricao-vaga-info {
+  flex: 1;
+  background: #f5f7fa;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 40px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.inscricao-form .form-colunas {
+  display: flex;
+  gap: 32px;
+}
+
+.form-col {
+  flex: 1;
 }
 
 .inscricao-form label {
@@ -24,16 +58,42 @@
 }
 
 .btn-enviar {
-  background: #2e7d32;
+  background: #127067;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 10px 24px;
   font-size: 1rem;
   cursor: pointer;
   margin-top: 16px;
+  margin: 0 auto;
 }
 
 .btn-enviar:hover {
-  background: #4caf50;
+  background: #179387;
+}
+
+/* Responsivo para telas menores */
+@media (max-width: 900px) {
+  .inscricao-vaga-main-container {
+    flex-direction: column;
+    gap: 24px;
+    max-width: 600px;
+    margin-top: 24px;
+  }
+  .inscricao-vaga-container,
+  .inscricao-vaga-info {
+    padding: 24px;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 700px) {
+  .inscricao-form .form-colunas {
+    flex-direction: column;
+    gap: 0;
+  }
+  .inscricao-vaga-container {
+    padding: 24px;
+  }
 }
