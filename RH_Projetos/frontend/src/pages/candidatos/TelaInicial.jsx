@@ -3,6 +3,7 @@ import "./TelaInicial.css";
 import { useNavigate } from "react-router-dom";
 
 const vagas = [
+    
     {
         id: 1,
         nome: "Desenvolvedor Frontend",
@@ -63,6 +64,19 @@ const vagas = [
     }
 ];
 
+const candidatarVaga = (vaga) => {
+    // Recupera vagas já candidatas
+    const candidaturas = JSON.parse(localStorage.getItem("candidaturas")) || [];
+    // Evita duplicidade
+    if (!candidaturas.find(v => v.id === vaga.id)) {
+        candidaturas.push(vaga);
+        localStorage.setItem("candidaturas", JSON.stringify(candidaturas));
+        alert("Candidatura realizada com sucesso!");
+    } else {
+        alert("Você já se candidatou a esta vaga.");
+    }
+};
+
 const TelaInicial = () => {
     const [expandido, setExpandido] = useState(null); // Estado para controlar qual box está expandida
     const navigate = useNavigate();
@@ -113,12 +127,15 @@ const TelaInicial = () => {
                             <button className="btn-ver-mais" onClick={() => toggleExpandir(vaga.id)}>
                                 {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
                             </button>
+
                             <button
                                 className="btn-candidatar"
                                 onClick={() => navigate(`/inscricao/${vaga.id}`)}
                             >
                                 Candidatar
                             </button>
+                            <button className="btn-candidatar" >Candidatar</button>
+
                         </div>
                     </div>
                 </div>

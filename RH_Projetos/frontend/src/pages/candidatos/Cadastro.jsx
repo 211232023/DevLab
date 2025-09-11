@@ -25,7 +25,16 @@ const Cadastro = () => {
     e.preventDefault();
     console.log("Formulário enviado:", form);
     // Adicione aqui a lógica de envio do formulário
-  };
+
+    if (form.nomeCompleto === "" || form.cpf === "" || form.email === "" || form.senha === "" || form.confirmarSenha === "") {
+      alert("Preencha todos os campos para se cadastrar!");
+    }
+
+    if (form.senha !== form.confirmarSenha) {
+      alert("As senhas nao coincidem!")
+    }
+  }
+    ;
 
   return (
     <div className="cadastro-container">
