@@ -23,18 +23,30 @@ const Cadastro = () => {
   // Função para lidar com o envio do formulário
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Formulário enviado:", form);
-    // Adicione aqui a lógica de envio do formulário
 
-    if (form.nomeCompleto === "" || form.cpf === "" || form.email === "" || form.senha === "" || form.confirmarSenha === "") {
-      alert("Preencha todos os campos para se cadastrar!");
+    // Verifica se todos os campos estão preenchidos
+    if (
+        form.nomeCompleto === "" ||
+        form.cpf === "" ||
+        form.email === "" ||
+        form.senha === "" ||
+        form.confirmarSenha === ""
+    ) {
+        alert("Preencha todos os campos para se cadastrar!");
+        return; // Impede o envio
     }
 
+    // Verifica se as senhas coincidem
     if (form.senha !== form.confirmarSenha) {
-      alert("As senhas nao coincidem!")
+        alert("As senhas não coincidem!");
+        return; // Impede o envio
     }
-  }
-    ;
+
+    // Aqui vai a lógica de envio para o backend (exemplo com fetch)
+    // fetch("/api/cadastro", { method: "POST", body: JSON.stringify(form) })
+
+    console.log("Formulário enviado:", form);
+};
 
   return (
     <div className="cadastro-container">

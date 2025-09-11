@@ -128,10 +128,7 @@ const TelaInicial = () => {
                                 {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
                             </button>
 
-                            <button
-                                className="btn-candidatar"
-                                onClick={() => navigate(`/inscricao/${vaga.id}`)}
-                            >
+                            <button className="btn-candidatar" onClick={() => navigate(`/inscricao/${vaga.id}`)}>
                                 Candidatar
                             </button>
 
