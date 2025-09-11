@@ -73,6 +73,21 @@ h2 {
   background: #179387;
 }
 
+.inscricao-vaga-container {
+  max-width: 70%;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 40px;
+  transition: max-width 0.3s, padding 0.3s;
+}
+
+.inscricao-vaga-container.etapa2 {
+  max-width: 500px;
+  padding: 32px;
+}
+
 /* Responsivo para telas menores */
 @media (max-width: 900px) {
   .inscricao-vaga-main-container {
