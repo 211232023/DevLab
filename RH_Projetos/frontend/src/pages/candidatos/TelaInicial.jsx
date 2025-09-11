@@ -134,7 +134,6 @@ const TelaInicial = () => {
                             >
                                 Candidatar
                             </button>
-                            <button className="btn-candidatar" >Candidatar</button>
 
                         </div>
                     </div>
