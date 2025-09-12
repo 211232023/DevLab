@@ -349,10 +349,47 @@ export default function Teste() {
           {tempoEsgotado && (
             <h2 style={{ color: "red" }}>⏰ Tempo esgotado!</h2>
           )}
-          <h2>Teste finalizado!</h2>
+          <h2>✅ Teste finalizado!</h2>
           <p>
             Sua pontuação: {pontuacaoTotal} / {perguntas.length}
           </p>
+
+          {/* Tempo que levou */}
+          <p>⏱ Tempo utilizado: {formatarTempo(10 * 60 - tempoRestante)}</p>
+
+          {/* Avaliação de desempenho visual */}
+          {(() => {
+            const percentual = (pontuacaoTotal / perguntas.length) * 100;
+            let avaliacao = "";
+            let cor = "";
+            let emoji = "";
+
+            if (percentual < 50) {
+              avaliacao = "Ruim";
+              cor = "red";
+              emoji = "😞";
+            } else if (percentual >= 50 && percentual < 70) {
+              avaliacao = "Regular";
+              cor = "orange";
+              emoji = "😐";
+            } else if (percentual >= 70 && percentual < 90) {
+              avaliacao = "Bom";
+              cor = "green";
+              emoji = "🙂";
+            } else {
+              avaliacao = "Ótimo";
+              cor = "blue";
+              emoji = "🏆";
+            }
+
+            return (
+              <p style={{ color: cor, fontWeight: "bold", fontSize: "18px" }}>
+                Avaliação de desempenho: {emoji} {avaliacao} (
+                {percentual.toFixed(0)}%)
+              </p>
+            );
+          })()}
+
           <h3>Gabarito:</h3>
           <ul className="gabarito">
             {perguntas.map((p) => (
