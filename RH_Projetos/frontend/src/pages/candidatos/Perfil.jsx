@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Perfil.css";
+import { Link } from "react-router-dom";
 
 const Perfil = () => {
     const [dados, setDados] = useState({
