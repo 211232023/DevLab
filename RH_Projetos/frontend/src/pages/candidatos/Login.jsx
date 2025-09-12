@@ -18,9 +18,10 @@ const Login = () => {
         console.log("CPF:", cpf);
         console.log("Senha:", senha);
         // Adicione aqui a lógica de autenticação
-        if (cpf === "" && senha === "") {
+        if (cpf === "" || senha === "") {
             alert("Insira um CPF e uma senha válidos");
-        } // Exemplo simples de validação 
+        }// Exemplo simples de validação
+ 
     };
 
     return (

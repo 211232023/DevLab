@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Teste.css";
 
 const perguntas = [
@@ -89,7 +89,6 @@ const perguntas = [
     ],
     respostaCorreta: "Ele gosta de música clássica.",
   },
-
   // Matemática
   {
     id: 11,
@@ -167,23 +166,47 @@ export default function Teste() {
   const [indice, setIndice] = useState(0);
   const [respostasUsuario, setRespostasUsuario] = useState({});
   const [finalizado, setFinalizado] = useState(false);
+  const [timerIniciado, setTimerIniciado] = useState(false);
+  const [tempoRestante, setTempoRestante] = useState(10 * 60); // 5 minutos
+  const [tempoEsgotado, setTempoEsgotado] = useState(false);
 
   const perguntaAtual = perguntas[indice] || {};
+  const todasRespondidas = perguntas.every((p) => respostasUsuario[p.id]);
 
   const handleResposta = (opcao) => {
     setRespostasUsuario({ ...respostasUsuario, [perguntaAtual.id]: opcao });
   };
 
-  const irProxima = () => {
-    if (indice + 1 < perguntas.length) setIndice(indice + 1);
-  };
-
-  const irAnterior = () => {
-    if (indice > 0) setIndice(indice - 1);
+  const iniciarTeste = () => {
+    setTimerIniciado(true);
   };
 
   const enviarTeste = () => {
     setFinalizado(true);
+  };
+
+  useEffect(() => {
+    if (!timerIniciado || finalizado) return;
+
+    if (tempoRestante <= 0) {
+      setTempoEsgotado(true);
+      enviarTeste();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTempoRestante((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timerIniciado, tempoRestante, finalizado]);
+
+  const formatarTempo = (segundos) => {
+    const min = Math.floor(segundos / 60);
+    const sec = segundos % 60;
+    return `${min.toString().padStart(2, "0")}:${sec
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const getCategoriaClass = (categoria) => {
@@ -198,16 +221,76 @@ export default function Teste() {
 
   return (
     <div className="teste-container">
-      <h1>Teste de Habilidades para Candidatos</h1>
-      <p>
-        Este teste contém questões de Português e Matemática para avaliar
-        conhecimentos de candidatos.
-      </p>
+      {!timerIniciado && !finalizado && (
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <h2>Bem-vindo ao Teste de Habilidades!</h2>
+          <p>
+            Este teste contém questões de Português e Matemática. Você terá 10
+            minutos para respondê-lo. Clique no botão abaixo para iniciar o
+            tempo e começar o teste.
+            <p>Boa Sorte!</p>
+          </p>
+          <button
+            onClick={iniciarTeste}
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              cursor: "pointer",
+              backgroundColor: "#127067",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            Iniciar Teste
+          </button>
+        </div>
+      )}
 
-      {!finalizado && perguntaAtual.pergunta && (
+      {timerIniciado && !finalizado && (
         <>
+          {/* Barra superior com bolinhas circulares */}
+          <div
+            className="barra-superior"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "5px",
+              justifyContent: "center",
+              marginBottom: "15px",
+            }}
+          >
+            {perguntas.map((p, idx) => (
+              <button
+                key={p.id}
+                onClick={() => setIndice(idx)}
+                style={{
+                  width: indice === idx ? "26px" : "25px",
+                  height: indice === idx ? "26px" : "25px",
+                  borderRadius: "50%",
+                  border: indice === idx ? "3px solid #00397aff" : "none",
+                  cursor: "pointer",
+                  backgroundColor: respostasUsuario[p.id]
+                    ? "#0068ded7"
+                    : "#99cafeff",
+                  color: "white",
+                  fontSize: "12px",
+                  transition: "all 0.2s ease",
+                }}
+                title={`Questão ${idx + 1}`}
+              >
+                {idx + 1}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ marginBottom: "10px", fontWeight: "bold" }}>
+            Tempo restante: {formatarTempo(tempoRestante)}
+          </div>
+
           <div className="pergunta-topo">
-            Pergunta {indice + 1} de {perguntas.length}
+            Pergunta {indice + 1} de {perguntas.length}{" "}
+            {!respostasUsuario[perguntaAtual.id] && "(não respondida)"}
           </div>
 
           <div className={getCategoriaClass(perguntaAtual.categoria)}>
@@ -237,31 +320,35 @@ export default function Teste() {
             </ul>
           </div>
 
-          <div className="navegacao">
-            <button onClick={irAnterior} disabled={indice === 0}>
+          <div className="navegacao" style={{ marginTop: "10px" }}>
+            <button
+              onClick={() => setIndice(indice - 1)}
+              disabled={indice === 0}
+            >
               Anterior
             </button>
-            {indice + 1 < perguntas.length ? (
-              <button
-                onClick={irProxima}
-                disabled={!respostasUsuario[perguntaAtual.id]} // 🔒 só habilita se respondeu
-              >
-                Próxima
-              </button>
-            ) : (
-              <button
-                onClick={enviarTeste}
-                disabled={!respostasUsuario[perguntaAtual.id]} // 🔒 só habilita se respondeu
-              >
-                Enviar e Finalizar Teste
-              </button>
-            )}
+            <button
+              onClick={() => setIndice(indice + 1)}
+              disabled={indice === perguntas.length - 1}
+            >
+              Próxima
+            </button>
+            <button
+              onClick={enviarTeste}
+              disabled={!todasRespondidas}
+              style={{ marginLeft: "10px" }}
+            >
+              Enviar e Finalizar Teste
+            </button>
           </div>
         </>
       )}
 
       {finalizado && (
         <div>
+          {tempoEsgotado && (
+            <h2 style={{ color: "red" }}>⏰ Tempo esgotado!</h2>
+          )}
           <h2>Teste finalizado!</h2>
           <p>
             Sua pontuação: {pontuacaoTotal} / {perguntas.length}
