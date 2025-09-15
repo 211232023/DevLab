@@ -5,6 +5,7 @@ import "./Cadastro.css";
 import { Link, useNavigate } from "react-router-dom";
 
 const Cadastro = () => {
+  // Estado inicial do formulário
   const [form, setForm] = useState({
     nomeCompleto: "",
     cpf: "",
@@ -15,11 +16,13 @@ const Cadastro = () => {
 
   const navigate = useNavigate();
 
+  // Função para lidar com mudanças nos campos de entrada
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
+  // Função para lidar com o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -46,6 +49,7 @@ const Cadastro = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        // Envia os dados do formulário para o backend com os nomes de campo corretos
         body: JSON.stringify({
           nome: form.nomeCompleto,
           cpf: form.cpf,
@@ -55,6 +59,7 @@ const Cadastro = () => {
       });
 
       const data = await response.json();
+
       if (response.ok) {
         alert(data.message);
         navigate("/login"); // Redireciona para a página de login em caso de sucesso
@@ -63,7 +68,7 @@ const Cadastro = () => {
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      alert("Não foi possível conectar ao servidor. Tente novamente.");
+      alert("Não foi possível conectar ao servidor. Verifique se o backend está em execução.");
     }
   };
 
