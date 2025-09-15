@@ -8,7 +8,8 @@ export default function CadastroVaga() {
     beneficios: "",
     salario: "",
     escala: "",
-    horario: "",
+    horarioEntrada: "",
+    horarioSaida: "",
     dataInicial: "",
     dataLimite: "",
     descricao: "",
@@ -77,16 +78,16 @@ export default function CadastroVaga() {
             <label>Horário de início do expediente</label>
             <input
               type="time"
-              name="horario"
-              value={form.horario}
+              name="horarioEntrada"
+              value={form.horarioEntrada}
               onChange={handleChange}
             />
 
             <label>Horário do fim do expediente</label>
             <input
               type="time"
-              name="horario"
-              value={form.horario}
+              name="horarioSaida"
+              value={form.horarioSaida}
               onChange={handleChange}
             />
           </div>
