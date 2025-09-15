@@ -7,17 +7,17 @@ import { useAuth } from "../../AuthContext";
 const Perfil = () => {
     const { user } = useAuth();
     const [dados, setDados] = useState({
-        nome: "",
+        nomeCompleto: "",
         cpf: "",
         email: "",
         genero: "",
-        telefone: ""
+        telefone: "",
     });
 
     useEffect(() => {
         if (user) {
             setDados({
-                nome: user.nome || "",
+                nomeCompleto: user.nomeCompleto || "",
                 cpf: user.cpf || "",
                 email: user.email || "",
                 genero: user.genero || "",
@@ -63,7 +63,7 @@ const Perfil = () => {
         <div className="perfil-container">
             <h2>Meu Perfil</h2>
             <ul className="perfil-lista">
-                <li><strong>Nome:</strong> {dados.nome}</li>
+                <li><strong>Nome:</strong> {dados.nomeCompleto}</li>
                 <li><strong>CPF:</strong> {dados.cpf}</li>
                 <li><strong>Email:</strong> {dados.email}</li>
                 <li><strong>Gênero:</strong> {dados.genero}</li>
@@ -78,7 +78,7 @@ const Perfil = () => {
                         <form className="perfil-modal-form" onSubmit={handleSubmit}>
                             <label>
                                 Nome Completo:
-                                <input type="text" name="nome" value={form.nome} onChange={handleChange} required />
+                                <input type="text" name="nomeCompleto" value={form.nomeCompleto} onChange={handleChange} required />
                             </label>
                             <label>
                                 CPF:
