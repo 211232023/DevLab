@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 // Telas Candidatos
@@ -22,6 +22,8 @@ export default function AppRoutes() {
             <Navbar />
             <Routes>
                 {/* Candidato */}
+                <Route path="/" element={<Navigate to="/inicio
+                " />} />
                 <Route path="/cadastro" element={<Cadastro />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/inicio" element={<TelaInicial />} />

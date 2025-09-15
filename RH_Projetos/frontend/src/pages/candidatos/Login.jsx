@@ -3,7 +3,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import "./Login.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from '../../../AuthContext';
+import { useAuth } from '../../AuthContext'; 
 
 const Login = () => {
   const [formData, setFormData] = useState({
