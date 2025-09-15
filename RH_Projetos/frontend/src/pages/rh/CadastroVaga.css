@@ -1,9 +1,9 @@
 .cadastro-vaga-container {
   max-width: 700px;
   margin: 40px auto;
-  padding: 20px;
-  background: #f0f4f8;
-  border-radius: 8px;
+  padding: 40px;
+  background: white;
+  border-radius: 40px;
 }
 
 .cadastro-vaga-container h2 {
@@ -33,6 +33,7 @@ textarea {
 textarea {
   resize: vertical;
   min-height: 80px;
+  margin-bottom: 10px;
 }
 
 .form-row {
