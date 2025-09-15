@@ -289,19 +289,9 @@ export default function Teste() {
               <button
                 key={p.id}
                 onClick={() => setIndice(idx)}
-                style={{
-                  width: indice === idx ? "26px" : "25px",
-                  height: indice === idx ? "26px" : "25px",
-                  borderRadius: "50%",
-                  border: indice === idx ? "3px solid #00397aff" : "none",
-                  cursor: "pointer",
-                  backgroundColor: respostasUsuario[p.id]
-                    ? "#0068ded7"
-                    : "#99cafeff",
-                  color: "white",
-                  fontSize: "12px",
-                  transition: "all 0.2s ease",
-                }}
+                className={`barra-questao-btn ${
+                  indice === idx ? "selecionado" : ""
+                } ${respostasUsuario[p.id] ? "respondida" : ""}`}
                 title={`Questão ${idx + 1}`}
               >
                 {idx + 1}
