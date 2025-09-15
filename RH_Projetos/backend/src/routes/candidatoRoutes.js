@@ -18,4 +18,22 @@ router.post('/:candidato_id/candidaturas', async (req, res) => {
     }
 });
 
+// Rota para listar todas as candidaturas de um candidato
+router.get('/:id/candidaturas', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await db.execute(
+            'SELECT v.titulo, v.area, v.salario, a.status, a.data_inscricao FROM candidaturas AS a INNER JOIN vagas AS v ON a.vaga_id = v.id WHERE a.candidato_id = ?',
+            [id]
+        );
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Candidaturas não encontradas para este candidato' });
+        }
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Erro ao buscar candidaturas do candidato:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
 module.exports = router;

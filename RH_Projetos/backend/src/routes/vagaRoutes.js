@@ -28,6 +28,24 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Rota para listar candidatos que se candidataram a uma vaga
+router.get('/:id/candidatos', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await db.execute(
+            'SELECT c.*, a.status FROM candidaturas AS a INNER JOIN candidatos AS c ON a.candidato_id = c.id WHERE a.vaga_id = ?',
+            [id]
+        );
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Nenhum candidato encontrado para esta vaga' });
+        }
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Erro ao buscar candidatos por vaga:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
 // Rota para buscar uma vaga por ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
