@@ -18,6 +18,7 @@ const vagas = [
         beneficios: "Vale Transporte, Vale Refeição",
         horario: "09:00 - 18:00",
         salario: "R$ 5.000,00",
+        escala: "Segunda a Sexta",
         requisitos: {
             obrigatorios: [
                 "Experiência com HTML, CSS, JavaScript",
@@ -47,6 +48,7 @@ const vagas = [
         beneficios: "Plano de Saúde, Vale Alimentação",
         horario: "08:00 - 17:00",
         salario: "R$ 6.500,00",
+        escala: "Segunda a Sexta",
         requisitos: {
             obrigatorios: [
                 "Experiência com SQL e Python",
@@ -123,6 +125,7 @@ const TelaInicial = () => {
                         <p><strong>Benefícios:</strong> {vaga.beneficios}</p>
                         <p><strong>Horário:</strong> {vaga.horario}</p>
                         <p><strong>Salário:</strong> {vaga.salario}</p>
+                        <p><strong>Escala:</strong> {vaga.escala}</p>
                         <div className="vaga-botoes">
                             <button className="btn-ver-mais" onClick={() => toggleExpandir(vaga.id)}>
                                 {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}

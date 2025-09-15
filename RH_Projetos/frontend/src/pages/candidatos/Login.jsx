@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Login.css";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 
 const Login = () => {
     const [cpf, setCpf] = useState("");
@@ -13,6 +13,10 @@ const Login = () => {
         setMostrarSenha(!mostrarSenha);
     };
 
+    React.useEffect(() => {
+        document.documentElement.lang = "pt-br"; // Define o idioma para português do Brasil
+    }, []);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("CPF:", cpf);
@@ -21,7 +25,7 @@ const Login = () => {
         if (cpf === "" || senha === "") {
             alert("Insira um CPF e uma senha válidos");
         }// Exemplo simples de validação
- 
+
     };
 
     return (
@@ -41,14 +45,14 @@ const Login = () => {
                 </div>
                 <div className="form-group">
                     <label htmlFor="senha">Senha:</label>
-                        <Input
-                            type={"password"}
-                            id="senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            placeholder="Digite sua senha"
-                            required
-                        />
+                    <Input
+                        type={"password"}
+                        id="senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        placeholder="Digite sua senha"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <Link to="/cadastro" id="linkLogin">Não tem uma conta? Clique aqui</Link>

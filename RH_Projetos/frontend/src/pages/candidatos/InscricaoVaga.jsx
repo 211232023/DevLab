@@ -164,7 +164,7 @@ const InscricaoVaga = () => {
                                 )}
                             </label>
                         ))}
-                        <Button type="submit" className="btn-enviar">Enviar Inscrição</Button>
+                        <Button type="submit" className="btn-enviar" >Enviar Inscrição</Button>
                     </form>
                 </>
             )}
