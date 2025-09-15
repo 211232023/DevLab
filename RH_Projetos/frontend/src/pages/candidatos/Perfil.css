@@ -114,11 +114,12 @@
   background: #ccc;
   color: #333;
   border: none;
-  border-radius: 6px;
-  padding: 10px 24px;
+  border-radius: 20 px;
+  padding: 10px 18px;
   font-size: 1rem;
   cursor: pointer;
   margin-top: 16px;
+  justify-content: center;
 }
 
 @media (max-width: 700px) {

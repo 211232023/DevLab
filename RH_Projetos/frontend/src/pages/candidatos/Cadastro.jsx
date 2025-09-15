@@ -9,8 +9,8 @@ const Cadastro = () => {
     nomeCompleto: "",
     cpf: "",
     email: "",
-    telefone: "", // Novo campo
-    genero: "",    // Novo campo
+    telefone: "", 
+    genero: "",    
     senha: "",
     confirmarSenha: "",
   });
@@ -29,8 +29,8 @@ const Cadastro = () => {
       form.nomeCompleto === "" ||
       form.cpf === "" ||
       form.email === "" ||
-      form.telefone === "" || // Validação do novo campo
-      form.genero === "" ||    // Validação do novo campo
+      form.telefone === "" || 
+      form.genero === "" ||   
       form.senha === "" ||
       form.confirmarSenha === ""
     ) {
