@@ -14,7 +14,7 @@ const MinhasCandidaturas = () => {
 
     const renderVagas = () => {
         if (vagasCandidatadas.length === 0) {
-            return <p>Você ainda não se candidatou a nenhuma vaga.</p>;
+            return <p className="semVaga">Você ainda não se candidatou a nenhuma vaga.</p>;
         }
         return (
             <ul>

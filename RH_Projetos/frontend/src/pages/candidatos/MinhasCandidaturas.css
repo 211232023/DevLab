@@ -1,21 +1,23 @@
 .lista-vagas {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 15px;
     padding: 20px;
     margin-bottom: 10px;
     margin-right: 20px;
 }
 .bt-informacao {
     background-color: cornflowerblue;
+    font-size: 15px;
+    font-style: italic;
+    color: black;
     border-radius: 5px;
     padding: 10px;
     cursor: pointer;
     font-weight: bold;
-    border-color: black;
     margin: 5px;
     margin-bottom: 15px;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
     float: right;
 }
 .bt-informacao:hover {
@@ -31,4 +33,7 @@
     font-size: 15px;
     margin-top: 15px;
     color: brown;
+}
+.semVaga {
+    font-size: 20px;
 }
