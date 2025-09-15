@@ -79,14 +79,14 @@ const Login = () => {
             required
           />
         </div>
+        <div className="form-group">
+          <Link to="/cadastro" id="linkCadastro">
+            Não tem cadastro? Clique aqui
+          </Link>
+        </div>
         <Button type="submit" className="login-btn">
           Entrar
         </Button>
-        <div className="form-group">
-          <Link to="/cadastro" id="linkCadastro">
-            Não tem uma conta? Cadastre-se
-          </Link>
-        </div>
       </form>
     </div>
   );

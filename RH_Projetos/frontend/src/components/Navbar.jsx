@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Importe o hook
+import { useAuth } from '../AuthContext'; 
 import './Navbar.css';
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); // Use o hook para pegar o estado do usuário e a função de logout
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -16,19 +16,18 @@ const Navbar = () => {
     <nav className="navbar">
       <Link to="/" className="navbar-logo">DevLab</Link>
       <div className="navbar-links">
-        <Link to="/">Vagas</Link>
+        <Link to="/vagas" className="nav-link">Vagas</Link>
         {user ? (
           // Links para usuário logado
           <>
-            <Link to="/minhas-candidaturas">Minhas Candidaturas</Link>
-            <Link to="/perfil">Perfil</Link>
+            <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
+            <Link to="/perfil" className="nav-link">Perfil</Link>
             <button onClick={handleLogout} className="nav-button">Sair</button>
           </>
         ) : (
           // Links para usuário não logado
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/cadastro">Cadastro</Link>
+            <Link to="/login" className="nav-link">Login/Cadastro</Link>
           </>
         )}
       </div>
