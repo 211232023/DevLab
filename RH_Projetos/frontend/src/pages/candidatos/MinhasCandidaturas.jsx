@@ -32,7 +32,6 @@ const MinhasCandidaturas = () => {
                         <br />
                         <br />
                         <button className="bt-informacao">Ver progresso </button>
-                        <button className="bt-informacao">Ver mais informações sobre a vaga</button>
                     </ul>
                 ))}
             </ul>

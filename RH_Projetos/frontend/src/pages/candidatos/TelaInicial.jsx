@@ -3,7 +3,7 @@ import "./TelaInicial.css";
 import { useNavigate } from "react-router-dom";
 
 const vagas = [
-    
+
     {
         id: 1,
         nome: "Desenvolvedor Frontend",
@@ -128,7 +128,13 @@ const TelaInicial = () => {
                                 {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
                             </button>
 
-                            <button className="btn-candidatar" onClick={() => navigate(`/inscricao/${vaga.id}`)}>
+                            <button
+                                className="btn-candidatar"
+                                onClick={() => {
+                                    candidatarVaga(vaga); // 1ª ação: salva a candidatura
+                                    navigate(`/inscricao/${vaga.id}`); // 2ª ação: navega para inscrição
+                                }}
+                            >
                                 Candidatar
                             </button>
 
