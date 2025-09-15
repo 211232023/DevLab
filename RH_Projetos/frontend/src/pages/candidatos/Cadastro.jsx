@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import "./Cadastro.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cadastro = () => {
-  // Estado inicial do formulário
   const [form, setForm] = useState({
     nomeCompleto: "",
     cpf: "",
@@ -14,39 +13,59 @@ const Cadastro = () => {
     confirmarSenha: "",
   });
 
-  // Função para lidar com mudanças nos campos de entrada
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
-    const { name, value } = e.target; // Obtém o nome e o valor do campo alterado
-    setForm({ ...form, [name]: value }); // Atualiza o estado com base no nome do campo
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
-  // Função para lidar com o envio do formulário
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verifica se todos os campos estão preenchidos
     if (
-        form.nomeCompleto === "" ||
-        form.cpf === "" ||
-        form.email === "" ||
-        form.senha === "" ||
-        form.confirmarSenha === ""
+      form.nomeCompleto === "" ||
+      form.cpf === "" ||
+      form.email === "" ||
+      form.senha === "" ||
+      form.confirmarSenha === ""
     ) {
-        alert("Preencha todos os campos para se cadastrar!");
-        return; // Impede o envio
+      alert("Preencha todos os campos para se cadastrar!");
+      return;
     }
 
-    // Verifica se as senhas coincidem
     if (form.senha !== form.confirmarSenha) {
-        alert("As senhas não coincidem!");
-        return; // Impede o envio
+      alert("As senhas não coincidem!");
+      return;
     }
 
-    // Aqui vai a lógica de envio para o backend (exemplo com fetch)
-    // fetch("/api/cadastro", { method: "POST", body: JSON.stringify(form) })
+    // Lógica de envio para o backend
+    try {
+      const response = await fetch("http://localhost:3001/api/register/candidato", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: form.nomeCompleto,
+          cpf: form.cpf,
+          email: form.email,
+          senha: form.senha,
+        }),
+      });
 
-    console.log("Formulário enviado:", form);
-};
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        navigate("/login"); // Redireciona para a página de login em caso de sucesso
+      } else {
+        alert(data.error || "Erro ao cadastrar candidato.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Não foi possível conectar ao servidor. Tente novamente.");
+    }
+  };
 
   return (
     <div className="cadastro-container">
