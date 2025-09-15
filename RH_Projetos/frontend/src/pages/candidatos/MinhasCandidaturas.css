@@ -14,7 +14,9 @@
     font-weight: bold;
     border-color: black;
     margin: 5px;
+    margin-bottom: 15px;
     transition: background-color 0.3s;
+    float: right;
 }
 .bt-informacao:hover {
     background-color: #1ebfff;
@@ -24,4 +26,9 @@
     color: #0985b7;
     font-weight: bold;
     font-style: italic;
+}
+.status {
+    font-size: 15px;
+    margin-top: 15px;
+    color: brown;
 }

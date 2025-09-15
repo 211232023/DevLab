@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./MinhasCandidaturas.css";
+import { useNavigate } from "react-router-dom";
 
 const MinhasCandidaturas = () => {
     const [vagasCandidatadas, setVagasCandidatadas] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Busca as vagas candidatas do localStorage
@@ -31,7 +33,8 @@ const MinhasCandidaturas = () => {
                         </strong>
                         <br />
                         <br />
-                        <button className="bt-informacao">Ver progresso </button>
+                        <button className="bt-informacao" onClick={() => navigate(`/etapas/${vaga.id}`)}>Ver progresso </button>
+                        <div className="status">Status: Em andamento</div>
                     </ul>
                 ))}
             </ul>
