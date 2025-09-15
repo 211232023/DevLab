@@ -301,6 +301,9 @@ export default function Teste() {
                   color: "white",
                   fontSize: "12px",
                   transition: "all 0.2s ease",
+                  padding: 0,
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
                 title={`Questão ${idx + 1}`}
               >
