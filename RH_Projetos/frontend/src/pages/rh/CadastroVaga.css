@@ -1,0 +1,61 @@
+.cadastro-vaga-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 40px;
+}
+
+.cadastro-vaga-container h2 {
+  margin-bottom: 20px;
+  color: #222;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row div {
+  flex: 1;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background: #00796b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #005f56;
+}
