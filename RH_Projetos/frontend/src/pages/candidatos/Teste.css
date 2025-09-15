@@ -1,4 +1,3 @@
-/* ====== Corpo do teste ====== */
 body {
   background-color: #e6ebf2;
   font-family: Arial, sans-serif;
@@ -13,13 +12,11 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ====== Cabeçalho da pergunta ====== */
 .pergunta-topo {
   margin-bottom: 15px;
   font-weight: bold;
 }
 
-/* ====== Caixa de pergunta ====== */
 .pergunta {
   padding: 15px;
   border-radius: 10px;
@@ -36,7 +33,6 @@ body {
   border: 2px solid #4da6ff;
 }
 
-/* ====== Opções de resposta ====== */
 .opcoes-radio {
   list-style: none;
   padding: 0;
@@ -64,11 +60,11 @@ body {
   display: none;
 }
 
-/* ====== Radio buttons redondos ====== */
+/* círculo externo */
 .radio-btn {
   width: 20px;
   height: 20px;
-  border-radius: 50%; /* totalmente redondo */
+  border-radius: 50%;
   border: 2px solid #333;
   margin-right: 10px;
   flex-shrink: 0;
@@ -76,13 +72,13 @@ body {
   display: inline-block;
 }
 
-/* bolinha interna preta */
+/* bolinha preta de dentro */
 .radio-btn::after {
   content: "";
-  width: 10px;
+  width: 10px; /* pode ajustar o tamanho */
   height: 10px;
   background: #333;
-  border-radius: 50%; /* redondo */
+  border-radius: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -90,16 +86,14 @@ body {
   transition: transform 0.2s ease-in-out;
 }
 
-/* quando selecionado */
+/* quando o radio está selecionado */
 input[type="radio"]:checked + .radio-btn::after {
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* ====== Navegação anterior/próximo ====== */
 .navegacao {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
 }
 
 .navegacao button {
@@ -109,11 +103,6 @@ input[type="radio"]:checked + .radio-btn::after {
   background-color: #127067;
   color: white;
   cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.navegacao button:hover {
-  background-color: #0f5a58;
 }
 
 .navegacao button:disabled {
@@ -121,7 +110,6 @@ input[type="radio"]:checked + .radio-btn::after {
   cursor: not-allowed;
 }
 
-/* ====== Gabarito ====== */
 .gabarito {
   list-style: none;
   padding: 0;
@@ -142,66 +130,30 @@ input[type="radio"]:checked + .radio-btn::after {
   background-color: #e6f2ff;
   border: 1px solid #4da6ff;
 }
-
-/* ====== Barra de números das questões ====== */
-.barra-questoes {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+.opcoes-radio input[type="radio"] {
+  display: none;
 }
 
-.barra-questoes button {
-  width: 40px; /* largura fixa */
-  height: 40px; /* altura igual à largura */
-  border-radius: 50%; /* redondo */
-  border: none;
-  background-color: #127067;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 0 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-}
-
-.barra-questoes button:hover {
-  background-color: #0f5a58;
-}
-
-.barra-questoes button.selecionado {
-  background-color: #4da6ff;
-}
-/* ====== Barra de números das questões ====== */
-.barra-superior {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-.barra-questao-btn {
-  width: 25px;
-  height: 25px;
+.radio-btn {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: none;
-  background-color: #99cafeff; /* cor padrão */
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  transition: all 0.2s ease;
+  border: 2px solid #333;
+  margin-right: 10px;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
 }
 
-.barra-questao-btn.respondida {
-  background-color: #0068ded7;
-}
-
-.barra-questao-btn.selecionado {
-  border: 2px solid #00397aff;
+/* bolinha preta centralizada */
+.opcoes-radio input[type="radio"]:checked + .radio-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
