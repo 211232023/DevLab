@@ -15,7 +15,7 @@ const Navbar = () => {
                 <li><Link to="/candidaturas">Minhas Candidaturas</Link></li>
                 <li><Link to="/login">Login</Link></li>
                 <li><Link to="/cadastro">Cadastro</Link></li>
-                <li><Link to="/cadastroVaga">Cadastro das Vagas</Link></li>
+                <li><Link to="/rh/cadastro-vaga">Cadastro das Vagas</Link></li>
             </ul>
         </nav>
     );
