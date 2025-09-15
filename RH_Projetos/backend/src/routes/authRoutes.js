@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const bcrypt = require('bcrypt'); // Importa a biblioteca bcrypt
-const saltRounds = 10; // Custo do hash, um valor comum e seguro
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
-// Rota de cadastro para candidatos (agora com senha criptografada)
+// Rota de cadastro para candidatos (agora com telefone e gênero)
 router.post('/register/candidato', async (req, res) => {
-    const { nome, cpf, email, senha } = req.body;
+    const { nome, cpf, email, telefone, genero, senha } = req.body;
     try {
         // Criptografa a senha antes de salvar
         const hashedPassword = await bcrypt.hash(senha, saltRounds);
 
         const [result] = await db.execute(
-            'INSERT INTO candidatos (nome, cpf, email, senha) VALUES (?, ?, ?, ?)',
-            [nome, cpf, email, hashedPassword] // Salva a senha criptografada
+            'INSERT INTO candidatos (nome, cpf, email, telefone, genero, senha) VALUES (?, ?, ?, ?, ?, ?)',
+            [nome, cpf, email, telefone, genero, hashedPassword]
         );
         res.status(201).json({ message: 'Candidato cadastrado com sucesso!', id: result.insertId });
     } catch (error) {
@@ -26,7 +26,6 @@ router.post('/register/candidato', async (req, res) => {
 router.post('/login/candidato', async (req, res) => {
     const { email, senha } = req.body;
     try {
-        // Busca o usuário pelo e-mail
         const [rows] = await db.execute(
             'SELECT * FROM candidatos WHERE email = ?',
             [email]
@@ -37,16 +36,13 @@ router.post('/login/candidato', async (req, res) => {
         }
 
         const candidato = rows[0];
-
-        // Compara a senha fornecida com a senha criptografada do banco
         const match = await bcrypt.compare(senha, candidato.senha);
 
         if (!match) {
             return res.status(401).json({ error: 'E-mail ou senha incorretos' });
         }
 
-        // Login bem-sucedido
-        res.status(200).json({ message: 'Login bem-sucedido!', user: { id: candidato.id, nome: candidato.nome } });
+        res.status(200).json({ message: 'Login bem-sucedido!', user: { id: candidato.id, nome: candidato.nome, genero: candidato.genero } });
     } catch (error) {
         console.error('Erro no login:', error);
         res.status(500).json({ error: 'Erro interno do servidor' });

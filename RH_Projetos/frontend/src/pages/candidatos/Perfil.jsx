@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Perfil.css";
 import { Link } from "react-router-dom";
+import Button from "../../components/Button";
 
 const Perfil = () => {
     const [dados, setDados] = useState({
@@ -55,7 +56,7 @@ const Perfil = () => {
                 <li><strong>Complemento:</strong> {dados.complemento}</li>
                 <li><strong>Currículo:</strong> {dados.curriculo}</li>
             </ul>
-            <button className="btn-atualizar" onClick={abrirModal}>Atualizar Informações</button>
+            <Button className="btn-atualizar" onClick={abrirModal}>Atualizar Informações</Button>
 
             {modalAberto && (
                 <div className="perfil-modal-bg">
@@ -107,7 +108,7 @@ const Perfil = () => {
                                 Currículo:
                                 <input type="text" name="curriculo" value={form.curriculo} onChange={handleChange} />
                             </label>
-                            <button type="submit" className="btn-enviar">Salvar</button>
+                            <Button type="submit" className="btn-enviar">Salvar</Button>
                             <button type="button" className="btn-cancelar" onClick={fecharModal}>Cancelar</button>
                         </form>
                     </div>

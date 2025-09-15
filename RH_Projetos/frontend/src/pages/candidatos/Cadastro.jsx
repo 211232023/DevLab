@@ -5,24 +5,23 @@ import "./Cadastro.css";
 import { Link, useNavigate } from "react-router-dom";
 
 const Cadastro = () => {
-  // Estado inicial do formulário
   const [form, setForm] = useState({
     nomeCompleto: "",
     cpf: "",
     email: "",
+    telefone: "", // Novo campo
+    genero: "",    // Novo campo
     senha: "",
     confirmarSenha: "",
   });
 
   const navigate = useNavigate();
 
-  // Função para lidar com mudanças nos campos de entrada
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  // Função para lidar com o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -30,6 +29,8 @@ const Cadastro = () => {
       form.nomeCompleto === "" ||
       form.cpf === "" ||
       form.email === "" ||
+      form.telefone === "" || // Validação do novo campo
+      form.genero === "" ||    // Validação do novo campo
       form.senha === "" ||
       form.confirmarSenha === ""
     ) {
@@ -42,18 +43,18 @@ const Cadastro = () => {
       return;
     }
 
-    // Lógica de envio para o backend
     try {
       const response = await fetch("http://localhost:3001/api/register/candidato", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // Envia os dados do formulário para o backend com os nomes de campo corretos
         body: JSON.stringify({
           nome: form.nomeCompleto,
           cpf: form.cpf,
           email: form.email,
+          telefone: form.telefone,
+          genero: form.genero,
           senha: form.senha,
         }),
       });
@@ -62,7 +63,7 @@ const Cadastro = () => {
 
       if (response.ok) {
         alert(data.message);
-        navigate("/login"); // Redireciona para a página de login em caso de sucesso
+        navigate("/login");
       } else {
         alert(data.error || "Erro ao cadastrar candidato.");
       }
@@ -112,6 +113,35 @@ const Cadastro = () => {
             required
           />
         </div>
+        <div className="form-group">
+          <label htmlFor="telefone">Telefone:</label>
+          <Input
+            type="text"
+            id="telefone"
+            name="telefone"
+            placeholder="Digite seu telefone"
+            value={form.telefone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="genero">Gênero:</label>
+          <select 
+            id="genero" 
+            name="genero" 
+            value={form.genero} 
+            onChange={handleChange} 
+            required
+            className="input-select" 
+          >
+            <option value="">Selecione</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
           <Input

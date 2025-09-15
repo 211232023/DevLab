@@ -51,6 +51,35 @@ input {
   position: relative;
 }
 
+.input-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+  color: #555;
+  background-color: #fff;
+  cursor: pointer;
+  -webkit-appearance: none; 
+  -moz-appearance: none; 
+  appearance: none;         
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%234a4a4a" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+}
+
+.input-select:hover {
+  border-color: #61dafb;
+}
+
+.input-select:focus {
+  outline: none;
+  border-color: #127067;
+  box-shadow: 0 0 0 2px #b5d5d3;
+}
+
 .icone-olho {
   position: absolute;
   right: 10px;
