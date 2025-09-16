@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import Button from "../../components/Button";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -24,12 +25,12 @@ const Home = () => {
                     Cadastre-se, explore vagas, participe das etapas do processo e conquiste seu espaço no mundo tech!
                 </p>
             </div>
-            <button
+            <Button
                 className="btn-vagas"
                 onClick={() => navigate("/inicio")}
             >
                 Ver Vagas
-            </button>
+            </Button>
         </div>
     );
 };

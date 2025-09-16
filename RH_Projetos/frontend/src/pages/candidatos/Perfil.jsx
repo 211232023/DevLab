@@ -116,6 +116,7 @@ const Perfil = () => {
             <Button type="submit" className="save-btn">
               Salvar
             </Button>
+            <br />
             <Button type="button" className="cancel-btn" onClick={handleCancel}>
               Cancelar
             </Button>

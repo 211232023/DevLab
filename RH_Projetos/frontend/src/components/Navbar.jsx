@@ -28,8 +28,6 @@ const Navbar = () => {
           // Links para usuário não logado
           <>
             <Link to="/login" className="nav-link">Login/Cadastro</Link>
-            <Link to="/cadastro-vaga" className="nav-link">Cadastro da Vaga</Link>
-            
           </>
         )}
       </div>
