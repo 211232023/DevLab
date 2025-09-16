@@ -3,14 +3,13 @@ require('dotenv').config();
 
 const createDatabaseAndTables = async () => {
     try {
-        // Conectar ao servidor MySQL sem um banco de dados específico
+        // Conectar ao servidor MySQL sem um banco de dados inicial
         const connection = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD
         });
 
-        // Nome do banco de dados
         const dbName = process.env.DB_NAME;
 
         // 1. Criar o banco de dados se ele não existir
@@ -18,7 +17,7 @@ const createDatabaseAndTables = async () => {
         console.log(`Banco de dados "${dbName}" criado ou já existente.`);
 
         // 2. Usar o banco de dados para criar as tabelas
-        await connection.execute(`USE \`${dbName}\``);
+        await connection.query(`USE \`${dbName}\``); // <-- Linha corrigida para 'query'
         console.log(`Usando o banco de dados "${dbName}".`);
 
         // Comandos SQL para criar as tabelas
@@ -114,7 +113,8 @@ const createDatabaseAndTables = async () => {
 
         console.log('Todas as tabelas foram criadas com sucesso.');
         connection.end();
-        
+        console.log('Conexão fechada.');
+
     } catch (err) {
         console.error('Erro ao criar o banco de dados ou as tabelas:', err);
     }
