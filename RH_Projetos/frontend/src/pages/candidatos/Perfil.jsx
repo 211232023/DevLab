@@ -1,114 +1,147 @@
 import React, { useState, useEffect } from "react";
-import "./Perfil.css";
-import { Link } from "react-router-dom";
-import Button from "../../components/Button";
 import { useAuth } from "../../AuthContext";
+import "./Perfil.css";
+import Button from "../../components/Button";
+import Input from "../../components/Input";
 
 const Perfil = () => {
-    const { user } = useAuth();
-    const [dados, setDados] = useState({
-        nomeCompleto: "",
-        cpf: "",
-        email: "",
-        genero: "",
-        telefone: "",
-    });
+  const { user, updateUser } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    cpf: "",
+    telefone: "",
+  });
 
-    useEffect(() => {
-        if (user) {
-            setDados({
-                nomeCompleto: user.nomeCompleto || "",
-                cpf: user.cpf || "",
-                email: user.email || "",
-                genero: user.genero || "",
-                telefone: user.telefone || "",
-            });
-        }
-    }, [user]);
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        nome: user.nome || "",
+        email: user.email || "",
+        cpf: user.cpf || "",
+        telefone: user.telefone || "",
+      });
+    }
+  }, [user]);
 
-    const [modalAberto, setModalAberto] = useState(false);
-    const [form, setForm] = useState(dados);
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
 
-    const abrirModal = () => {
-        setForm(dados);
-        setModalAberto(true);
-    };
+  const handleCancel = () => {
+    setIsEditing(false);
+    if (user) {
+      setFormData({
+        nome: user.nome || "",
+        email: user.email || "",
+        cpf: user.cpf || "",
+        telefone: user.telefone || "",
+      });
+    }
+  };
 
-    const fecharModal = () => setModalAberto(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Cria um novo objeto de dados para enviar, garantindo que o nome seja enviado.
+      const dataToSend = {
+        ...formData,
+        nome: formData.nome, // Garante que o campo nome está no corpo da requisição
+      };
+      await updateUser(dataToSend);
+      setIsEditing(false);
+      alert("Perfil atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      alert("Erro ao atualizar perfil. Tente novamente.");
+    }
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setDados(form);
-        fecharModal();
-        // Lógica para enviar os dados atualizados para o backend
-        // Exemplo:
-        // api.put(`/candidatos/${user.id}`, form)
-        //    .then(response => {
-        //        console.log("Dados atualizados com sucesso!", response.data);
-        //    })
-        //    .catch(error => {
-        //        console.error("Erro ao atualizar os dados:", error);
-        //    });
-    };
+  if (!user) {
+    return <div>Carregando...</div>;
+  }
 
-    return (
-        <div className="perfil-container">
-            <h2>Meu Perfil</h2>
-            <ul className="perfil-lista">
-                <li><strong>Nome:</strong> {dados.nomeCompleto}</li>
-                <li><strong>CPF:</strong> {dados.cpf}</li>
-                <li><strong>Email:</strong> {dados.email}</li>
-                <li><strong>Gênero:</strong> {dados.genero}</li>
-                <li><strong>Telefone:</strong> {dados.telefone}</li>
-            </ul>
-            <Button className="btn-atualizar" onClick={abrirModal}>Atualizar Informações</Button>
-
-            {modalAberto && (
-                <div className="perfil-modal-bg">
-                    <div className="perfil-modal-container">
-                        <h3>Atualizar Informações</h3>
-                        <form className="perfil-modal-form" onSubmit={handleSubmit}>
-                            <label>
-                                Nome Completo:
-                                <input type="text" name="nomeCompleto" value={form.nomeCompleto} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                CPF:
-                                <input type="text" name="cpf" value={form.cpf} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                Email:
-                                <input type="email" name="email" value={form.email} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                Gênero:
-                                <select name="genero" value={form.genero} onChange={handleChange} required>
-                                    <option value="">Selecione</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Feminino">Feminino</option>
-                                    <option value="Outro">Outro</option>
-                                </select>
-                            </label>
-                            <label>
-                                Telefone:
-                                <input type="text" name="telefone" value={form.telefone} onChange={handleChange} required />
-                            </label>
-                            <Button type="submit" className="btn-enviar">Salvar</Button>
-                            <button type="button" className="btn-cancelar" onClick={fecharModal}>Cancelar</button>
-                        </form>
-                    </div>
-                </div>
-            )}
+  return (
+    <div className="perfil-container">
+      <h2>Perfil do Candidato</h2>
+      {isEditing ? (
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="nome">Nome:</label>
+            <Input
+              type="text"
+              id="nome"
+              name="nome"
+              value={formData.nome}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <Input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="cpf">CPF:</label>
+            <Input
+              type="text"
+              id="cpf"
+              name="cpf"
+              value={formData.cpf}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="telefone">Telefone:</label>
+            <Input
+              type="text"
+              id="telefone"
+              name="telefone"
+              value={formData.telefone}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="btn-group">
+            <Button type="submit" className="save-btn">
+              Salvar
+            </Button>
+            <Button type="button" className="cancel-btn" onClick={handleCancel}>
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div className="perfil-info">
+          <p>
+            <strong>Nome:</strong> {user.nome || "Nome não informado"}
+          </p>
+          <p>
+            <strong>Email:</strong> {user.email}
+          </p>
+          <p>
+            <strong>CPF:</strong> {user.cpf}
+          </p>
+          <p>
+            <strong>Telefone:</strong> {user.telefone}
+          </p>
+          <Button className="edit-btn" onClick={handleEdit}>
+            Editar Perfil
+          </Button>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default Perfil;
