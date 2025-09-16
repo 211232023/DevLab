@@ -1,61 +1,174 @@
 .cadastro-vaga-container {
   max-width: 700px;
-  margin: 40px auto;
-  padding: 40px;
-  background: white;
-  border-radius: 40px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cadastro-vaga-container h2 {
-  margin-bottom: 20px;
-  color: #222;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
+.form-vaga label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #444;
 }
 
-label {
-  font-weight: bold;
-  margin-top: 12px;
-  margin-bottom: 4px;
-}
-
-input,
-textarea {
-  padding: 8px;
+.form-vaga input,
+.form-vaga textarea {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 8px;
+  transition: border 0.9s, box-shadow 0.9s;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 80px;
-  margin-bottom: 10px;
+.form-vaga input:focus,
+.form-vaga textarea:focus {
+  border-color: #138496;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  outline: none;
 }
 
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.form-row div {
+.form-row > div {
+  flex: 1;
+  min-width: 200px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn-cancel {
+  background: #ccc !important;
+  color: #333 !important;
+}
+
+/* Tags de benefícios */
+.beneficios-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 8px;
+  min-height: 44px;
+  align-items: center;
+}
+
+.beneficio-tag {
+  display: flex;
+  align-items: center;
+  background: #138496;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  animation: fadeIn 0.9s ease;
+}
+
+.remove-tag {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Animação fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Benefícios pré-definidos */
+.beneficios-predefinidos {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-beneficio-pre {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.9s ease;
+  animation: fadeIn 0.9s ease;
+}
+
+.btn-beneficio-pre:hover {
+  background: #138496;
+}
+
+/* Horário scroll */
+.horario-wrapper {
+  position: relative;
   flex: 1;
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px 16px;
-  background: #00796b;
-  color: #fff;
-  border: none;
+.horario-scroll {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  background: #fff;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
+  z-index: 10;
 }
 
-button:hover {
-  background: #005f56;
+.horario-opcao {
+  padding: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.horario-opcao:hover {
+  background: #f0f0f0;
+}
+/* Fade-out ao remover tag */
+.fade-out {
+  animation: fadeOut 0.3s forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
 }

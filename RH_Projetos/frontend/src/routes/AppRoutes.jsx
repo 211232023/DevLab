@@ -10,6 +10,7 @@ import MinhasCandidaturas from "../pages/candidatos/MinhasCandidaturas";
 import TelaInicial from "../pages/candidatos/TelaInicial";
 import Teste from "../pages/candidatos/Teste";
 import Perfil from "../pages/candidatos/Perfil";
+import Home from "../pages/candidatos/Home";
 
 // Telas Rh
 import CadastroVaga from "../pages/rh/CadastroVaga";
@@ -22,16 +23,16 @@ export default function AppRoutes() {
             <Navbar />
             <Routes>
                 {/* Candidato */}
-                <Route path="/" element={<Navigate to="/inicio
-                " />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/cadastro" element={<Cadastro />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/inicio" element={<TelaInicial />} />
                 <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
-                <Route path="/candidaturas" element={<MinhasCandidaturas />} />
+                <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
                 <Route path="/etapas/:vagaId" element={<Etapas />} />
                 <Route path="/teste" element={<Teste />} />
                 <Route path="/perfil" element={<Perfil />} />
+                <Route path="/home" element={<Home />} />
 
                 {/* RH */}
                 <Route path="/cadastro-vaga" element={<CadastroVaga />} />
