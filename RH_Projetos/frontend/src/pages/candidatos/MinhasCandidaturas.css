@@ -11,17 +11,18 @@
     font-size: 15px;
     font-style: italic;
     color: black;
+    border: 1px solid;
     border-radius: 5px;
     padding: 10px;
     cursor: pointer;
     font-weight: bold;
     margin: 5px;
     margin-bottom: 15px;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s;
     float: right;
 }
 .bt-informacao:hover {
-    background-color: #1ebfff;
+    background-color: #92e0ff;
 }
 .nome-vagas{
     font-size: 20px;
@@ -35,5 +36,27 @@
     color: brown;
 }
 .semVaga {
-    font-size: 20px;
+    font-size: 15px;
+    text-align: center;
+    padding: 15px;
+}
+.bt-desistir {
+    background-color: white;
+    font-size: 15px;
+    font-style: italic;
+    color: red;
+    border-color: black;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+    float: right;
+}
+.bt-desistir:hover {
+    background-color: rgb(249, 113, 113);
+    color :white;
 }

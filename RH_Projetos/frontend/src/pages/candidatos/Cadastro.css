@@ -61,9 +61,9 @@ input {
   color: #555;
   background-color: #fff;
   cursor: pointer;
-  -webkit-appearance: none; 
-  -moz-appearance: none; 
-  appearance: none;         
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   background-image: url('data:image/svg+xml;utf8,<svg fill="%234a4a4a" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat;
   background-position: right 8px center;
@@ -105,4 +105,12 @@ input {
 
 .cadastro-btn:hover {
   background-color: #179387;
+}
+.beneficios {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #d1f0f0;
+  border: 2px solid #127067;
+  border-radius: 10px;
+  font-size: 15px;
 }

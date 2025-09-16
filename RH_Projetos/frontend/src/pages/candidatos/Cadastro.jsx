@@ -9,11 +9,13 @@ const Cadastro = () => {
     nomeCompleto: "",
     cpf: "",
     email: "",
-    telefone: "", 
-    genero: "",    
+    telefone: "",
+    genero: "",
     senha: "",
     confirmarSenha: "",
   });
+
+  const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
 
   const navigate = useNavigate();
 
@@ -29,8 +31,8 @@ const Cadastro = () => {
       form.nomeCompleto === "" ||
       form.cpf === "" ||
       form.email === "" ||
-      form.telefone === "" || 
-      form.genero === "" ||   
+      form.telefone === "" ||
+      form.genero === "" ||
       form.senha === "" ||
       form.confirmarSenha === ""
     ) {
@@ -44,20 +46,23 @@ const Cadastro = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/register/candidato", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nome: form.nomeCompleto,
-          cpf: form.cpf,
-          email: form.email,
-          telefone: form.telefone,
-          genero: form.genero,
-          senha: form.senha,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:3001/api/register/candidato",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nome: form.nomeCompleto,
+            cpf: form.cpf,
+            email: form.email,
+            telefone: form.telefone,
+            genero: form.genero,
+            senha: form.senha,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -69,13 +74,43 @@ const Cadastro = () => {
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      alert("Não foi possível conectar ao servidor. Verifique se o backend está em execução.");
+      alert(
+        "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
+      );
     }
   };
 
   return (
     <div className="cadastro-container">
       <h2>Cadastro</h2>
+
+      {/* Botão de Benefícios - fora do formulário */}
+      <div className="form-group">
+        <button
+          type="button"
+          className="cadastro-btn"
+          onClick={() => setMostrarBeneficios(!mostrarBeneficios)}
+        >
+          {mostrarBeneficios ? "Ocultar Benefícios" : "Mostrar Benefícios"}
+        </button>
+      </div>
+
+      {/* Benefícios - inicialmente ocultos */}
+      {mostrarBeneficios && (
+        <div className="beneficios">
+          <p>
+            <strong>Benefício 1:</strong> Acesso a conteúdos exclusivos
+          </p>
+          <p>
+            <strong>Benefício 2:</strong> Descontos especiais
+          </p>
+          <p>
+            <strong>Benefício 3:</strong> Suporte prioritário
+          </p>
+        </div>
+      )}
+
+      {/* Formulário de cadastro */}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="nomeCompleto">Nome Completo:</label>
@@ -89,6 +124,7 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="cpf">CPF:</label>
           <Input
@@ -101,6 +137,7 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <Input
@@ -113,6 +150,7 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="telefone">Telefone:</label>
           <Input
@@ -125,15 +163,16 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="genero">Gênero:</label>
-          <select 
-            id="genero" 
-            name="genero" 
-            value={form.genero} 
-            onChange={handleChange} 
+          <select
+            id="genero"
+            name="genero"
+            value={form.genero}
+            onChange={handleChange}
             required
-            className="input-select" 
+            className="input-select"
           >
             <option value="">Selecione</option>
             <option value="Masculino">Masculino</option>
@@ -154,6 +193,7 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="confirmarSenha">Confirmar Senha:</label>
           <Input
@@ -166,12 +206,14 @@ const Cadastro = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <Link to="/login" id="linkLogin">
             Já tem uma conta? Clique aqui
           </Link>
         </div>
-        <Button type="submit" className="cadastro-btn" onClick={() => navigate("/login")}>
+
+        <Button type="submit" className="cadastro-btn">
           Cadastrar
         </Button>
       </form>

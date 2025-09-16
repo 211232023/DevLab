@@ -1,22 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
-const authRoutes = require('./routes/authRoutes');
-const vagaRoutes = require('./routes/vagaRoutes');
 const candidatoRoutes = require('./routes/candidatoRoutes');
-const testeRoutes = require('./routes/testeRoutes'); // Importe a nova rota de testes
+const vagaRoutes = require('./routes/vagaRoutes');
+const authRoutes = require('./routes/authRoutes'); // Adicione esta linha
 
-// Middlewares
+const app = express();
+const PORT = process.env.PORT || 3001;
+
 app.use(cors());
 app.use(express.json());
 
 // Rotas
-app.use('/api', authRoutes);
-app.use('/api/vagas', vagaRoutes);
 app.use('/api/candidatos', candidatoRoutes);
-app.use('/api/testes', testeRoutes); // Use a nova rota de testes
-
-const PORT = process.env.PORT || 3001;
+app.use('/api/vagas', vagaRoutes);
+app.use('/api', authRoutes); // Adicione esta linha para usar as rotas de autenticação
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
