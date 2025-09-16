@@ -1,14 +1,20 @@
-const pool = require('../config/db');
+const path = require('path');
+const pool = require(path.resolve(__dirname, '../config/db'));
+const bcrypt = require('bcrypt');
 
 // CREATE
 exports.createCandidato = async (req, res) => {
   try {
-    const { nome, cpf, email } = req.body;
+    const { nome, cpf, email, telefone, genero, senha } = req.body;
+    
+    // Criptografa a senha
+    const hashedPassword = await bcrypt.hash(senha, 10);
+
     const [result] = await pool.query(
-      'INSERT INTO candidatos (nome, cpf, email, data_cadastro) VALUES (?, ?, ?, NOW())',
-      [nome, cpf, email]
+      'INSERT INTO candidatos (nome, cpf, email, telefone, genero, senha, data_cadastro) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+      [nome, cpf, email, telefone, genero, hashedPassword]
     );
-    res.status(201).json({ id: result.insertId, nome, cpf, email });
+    res.status(201).json({ id: result.insertId, nome, cpf, email, telefone, genero });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao cadastrar candidato' });

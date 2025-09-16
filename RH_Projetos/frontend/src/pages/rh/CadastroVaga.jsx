@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./CadastroVaga.css";
-import Button from "../../components/Button";
 
 export default function CadastroVaga() {
   const [form, setForm] = useState({
@@ -293,10 +292,10 @@ export default function CadastroVaga() {
 
         {/* Ações */}
         <div className="form-actions">
-          <Button type="submit">Cadastrar</Button>
-          <Button type="button" onClick={handleCancel} className="btn-cancel">
+          <button type="submit" className="btn-cadastroVaga">Cadastrar</button>
+          <button type="button" onClick={handleCancel} className="btn-cancel">
             Cancelar
-          </Button>
+          </button>
         </div>
       </form>
     </div>
