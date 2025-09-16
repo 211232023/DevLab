@@ -72,7 +72,7 @@ const candidatarVaga = (vaga) => {
   if (!candidaturas.find((v) => v.id === vaga.id)) {
     candidaturas.push(vaga);
     localStorage.setItem("candidaturas", JSON.stringify(candidaturas));
-    alert("Candidatura realizada com sucesso!");
+    alert("Preencha seus dados!");
   } else {
     alert("Você já se candidatou a esta vaga.");
   }

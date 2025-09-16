@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import "./InscricaoVaga.css";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -38,6 +38,7 @@ const InscricaoVaga = () => {
     });
     const [etapa, setEtapa] = useState(1);
     const [respostas, setRespostas] = useState({});
+    const [inscricaoEnviada, setInscricaoEnviada] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -62,7 +63,8 @@ const InscricaoVaga = () => {
 
     const handleSubmitPerguntas = (e) => {
         e.preventDefault();
-        alert("Inscrição enviada!");
+        setInscricaoEnviada(true);
+
         // Aqui você pode enviar os dados do formulário e das perguntas
     };
 
@@ -127,7 +129,7 @@ const InscricaoVaga = () => {
                     </form>
                 </>
             )}
-            {etapa === 2 && (
+            {etapa === 2 && !inscricaoEnviada && (
                 <>
                     <h2>Perguntas sobre a vaga</h2>
                     <form className="inscricao-form" onSubmit={handleSubmitPerguntas}>
@@ -167,6 +169,12 @@ const InscricaoVaga = () => {
                         <Button type="submit" className="btn-enviar">Enviar Inscrição</Button>
                     </form>
                 </>
+            )}
+            {etapa === 2 && inscricaoEnviada && (
+                <div style={{ textAlign: "center", padding: "40px 0" }}>
+                    <h2>Inscrição enviada com sucesso!</h2>
+                    <Link to="/inicio" className="btn-enviar" style={{ textDecoration: "none" }}>Voltar para a tela inicial</Link>
+                </div>
             )}
         </div>
     );
