@@ -171,7 +171,7 @@ const Cadastro = () => {
             Já tem uma conta? Clique aqui
           </Link>
         </div>
-        <Button type="submit" className="cadastro-btn">
+        <Button type="submit" className="cadastro-btn" onClick={() => navigate("/login")}>
           Cadastrar
         </Button>
       </form>

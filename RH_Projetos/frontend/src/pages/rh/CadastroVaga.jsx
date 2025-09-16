@@ -8,10 +8,14 @@ export default function CadastroVaga() {
     beneficios: "",
     salario: "",
     escala: "",
-    horario: "",
+    horarioEntrada: "",
+    horarioSaida: "",
     dataInicial: "",
     dataLimite: "",
     descricao: "",
+    responsabilidades: "",
+    requisitosObrigatorios: "",
+    requisitosDiferenciais: "",
   });
 
   const handleChange = (e) => {
@@ -49,10 +53,13 @@ export default function CadastroVaga() {
           <div>
             <label>Salário</label>
             <input
-              type="text"
+              type="number"
               name="salario"
               value={form.salario}
               onChange={handleChange}
+              min="0"
+              step="0.01"
+              placeholder="R$ 0,00"
             />
           </div>
         </div>
@@ -68,11 +75,19 @@ export default function CadastroVaga() {
             />
           </div>
           <div>
-            <label>Horário</label>
+            <label>Horário de início do expediente</label>
             <input
-              type="text"
-              name="horario"
-              value={form.horario}
+              type="time"
+              name="horarioEntrada"
+              value={form.horarioEntrada}
+              onChange={handleChange}
+            />
+
+            <label>Horário do fim do expediente</label>
+            <input
+              type="time"
+              name="horarioSaida"
+              value={form.horarioSaida}
               onChange={handleChange}
             />
           </div>
@@ -103,6 +118,20 @@ export default function CadastroVaga() {
         <textarea
           name="descricao"
           value={form.descricao}
+          onChange={handleChange}
+        />
+
+        <label>Responsabilidades</label>
+        <textarea
+          name="responsabilidades"
+          value={form.responsabilidades}
+          onChange={handleChange}
+        />
+
+        <label>Requisitos Obrigatórios</label>
+        <textarea
+          name="requisitosObrigatorios"
+          value={form.requisitosObrigatorios}
           onChange={handleChange}
         />
 
