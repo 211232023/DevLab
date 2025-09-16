@@ -16,7 +16,7 @@ const Navbar = () => {
     <nav className="navbar">
       <Link to="/" className="navbar-logo">DevLab</Link>
       <div className="navbar-links">
-        <Link to="/vagas" className="nav-link">Vagas</Link>
+        <Link to="/inicio" className="nav-link">Vagas</Link>
         {user ? (
           // Links para usuário logado
           <>
