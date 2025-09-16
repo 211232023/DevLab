@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');
+const path = require('path');
+const db = require(path.resolve(__dirname, '../config/db'));
 
 // Rota para candidatura de uma vaga
 router.post('/:candidato_id/candidaturas', async (req, res) => {
