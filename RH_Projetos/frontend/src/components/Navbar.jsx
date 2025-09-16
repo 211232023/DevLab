@@ -12,24 +12,64 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const renderLinks = () => {
+    // Se não houver usuário logado, mostra apenas o link de Login/Cadastro
+    if (!user) {
+      return (
+        <>
+          <Link to="/login" className="nav-link">Login/Cadastro</Link>
+        </>
+      );
+    }
+
+  // Se o usuário for um Candidato
+    if (user.tipo === 'ADMIN') {
+      return (
+        <>
+          <Link to="/inicio" className="nav-link">Vagas</Link>
+          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
+          <Link to="/perfil" className="nav-link">Perfil</Link>
+          <Link to="/dashboard-rh" className="nav-link">Dashboard</Link>
+          <Link to="/cadastrar-vaga" className="nav-link">Cadastrar Vaga</Link>
+          <Link to="/gestao-vagas" className="nav-link">Gerenciar Vagas</Link>
+          <button onClick={handleLogout} className="nav-button">Sair</button>
+        </>
+      );
+    }
+
+    // Se o usuário for um Candidato
+    if (user.tipo === 'CANDIDATO') {
+      return (
+        <>
+          <Link to="/inicio" className="nav-link">Vagas</Link>
+          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
+          <Link to="/perfil" className="nav-link">Perfil</Link>
+          <button onClick={handleLogout} className="nav-button">Sair</button>
+        </>
+      );
+    }
+
+    // Se o usuário for do RH
+    if (user.tipo === 'RH') {
+      return (
+        <>
+          <Link to="/dashboard-rh" className="nav-link">Dashboard</Link>
+          <Link to="/cadastrar-vaga" className="nav-link">Cadastrar Vaga</Link>
+          <Link to="/gestao-vagas" className="nav-link">Gerenciar Vagas</Link>
+          <button onClick={handleLogout} className="nav-button">Sair</button>
+        </>
+      );
+    }
+
+    // Fallback caso o tipo de usuário não seja reconhecido
+    return null;
+  };
+
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-logo">DevLab</Link>
       <div className="navbar-links">
-        <Link to="/inicio" className="nav-link">Vagas</Link>
-        {user ? (
-          // Links para usuário logado
-          <>
-            <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
-            <Link to="/perfil" className="nav-link">Perfil</Link>
-            <button onClick={handleLogout} className="nav-button">Sair</button>
-          </>
-        ) : (
-          // Links para usuário não logado
-          <>
-            <Link to="/login" className="nav-link">Login/Cadastro</Link>
-          </>
-        )}
+        {renderLinks()}
       </div>
     </nav>
   );

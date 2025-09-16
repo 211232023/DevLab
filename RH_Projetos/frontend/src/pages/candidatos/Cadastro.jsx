@@ -13,6 +13,7 @@ const Cadastro = () => {
     genero: "",
     senha: "",
     confirmarSenha: "",
+    tipo: "Candidato", // Valor padrão para o tipo de usuário
   });
 
   const navigate = useNavigate();
@@ -25,17 +26,12 @@ const Cadastro = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      form.nomeCompleto === "" ||
-      form.cpf === "" ||
-      form.email === "" ||
-      form.telefone === "" ||
-      form.genero === "" ||
-      form.senha === "" ||
-      form.confirmarSenha === ""
-    ) {
-      alert("Preencha todos os campos para se cadastrar!");
-      return;
+    // Validação para garantir que todos os campos foram preenchidos
+    for (const key in form) {
+      if (form[key] === "") {
+        alert("Preencha todos os campos para se cadastrar!");
+        return;
+      }
     }
 
     if (form.senha !== form.confirmarSenha) {
@@ -44,23 +40,21 @@ const Cadastro = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/register/candidato",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nome: form.nomeCompleto,
-            cpf: form.cpf,
-            email: form.email,
-            telefone: form.telefone,
-            genero: form.genero,
-            senha: form.senha,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: form.nomeCompleto,
+          cpf: form.cpf,
+          email: form.email,
+          telefone: form.telefone,
+          genero: form.genero,
+          senha: form.senha,
+          tipo: form.tipo,
+        }),
+      });
 
       const data = await response.json();
 
@@ -68,7 +62,7 @@ const Cadastro = () => {
         alert(data.message);
         navigate("/login");
       } else {
-        alert(data.error || "Erro ao cadastrar candidato.");
+        alert(data.error || "Erro ao cadastrar usuário.");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
@@ -146,7 +140,20 @@ const Cadastro = () => {
             <option value="Outro">Outro</option>
           </select>
         </div>
-
+        <div className="form-group">
+          <label htmlFor="tipo">Tipo de Usuário:</label>
+          <select
+            id="tipo"
+            name="tipo"
+            value={form.tipo}
+            onChange={handleChange}
+            required
+            className="input-select"
+          >
+            <option value="Candidato">Candidato</option>
+            <option value="RH">Recursos Humanos</option>
+          </select>
+        </div>
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
           <Input

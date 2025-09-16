@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = async (userData) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/candidatos/${user.id}`, {
+      const response = await fetch(`http://localhost:3001/api/usuarios/${user.id}`, { // Rota atualizada
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data); // Atualiza o usuário no contexto
+        setUser(data);
         localStorage.setItem('user', JSON.stringify(data));
       } else {
         throw new Error(data.error || 'Erro ao atualizar o usuário.');
