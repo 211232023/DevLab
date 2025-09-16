@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Perfil.css";
 import { Link } from "react-router-dom";
+import Button from "../../components/Button";
+import { useAuth } from "../../AuthContext";
 
 const Perfil = () => {
+    const { user } = useAuth();
     const [dados, setDados] = useState({
-        nome: "Nome do Usuário",
-        cpf: "000.000.000-00",
-        email: "usuario@email.com",
-        genero: "Outro",
-        telefone: "(00) 00000-0000",
-        cep: "00000-000",
-        bairro: "Bairro",
-        endereco: "Endereço",
-        complemento: "Complemento",
-        curriculo: "curriculo.pdf"
+        nomeCompleto: "",
+        cpf: "",
+        email: "",
+        genero: "",
+        telefone: "",
     });
+
+    useEffect(() => {
+        if (user) {
+            setDados({
+                nomeCompleto: user.nomeCompleto || "",
+                cpf: user.cpf || "",
+                email: user.email || "",
+                genero: user.genero || "",
+                telefone: user.telefone || "",
+            });
+        }
+    }, [user]);
 
     const [modalAberto, setModalAberto] = useState(false);
     const [form, setForm] = useState(dados);
@@ -38,24 +48,28 @@ const Perfil = () => {
         e.preventDefault();
         setDados(form);
         fecharModal();
+        // Lógica para enviar os dados atualizados para o backend
+        // Exemplo:
+        // api.put(`/candidatos/${user.id}`, form)
+        //    .then(response => {
+        //        console.log("Dados atualizados com sucesso!", response.data);
+        //    })
+        //    .catch(error => {
+        //        console.error("Erro ao atualizar os dados:", error);
+        //    });
     };
 
     return (
         <div className="perfil-container">
             <h2>Meu Perfil</h2>
             <ul className="perfil-lista">
-                <li><strong>Nome:</strong> {dados.nome}</li>
+                <li><strong>Nome:</strong> {dados.nomeCompleto}</li>
                 <li><strong>CPF:</strong> {dados.cpf}</li>
                 <li><strong>Email:</strong> {dados.email}</li>
                 <li><strong>Gênero:</strong> {dados.genero}</li>
                 <li><strong>Telefone:</strong> {dados.telefone}</li>
-                <li><strong>CEP:</strong> {dados.cep}</li>
-                <li><strong>Bairro:</strong> {dados.bairro}</li>
-                <li><strong>Endereço:</strong> {dados.endereco}</li>
-                <li><strong>Complemento:</strong> {dados.complemento}</li>
-                <li><strong>Currículo:</strong> {dados.curriculo}</li>
             </ul>
-            <button className="btn-atualizar" onClick={abrirModal}>Atualizar Informações</button>
+            <Button className="btn-atualizar" onClick={abrirModal}>Atualizar Informações</Button>
 
             {modalAberto && (
                 <div className="perfil-modal-bg">
@@ -64,7 +78,7 @@ const Perfil = () => {
                         <form className="perfil-modal-form" onSubmit={handleSubmit}>
                             <label>
                                 Nome Completo:
-                                <input type="text" name="nome" value={form.nome} onChange={handleChange} required />
+                                <input type="text" name="nomeCompleto" value={form.nomeCompleto} onChange={handleChange} required />
                             </label>
                             <label>
                                 CPF:
@@ -78,36 +92,16 @@ const Perfil = () => {
                                 Gênero:
                                 <select name="genero" value={form.genero} onChange={handleChange} required>
                                     <option value="">Selecione</option>
-                                    <option value="masculino">Masculino</option>
-                                    <option value="feminino">Feminino</option>
-                                    <option value="outro">Outro</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Feminino">Feminino</option>
+                                    <option value="Outro">Outro</option>
                                 </select>
                             </label>
                             <label>
                                 Telefone:
                                 <input type="text" name="telefone" value={form.telefone} onChange={handleChange} required />
                             </label>
-                            <label>
-                                CEP:
-                                <input type="text" name="cep" value={form.cep} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                Bairro:
-                                <input type="text" name="bairro" value={form.bairro} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                Endereço:
-                                <input type="text" name="endereco" value={form.endereco} onChange={handleChange} required />
-                            </label>
-                            <label>
-                                Complemento:
-                                <input type="text" name="complemento" value={form.complemento} onChange={handleChange} />
-                            </label>
-                            <label>
-                                Currículo:
-                                <input type="text" name="curriculo" value={form.curriculo} onChange={handleChange} />
-                            </label>
-                            <button type="submit" className="btn-enviar">Salvar</button>
+                            <Button type="submit" className="btn-enviar">Salvar</Button>
                             <button type="button" className="btn-cancelar" onClick={fecharModal}>Cancelar</button>
                         </form>
                     </div>

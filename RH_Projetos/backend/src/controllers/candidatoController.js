@@ -41,13 +41,13 @@ exports.getCandidatoById = async (req, res) => {
 exports.updateCandidato = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, cpf, email } = req.body;
+    const { nome, cpf, email, genero, telefone } = req.body;
     const [result] = await pool.query(
-      'UPDATE candidatos SET nome = ?, cpf = ?, email = ? WHERE id = ?',
-      [nome, cpf, email, id]
+      'UPDATE candidatos SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ? WHERE id = ?',
+      [nome, cpf, email, genero, telefone, id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Candidato não encontrado' });
-    res.json({ id, nome, cpf, email });
+    res.json({ id, nome, cpf, email, genero, telefone });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao atualizar candidato' });
   }

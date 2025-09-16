@@ -9,6 +9,8 @@ const Cadastro = () => {
     nomeCompleto: "",
     cpf: "",
     email: "",
+    telefone: "", 
+    genero: "",    
     senha: "",
     confirmarSenha: "",
   });
@@ -27,6 +29,8 @@ const Cadastro = () => {
       form.nomeCompleto === "" ||
       form.cpf === "" ||
       form.email === "" ||
+      form.telefone === "" || 
+      form.genero === "" ||   
       form.senha === "" ||
       form.confirmarSenha === ""
     ) {
@@ -39,7 +43,6 @@ const Cadastro = () => {
       return;
     }
 
-    // Lógica de envio para o backend
     try {
       const response = await fetch("http://localhost:3001/api/register/candidato", {
         method: "POST",
@@ -50,20 +53,23 @@ const Cadastro = () => {
           nome: form.nomeCompleto,
           cpf: form.cpf,
           email: form.email,
+          telefone: form.telefone,
+          genero: form.genero,
           senha: form.senha,
         }),
       });
 
       const data = await response.json();
+
       if (response.ok) {
         alert(data.message);
-        navigate("/login"); // Redireciona para a página de login em caso de sucesso
+        navigate("/login");
       } else {
         alert(data.error || "Erro ao cadastrar candidato.");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      alert("Não foi possível conectar ao servidor. Tente novamente.");
+      alert("Não foi possível conectar ao servidor. Verifique se o backend está em execução.");
     }
   };
 
@@ -107,6 +113,35 @@ const Cadastro = () => {
             required
           />
         </div>
+        <div className="form-group">
+          <label htmlFor="telefone">Telefone:</label>
+          <Input
+            type="text"
+            id="telefone"
+            name="telefone"
+            placeholder="Digite seu telefone"
+            value={form.telefone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="genero">Gênero:</label>
+          <select 
+            id="genero" 
+            name="genero" 
+            value={form.genero} 
+            onChange={handleChange} 
+            required
+            className="input-select" 
+          >
+            <option value="">Selecione</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
           <Input

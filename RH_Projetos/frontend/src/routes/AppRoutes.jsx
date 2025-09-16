@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 // Telas Candidatos
@@ -22,6 +22,8 @@ export default function AppRoutes() {
             <Navbar />
             <Routes>
                 {/* Candidato */}
+                <Route path="/" element={<Navigate to="/inicio
+                " />} />
                 <Route path="/cadastro" element={<Cadastro />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/inicio" element={<TelaInicial />} />
@@ -32,9 +34,9 @@ export default function AppRoutes() {
                 <Route path="/perfil" element={<Perfil />} />
 
                 {/* RH */}
-                <Route path="/rh/cadastro-vaga" element={<CadastroVaga />} />
-                <Route path="/rh/vaga/:id" element={<DetalheVaga />} />
-                <Route path="/rh/candidato/:id" element={<GestaoVaga />} />
+                <Route path="/cadastro-vaga" element={<CadastroVaga />} />
+                <Route path="/vaga/:id" element={<DetalheVaga />} />
+                <Route path="/candidato/:id" element={<GestaoVaga />} />
             </Routes>
         </BrowserRouter>
     );
