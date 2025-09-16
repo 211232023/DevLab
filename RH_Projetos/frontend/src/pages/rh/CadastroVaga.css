@@ -172,3 +172,27 @@ textarea {
     transform: scale(0.8);
   }
 }
+.beneficios-toggle-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #179387; /* cor diferente do botão de cadastro */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.beneficios-toggle-btn:hover {
+  background-color: #127067;
+}
+
+.beneficios-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 2px solid #127067;
+  border-radius: 10px;
+  font-size: 16px;
+}

@@ -106,11 +106,3 @@ input {
 .cadastro-btn:hover {
   background-color: #179387;
 }
-.beneficios {
-  margin-top: 15px;
-  padding: 15px;
-  background-color: #d1f0f0;
-  border: 2px solid #127067;
-  border-radius: 10px;
-  font-size: 15px;
-}

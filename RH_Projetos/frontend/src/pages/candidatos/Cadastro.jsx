@@ -15,8 +15,6 @@ const Cadastro = () => {
     confirmarSenha: "",
   });
 
-  const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -83,34 +81,6 @@ const Cadastro = () => {
   return (
     <div className="cadastro-container">
       <h2>Cadastro</h2>
-
-      {/* Botão de Benefícios - fora do formulário */}
-      <div className="form-group">
-        <button
-          type="button"
-          className="cadastro-btn"
-          onClick={() => setMostrarBeneficios(!mostrarBeneficios)}
-        >
-          {mostrarBeneficios ? "Ocultar Benefícios" : "Mostrar Benefícios"}
-        </button>
-      </div>
-
-      {/* Benefícios - inicialmente ocultos */}
-      {mostrarBeneficios && (
-        <div className="beneficios">
-          <p>
-            <strong>Benefício 1:</strong> Acesso a conteúdos exclusivos
-          </p>
-          <p>
-            <strong>Benefício 2:</strong> Descontos especiais
-          </p>
-          <p>
-            <strong>Benefício 3:</strong> Suporte prioritário
-          </p>
-        </div>
-      )}
-
-      {/* Formulário de cadastro */}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="nomeCompleto">Nome Completo:</label>
@@ -124,7 +94,6 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="cpf">CPF:</label>
           <Input
@@ -137,7 +106,6 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <Input
@@ -150,7 +118,6 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="telefone">Telefone:</label>
           <Input
@@ -163,7 +130,6 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="genero">Gênero:</label>
           <select
@@ -193,7 +159,6 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="confirmarSenha">Confirmar Senha:</label>
           <Input
@@ -206,13 +171,11 @@ const Cadastro = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <Link to="/login" id="linkLogin">
             Já tem uma conta? Clique aqui
           </Link>
         </div>
-
         <Button type="submit" className="cadastro-btn">
           Cadastrar
         </Button>
