@@ -48,13 +48,29 @@ exports.updateCandidato = async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, cpf, email, genero, telefone } = req.body;
-    const [result] = await pool.query(
+
+    const [candidatoRows] = await pool.query('SELECT * FROM candidatos WHERE id = ?', [id]);
+    if (candidatoRows.length === 0) {
+      return res.status(404).json({ error: 'Candidato não encontrado' });
+    }
+
+    const candidato = candidatoRows[0];
+    const updatedCandidato = {
+      nome: nome !== undefined ? nome : candidato.nome,
+      cpf: cpf !== undefined ? cpf : candidato.cpf,
+      email: email !== undefined ? email : candidato.email,
+      genero: genero !== undefined ? genero : candidato.genero,
+      telefone: telefone !== undefined ? telefone : candidato.telefone,
+    };
+
+    await pool.query(
       'UPDATE candidatos SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ? WHERE id = ?',
-      [nome, cpf, email, genero, telefone, id]
+      [updatedCandidato.nome, updatedCandidato.cpf, updatedCandidato.email, updatedCandidato.genero, updatedCandidato.telefone, id]
     );
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Candidato não encontrado' });
-    res.json({ id, nome, cpf, email, genero, telefone });
+
+    res.json({ id: parseInt(id, 10), ...updatedCandidato });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erro ao atualizar candidato' });
   }
 };
