@@ -17,6 +17,7 @@ export default function CadastroVaga() {
   const [novoBeneficio, setNovoBeneficio] = useState("");
   const [removendo, setRemovendo] = useState([]);
   const [showHorario, setShowHorario] = useState({ inicio: false, fim: false });
+  const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
 
   const todosBeneficiosPreDefinidos = [
     "Vale-refeição",
@@ -42,7 +43,6 @@ export default function CadastroVaga() {
     }
   };
 
-  // Fade-out: adiciona o benefício ao array "removendo", depois remove do estado
   const handleRemoveBeneficio = (b) => {
     setRemovendo((prev) => [...prev, b]);
     setTimeout(() => {
@@ -51,7 +51,7 @@ export default function CadastroVaga() {
         beneficios: form.beneficios.filter((item) => item !== b),
       });
       setRemovendo((prev) => prev.filter((item) => item !== b));
-    }, 300); // 300ms = duração da animação
+    }, 300);
   };
 
   const handleSubmit = (e) => {
@@ -75,6 +75,7 @@ export default function CadastroVaga() {
     <div className="cadastro-vaga-container">
       <h2>Cadastro da Vaga</h2>
       <form onSubmit={handleSubmit} className="form-vaga">
+        {/* Nome da vaga */}
         <label htmlFor="nome">Nome da vaga</label>
         <input
           id="nome"
@@ -86,9 +87,20 @@ export default function CadastroVaga() {
           required
         />
 
-        <div className="form-row">
-          <div>
-            <label>Benefícios</label>
+        {/* Botão mostrar/ocultar benefícios */}
+        <div className="form-group">
+          <button
+            type="button"
+            className="beneficios-toggle-btn"
+            onClick={() => setMostrarBeneficios(!mostrarBeneficios)}
+          >
+            {mostrarBeneficios ? "Ocultar Benefícios" : "Mostrar Benefícios"}
+          </button>
+        </div>
+
+        {/* Seção de benefícios */}
+        {mostrarBeneficios && (
+          <div className="beneficios-container">
             <div className="beneficios-box">
               {form.beneficios.map((b) => (
                 <div
@@ -120,6 +132,7 @@ export default function CadastroVaga() {
                 }}
               />
             </div>
+
             <div className="beneficios-predefinidos">
               {beneficiosPreDefinidos.map((b) => (
                 <button
@@ -133,33 +146,40 @@ export default function CadastroVaga() {
               ))}
             </div>
           </div>
+        )}
 
-          <div>
-            <label htmlFor="salario">Salário</label>
-            <input
-              id="salario"
-              type="number"
-              name="salario"
-              placeholder="Ex: 3500.00"
-              step="0.01"
-              value={form.salario}
-              onChange={(e) => setForm({ ...form, salario: e.target.value })}
-              required
-            />
-          </div>
-        </div>
+        {/* Salário */}
+        <label htmlFor="salario">Salário</label>
+        <input
+          id="salario"
+          type="number"
+          name="salario"
+          placeholder="Ex: 3500.00"
+          step="0.01"
+          value={form.salario}
+          onChange={(e) => setForm({ ...form, salario: e.target.value })}
+          required
+        />
 
+        {/* Escala e horários */}
         <div className="form-row">
           <div>
             <label htmlFor="escala">Escala de trabalho</label>
-            <input
+            <select
               id="escala"
-              type="text"
               name="escala"
-              placeholder="Ex: 6x1"
               value={form.escala}
               onChange={(e) => setForm({ ...form, escala: e.target.value })}
-            />
+              className="input-select"
+              required
+            >
+              <option value="">Selecione a escala</option>
+              <option value="6x1">6x1</option>
+              <option value="5x2">5x2</option>
+              <option value="12x36">12x36</option>
+              <option value="4x2">4x2</option>
+              <option value="Escala Rotativa">Escala Rotativa</option>
+            </select>
           </div>
 
           <div className="form-row">
@@ -231,6 +251,7 @@ export default function CadastroVaga() {
           </div>
         </div>
 
+        {/* Datas */}
         <div className="form-row">
           <div>
             <label htmlFor="dataInicial">Data inicial</label>
@@ -258,6 +279,7 @@ export default function CadastroVaga() {
           </div>
         </div>
 
+        {/* Descrição */}
         <label htmlFor="descricao">Descrição da vaga</label>
         <textarea
           id="descricao"
@@ -268,6 +290,7 @@ export default function CadastroVaga() {
           rows="5"
         />
 
+        {/* Ações */}
         <div className="form-actions">
           <button type="submit" className="btn-cadastroVaga">Cadastrar</button>
           <button type="button" onClick={handleCancel} className="btn-cancel">

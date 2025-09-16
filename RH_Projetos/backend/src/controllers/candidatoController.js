@@ -1,4 +1,5 @@
-const pool = require('../config/db');
+const path = require('path');
+const pool = require(path.resolve(__dirname, '../config/db'));
 const bcrypt = require('bcrypt');
 
 // CREATE
