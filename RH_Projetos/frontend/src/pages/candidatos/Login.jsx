@@ -1,17 +1,9 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import "./Login.css";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom";
-=======
-import React, { useState } from "react";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
-import "./Login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../../AuthContext'; 
->>>>>>> 8a2209e6e8d18bb22bb3e35183675a0e5b1df1ca
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,54 +14,10 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-    React.useEffect(() => {
-        document.documentElement.lang = "pt-br"; // Define o idioma para português do Brasil
-    }, []);
+  React.useEffect(() => {
+      document.documentElement.lang = "pt-br"; // Define o idioma para português do Brasil
+  }, []);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("CPF:", cpf);
-        console.log("Senha:", senha);
-        // Adicione aqui a lógica de autenticação
-        if (cpf === "" || senha === "") {
-            alert("Insira um CPF e uma senha válidos");
-        }// Exemplo simples de validação
-
-    };
-
-    return (
-        <div className="login-container">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="cpf">CPF:</label>
-                    <Input
-                        type="text"
-                        id="cpf"
-                        value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
-                        placeholder="Digite seu CPF"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="senha">Senha:</label>
-                    <Input
-                        type={"password"}
-                        id="senha"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="Digite sua senha"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <Link to="/cadastro" id="linkLogin">Não tem uma conta? Clique aqui</Link>
-                </div>
-                <Button type="submit" className="login-btn">Entrar</Button>
-            </form>
-=======
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -122,7 +70,6 @@ const Login = () => {
             onChange={handleChange}
             required
           />
->>>>>>> 8a2209e6e8d18bb22bb3e35183675a0e5b1df1ca
         </div>
         <div className="form-group">
           <label htmlFor="senha">Senha:</label>
