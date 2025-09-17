@@ -42,7 +42,7 @@ exports.getUsuarioById = async (req, res) => {
   }
 };
 
-// UPDATE
+// UPDATE 
 exports.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -76,9 +76,11 @@ exports.updateUsuario = async (req, res) => {
 
     await pool.query(query, queryParams);
 
+    // Retorna o usuário atualizado (sem a senha)
     res.json({ id: parseInt(id, 10), ...updatedUsuario });
+
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao atualizar usuário:", err);
     res.status(500).json({ error: 'Erro ao atualizar usuário' });
   }
 };

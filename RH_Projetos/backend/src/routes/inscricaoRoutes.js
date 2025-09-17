@@ -4,7 +4,6 @@ const path = require('path');
 const db = require(path.resolve(__dirname, '../config/db'));
 
 // Rota para um usuário se candidatar a uma vaga
-// A requisição agora deve enviar os IDs no corpo (body)
 router.post('/', async (req, res) => {
     const { usuario_id, vaga_id } = req.body;
     try {
@@ -27,7 +26,6 @@ router.get('/usuario/:usuario_id', async (req, res) => {
             'SELECT v.titulo, v.area, v.salario, c.status, c.data_inscricao FROM candidaturas AS c INNER JOIN vagas AS v ON c.vaga_id = v.id WHERE c.usuario_id = ?',
             [usuario_id]
         );
-        // É uma boa prática retornar um array vazio se não houver resultados
         res.status(200).json(rows);
     } catch (error) {
         console.error('Erro ao buscar candidaturas do usuário:', error);

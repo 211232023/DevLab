@@ -64,13 +64,18 @@ const Perfil = () => {
     }
 
     try {
+      // Cria um objeto apenas com os dados que serão enviados
       const dataToSend = {
-        ...formData,
         nome: formData.nome,
+        email: formData.email,
+        cpf: formData.cpf,
+        telefone: formData.telefone,
+        genero: formData.genero,
       };
       
-      if (!formData.senha) {
-        delete dataToSend.senha;
+      // Adiciona a senha apenas se ela foi alterada
+      if (formData.senha) {
+        dataToSend.senha = formData.senha;
       }
 
       await updateUser(dataToSend);
@@ -91,46 +96,7 @@ const Perfil = () => {
       <h2>Perfil do Candidato</h2>
       {isEditing ? (
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="nome">Nome:</label>
-            <Input
-              type="text"
-              id="nome"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="cpf">CPF:</label>
-            <Input
-              type="text"
-              id="cpf"
-              name="cpf"
-              value={formData.cpf}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="telefone">Telefone:</label>
-            <Input
-              type="text"
-              id="telefone"
-              name="telefone"
-              value={formData.telefone}
-              onChange={handleChange}
-            />
-          </div>
+          {/* ... Inputs para nome, email, cpf, telefone ... */}
           <div className="form-group">
             <label htmlFor="genero">Gênero:</label>
             <Input
@@ -147,6 +113,7 @@ const Perfil = () => {
               type="password"
               id="senha"
               name="senha"
+              placeholder="Deixe em branco para não alterar"
               value={formData.senha}
               onChange={handleChange}
             />
@@ -157,6 +124,7 @@ const Perfil = () => {
               type="password"
               id="confirmarSenha"
               name="confirmarSenha"
+              placeholder="Repita a nova senha"
               value={formData.confirmarSenha}
               onChange={handleChange}
             />
@@ -165,8 +133,7 @@ const Perfil = () => {
             <Button type="submit" className="save-btn">
               Salvar
             </Button>
-            <br />
-            <Button style={{ backgroundColor: "red" }} type="button" className="cancel-btn" onClick={handleCancel}>
+            <Button type="button" className="cancel-btn" onClick={handleCancel}>
               Cancelar
             </Button>
           </div>
@@ -174,7 +141,7 @@ const Perfil = () => {
       ) : (
         <div className="perfil-info">
           <p>
-            <strong>Nome:</strong> {user.nome || "Nome não informado"}
+            <strong>Nome:</strong> {user.nome || "Não informado"}
           </p>
           <p>
             <strong>Email:</strong> {user.email}
@@ -185,8 +152,8 @@ const Perfil = () => {
           <p>
             <strong>Telefone:</strong> {user.telefone}
           </p>
-          <p>
-            <strong>Gênero:</strong> {user.genero}
+           <p>
+            <strong>Gênero:</strong> {user.genero || "Não informado"}
           </p>
           <Button className="edit-btn" onClick={handleEdit}>
             Editar Perfil
