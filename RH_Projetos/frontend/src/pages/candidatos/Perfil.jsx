@@ -13,10 +13,12 @@ const Perfil = () => {
     cpf: "",
     telefone: "",
     genero: "",
+    tipo: "", // Adicionado o campo tipo
     senha: "",
     confirmarSenha: "",
   });
 
+  // Popula o formulário com os dados do usuário quando o componente carrega
   useEffect(() => {
     if (user) {
       setFormData({
@@ -25,6 +27,7 @@ const Perfil = () => {
         cpf: user.cpf || "",
         telefone: user.telefone || "",
         genero: user.genero || "",
+        tipo: user.tipo || "Candidato", // Adicionado
         senha: "",
         confirmarSenha: "",
       });
@@ -35,19 +38,24 @@ const Perfil = () => {
     setIsEditing(true);
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    if (user) {
+  const resetForm = () => {
+     if (user) {
       setFormData({
         nome: user.nome || "",
         email: user.email || "",
         cpf: user.cpf || "",
         telefone: user.telefone || "",
         genero: user.genero || "",
+        tipo: user.tipo || "Candidato", // Adicionado
         senha: "",
         confirmarSenha: "",
       });
     }
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    resetForm();
   };
 
   const handleChange = (e) => {
@@ -64,13 +72,14 @@ const Perfil = () => {
     }
 
     try {
-      // Cria um objeto apenas com os dados que serão enviados
+      // Objeto com todos os dados que podem ser atualizados
       const dataToSend = {
         nome: formData.nome,
         email: formData.email,
         cpf: formData.cpf,
         telefone: formData.telefone,
         genero: formData.genero,
+        tipo: formData.tipo, // Adicionado
       };
       
       // Adiciona a senha apenas se ela foi alterada
@@ -93,71 +102,56 @@ const Perfil = () => {
 
   return (
     <div className="perfil-container">
-      <h2>Perfil do Candidato</h2>
+      <h2>Perfil do Usuário</h2>
       {isEditing ? (
         <form onSubmit={handleSubmit}>
-          {/* ... Inputs para nome, email, cpf, telefone ... */}
+          {/* CAMPOS ADICIONADOS */}
           <div className="form-group">
-            <label htmlFor="genero">Gênero:</label>
-            <Input
-              type="text"
-              id="genero"
-              name="genero"
-              value={formData.genero}
-              onChange={handleChange}
-            />
+            <label htmlFor="nome">Nome Completo:</label>
+            <Input type="text" id="nome" name="nome" value={formData.nome} onChange={handleChange} />
           </div>
           <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <Input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="cpf">CPF:</label>
+            <Input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="telefone">Telefone:</label>
+            <Input type="text" id="telefone" name="telefone" value={formData.telefone} onChange={handleChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="genero">Gênero:</label>
+            <select id="genero" name="genero" value={formData.genero} onChange={handleChange} className="input-select">
+              <option value="">Selecione</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+              <option value="Outro">Outro</option>
+            </select>
+          {/* CAMPOS DE SENHA */}
+          <div className="form-group">
             <label htmlFor="senha">Nova Senha:</label>
-            <Input
-              type="password"
-              id="senha"
-              name="senha"
-              placeholder="Deixe em branco para não alterar"
-              value={formData.senha}
-              onChange={handleChange}
-            />
+            <Input type="password" id="senha" name="senha" placeholder="Deixe em branco para não alterar" value={formData.senha} onChange={handleChange} />
           </div>
           <div className="form-group">
             <label htmlFor="confirmarSenha">Confirmar Nova Senha:</label>
-            <Input
-              type="password"
-              id="confirmarSenha"
-              name="confirmarSenha"
-              placeholder="Repita a nova senha"
-              value={formData.confirmarSenha}
-              onChange={handleChange}
-            />
+            <Input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Repita a nova senha" value={formData.confirmarSenha} onChange={handleChange} />
           </div>
           <div className="btn-group">
-            <Button type="submit" className="save-btn">
-              Salvar
-            </Button>
-            <Button type="button" className="cancel-btn" onClick={handleCancel}>
-              Cancelar
-            </Button>
+            <Button type="submit" className="save-btn">Salvar</Button>
+            <Button type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button>
           </div>
         </form>
       ) : (
         <div className="perfil-info">
-          <p>
-            <strong>Nome:</strong> {user.nome || "Não informado"}
-          </p>
-          <p>
-            <strong>Email:</strong> {user.email}
-          </p>
-          <p>
-            <strong>CPF:</strong> {user.cpf}
-          </p>
-          <p>
-            <strong>Telefone:</strong> {user.telefone}
-          </p>
-           <p>
-            <strong>Gênero:</strong> {user.genero || "Não informado"}
-          </p>
-          <Button className="edit-btn" onClick={handleEdit}>
-            Editar Perfil
-          </Button>
+          <p><strong>Nome:</strong> {user.nome || "Não informado"}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>CPF:</strong> {user.cpf}</p>
+          <p><strong>Telefone:</strong> {user.telefone}</p>
+          <p><strong>Gênero:</strong> {user.genero || "Não informado"}</p>
+          <Button className="edit-btn" onClick={handleEdit}>Editar Perfil</Button>
         </div>
       )}
     </div>

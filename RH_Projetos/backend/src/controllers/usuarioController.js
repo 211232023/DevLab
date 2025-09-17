@@ -46,7 +46,8 @@ exports.getUsuarioById = async (req, res) => {
 exports.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, cpf, email, genero, telefone, senha } = req.body;
+    // Adicionado "tipo" para ser extraído do corpo da requisição
+    const { nome, cpf, email, genero, telefone, senha, tipo } = req.body;
 
     const [usuarioRows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
     if (usuarioRows.length === 0) {
@@ -60,10 +61,19 @@ exports.updateUsuario = async (req, res) => {
       email: email !== undefined ? email : usuario.email,
       genero: genero !== undefined ? genero : usuario.genero,
       telefone: telefone !== undefined ? telefone : usuario.telefone,
+      tipo: tipo !== undefined ? tipo : usuario.tipo, // Adicionado
     };
 
-    let query = 'UPDATE usuarios SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ?';
-    const queryParams = [updatedUsuario.nome, updatedUsuario.cpf, updatedUsuario.email, updatedUsuario.genero, updatedUsuario.telefone];
+    // Query e parâmetros atualizados para incluir o campo "tipo"
+    let query = 'UPDATE usuarios SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ?, tipo = ?';
+    const queryParams = [
+        updatedUsuario.nome, 
+        updatedUsuario.cpf, 
+        updatedUsuario.email, 
+        updatedUsuario.genero, 
+        updatedUsuario.telefone, 
+        updatedUsuario.tipo
+    ];
 
     if (senha) {
       const hashedPassword = await bcrypt.hash(senha, 10);
@@ -95,5 +105,43 @@ exports.deleteUsuario = async (req, res) => {
     res.json({ message: 'Usuário removido com sucesso' });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao remover usuário' });
+  }
+};
+
+// CREATE e outros métodos não mostrados para brevidade, devem permanecer como estavam.
+exports.createUsuario = async (req, res) => {
+  try {
+    const { nome, cpf, email, telefone, genero, senha, tipo } = req.body;
+    
+    const hashedPassword = await bcrypt.hash(senha, 10);
+
+    const [result] = await pool.query(
+      'INSERT INTO usuarios (nome, cpf, email, telefone, genero, senha, tipo, data_cadastro) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      [nome, cpf, email, telefone, genero, hashedPassword, tipo]
+    );
+    res.status(201).json({ id: result.insertId, nome, cpf, email, telefone, genero, tipo });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+  }
+};
+
+exports.getAllUsuarios = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM usuarios');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar usuários' });
+  }
+};
+
+exports.getUsuarioById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar usuário' });
   }
 };

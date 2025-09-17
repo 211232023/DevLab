@@ -30,13 +30,6 @@ const createDatabaseAndTables = async () => {
                 senha VARCHAR(255) NOT NULL,
                 data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );`,
-            `CREATE TABLE IF NOT EXISTS rh (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(100) NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL,
-                senha VARCHAR(255) NOT NULL,
-                data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );`,
             `CREATE TABLE IF NOT EXISTS vagas (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 rh_id INT NOT NULL,

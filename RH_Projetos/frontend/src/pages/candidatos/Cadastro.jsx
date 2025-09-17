@@ -40,13 +40,13 @@ const Cadastro = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/register", {
+      const response = await fetch("http://localhost:3001/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nome: form.nomeCompleto,
+          nome: form.nomeCompleto, // CORRIGIDO: de nomeCompleto para nome
           cpf: form.cpf,
           email: form.email,
           telefone: form.telefone,
