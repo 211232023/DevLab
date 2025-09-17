@@ -5,11 +5,10 @@ import Button from "../../components/Button";
 export default function CadastroVaga() {
   const [form, setForm] = useState({
     nome: "",
+    area: "",
     beneficios: [],
     salario: "",
     escala: "",
-    horaInicio: "",
-    horaFim: "",
     dataInicial: "",
     dataLimite: "",
     descricao: "",
@@ -17,7 +16,6 @@ export default function CadastroVaga() {
 
   const [novoBeneficio, setNovoBeneficio] = useState("");
   const [removendo, setRemovendo] = useState([]);
-  const [showHorario, setShowHorario] = useState({ inicio: false, fim: false });
   const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
 
   const todosBeneficiosPreDefinidos = [
@@ -65,13 +63,6 @@ export default function CadastroVaga() {
     window.history.back();
   };
 
-  const horarios = Array.from({ length: 24 }, (_, h) =>
-    Array.from({ length: 12 }, (_, i) => {
-      const minutos = String(i * 5).padStart(2, "0");
-      return `${String(h).padStart(2, "0")}:${minutos}`;
-    })
-  ).flat();
-
   return (
     <div className="cadastro-vaga-container">
       <h2>Cadastro da Vaga</h2>
@@ -87,6 +78,24 @@ export default function CadastroVaga() {
           onChange={(e) => setForm({ ...form, nome: e.target.value })}
           required
         />
+
+        {/* Área da vaga */}
+        <label htmlFor="area">Área</label>
+        <select
+          id="area"
+          name="area"
+          value={form.area}
+          onChange={(e) => setForm({ ...form, area: e.target.value })}
+          required
+        >
+          <option value="">Selecione a área</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Engenharia">Engenharia</option>
+          <option value="Ciências Humanas e Sociais">Ciências Humanas e Sociais</option>
+          <option value="Gestão e Negócios">Gestão e Negócios</option>
+          <option value="Artes e Design">Artes e Design</option>
+        </select>
 
         {/* Botão mostrar/ocultar benefícios */}
         <div className="form-group">
@@ -162,100 +171,22 @@ export default function CadastroVaga() {
           required
         />
 
-        {/* Escala e horários */}
-        <div className="form-row">
-          <div>
-            <label htmlFor="escala">Escala de trabalho</label>
-            <select
-              id="escala"
-              name="escala"
-              value={form.escala}
-              onChange={(e) => setForm({ ...form, escala: e.target.value })}
-              className="input-select"
-              required
-            >
-              <option value="">Selecione a escala</option>
-              <option value="6x1">6x1</option>
-              <option value="5x2">5x2</option>
-              <option value="12x36">12x36</option>
-              <option value="4x2">4x2</option>
-              <option value="Escala Rotativa">Escala Rotativa</option>
-            </select>
-          </div>
-
-          <div className="form-row">
-            <div className="horario-wrapper">
-              <label htmlFor="horaInicio">Horário de início</label>
-              <input
-                id="horaInicio"
-                type="time"
-                name="horaInicio"
-                value={form.horaInicio}
-                onChange={(e) =>
-                  setForm({ ...form, horaInicio: e.target.value })
-                }
-                onFocus={() => setShowHorario({ ...showHorario, inicio: true })}
-                onBlur={() =>
-                  setTimeout(
-                    () => setShowHorario({ ...showHorario, inicio: false }),
-                    200
-                  )
-                }
-                required
-              />
-              {showHorario.inicio && (
-                <div className="horario-scroll">
-                  {horarios.map((hora) => (
-                    <div
-                      key={hora}
-                      className="horario-opcao"
-                      onClick={() => setForm({ ...form, horaInicio: hora })}
-                    >
-                      {hora}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="horario-wrapper">
-              <label htmlFor="horaFim">Horário de término</label>
-              <input
-                id="horaFim"
-                type="time"
-                name="horaFim"
-                value={form.horaFim}
-                onChange={(e) => setForm({ ...form, horaFim: e.target.value })}
-                onFocus={() => setShowHorario({ ...showHorario, fim: true })}
-                onBlur={() =>
-                  setTimeout(
-                    () => setShowHorario({ ...showHorario, fim: false }),
-                    200
-                  )
-                }
-                required
-              />
-              {showHorario.fim && (
-                <div className="horario-scroll">
-                  {horarios.map((hora) => (
-                    <div
-                      key={hora}
-                      className="horario-opcao"
-                      onClick={() => setForm({ ...form, horaFim: hora })}
-                    >
-                      {hora}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* Escala como texto */}
+        <label htmlFor="escala">Escala de trabalho</label>
+        <input
+          id="escala"
+          type="text"
+          name="escala"
+          placeholder="Ex: 6x1, 5x2, 12x36..."
+          value={form.escala}
+          onChange={(e) => setForm({ ...form, escala: e.target.value })}
+          required
+        />
 
         {/* Datas */}
         <div className="form-row">
           <div>
-            <label htmlFor="dataInicial">Data inicial</label>
+            <label htmlFor="dataInicial">Data de Abertura</label>
             <input
               id="dataInicial"
               type="date"
@@ -268,7 +199,7 @@ export default function CadastroVaga() {
             />
           </div>
           <div>
-            <label htmlFor="dataLimite">Data limite</label>
+            <label htmlFor="dataLimite">Data de Fechamento</label>
             <input
               id="dataLimite"
               type="date"

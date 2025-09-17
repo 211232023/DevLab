@@ -282,3 +282,29 @@ textarea {
   border-radius: 10px;
   font-size: 16px;
 }
+
+.form-vaga label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-vaga input,
+.form-vaga textarea,
+.form-vaga select {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border 0.9s, box-shadow 0.9s;
+}
+
+.form-vaga input:focus,
+.form-vaga textarea:focus,
+.form-vaga select:focus {
+  border-color: #138496;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
