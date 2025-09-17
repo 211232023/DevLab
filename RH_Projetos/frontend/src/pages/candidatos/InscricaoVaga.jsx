@@ -1,148 +1,183 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../../AuthContext";
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import "./InscricaoVaga.css";
 import Button from "../../components/Button";
+import Input from "../../components/Input";
+
+const perguntasVaga = [
+    {
+        id: 1,
+        pergunta: "Você tem algum parente trabalhando na empresa?",
+        tipo: "textarea",
+    },
+    {
+        id: 2,
+        pergunta: "Você possui experiência na área?",
+        tipo: "select",
+        opcoes: ["Sim", "Não"],
+    },
+    {
+        id: 3,
+        pergunta: "Qual sua disponibilidade de horário?",
+        tipo: "textarea",
+    },
+];
 
 const InscricaoVaga = () => {
-  const { vagaId } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+    const { vagaId } = useParams();
+    const [form, setForm] = useState({
+        nome: "",
+        cpf: "",
+        email: "",
+        genero: "",
+        cep: "",
+        bairro: "",
+        endereco: "",
+        complemento: "",
+        curriculo: null,
+    });
+    const [etapa, setEtapa] = useState(1);
+    const [respostas, setRespostas] = useState({});
+    const [inscricaoEnviada, setInscricaoEnviada] = useState(false);
 
-  const [vaga, setVaga] = useState(null);
-  const [endereco, setEndereco] = useState({
-    cep: "",
-    logradouro: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
-    cidade: "",
-    estado: "",
-  });
-  const [curriculo, setCurriculo] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchVaga = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/api/vagas/${vagaId}`);
-        setVaga(response.data);
-      } catch (err) {
-        setError("Não foi possível carregar os detalhes da vaga.");
-        console.error(err);
-      }
-    };
-    fetchVaga();
-  }, [vagaId]);
-
-  const handleCepChange = async (e) => {
-    const cep = e.target.value.replace(/\D/g, "");
-    setEndereco((prev) => ({ ...prev, cep }));
-
-    if (cep.length === 8) {
-      try {
-        const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
-        const { logradouro, bairro, localidade, uf } = response.data;
-        setEndereco((prev) => ({
-          ...prev,
-          logradouro,
-          bairro,
-          cidade: localidade,
-          estado: uf,
+    const handleChange = (e) => {
+        const { name, value, files } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: files ? files[0] : value,
         }));
-      } catch (err) {
-        console.error("Erro ao buscar CEP:", err);
-      }
-    }
-  };
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEndereco((prev) => ({ ...prev, [name]: value }));
-  };
+    const handlePerguntaChange = (e) => {
+        const { name, value } = e.target;
+        setRespostas((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
-  const handleFileChange = (e) => {
-    setCurriculo(e.target.files[0]);
-  };
+    const handleSubmitForm = (e) => {
+        e.preventDefault();
+        setEtapa(2);
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) {
-      alert("Você precisa estar logado para se candidatar.");
-      return;
-    }
-    if (!curriculo) {
-        alert("Por favor, anexe seu currículo.");
-        return;
-    }
+    const handleSubmitPerguntas = (e) => {
+        e.preventDefault();
+        setInscricaoEnviada(true);
 
-    setIsLoading(true);
+        // Aqui você pode enviar os dados do formulário e das perguntas
+    };
 
-    // **NOTA:** Aqui você precisará implementar a lógica para salvar
-    // o endereço no perfil do usuário e fazer o upload do currículo.
-    // Por enquanto, vamos focar em criar a candidatura.
-
-    try {
-      await axios.post(`http://localhost:3001/api/candidaturas/vagas/${vagaId}`, {
-        candidato_id: user.id,
-      });
-
-      alert("Inscrição realizada com sucesso!");
-      navigate("/minhas-candidaturas");
-    } catch (err) {
-      if (err.response && err.response.status === 409) {
-        alert("Você já se candidatou para esta vaga.");
-      } else {
-        alert("Ocorreu um erro ao realizar a inscrição.");
-      }
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (error) return <div className="inscricao-container"><p>{error}</p></div>;
-  if (!vaga) return <div className="inscricao-container"><p>Carregando vaga...</p></div>;
-
-  return (
-    <div className="inscricao-container">
-      <h1>Inscrição para a Vaga</h1>
-      <div className="vaga-info-card">
-        <h2>{vaga.titulo}</h2>
-        <p><strong>Área:</strong> {vaga.area}</p>
-        <p><strong>Salário:</strong> R$ {parseFloat(vaga.salario).toFixed(2)}</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="inscricao-form">
-        <h3>Complete seus dados</h3>
-        <p>Olá, {user?.nome}! Para continuar, preencha as informações abaixo.</p>
-
-        <fieldset>
-          <legend>Endereço</legend>
-          <input type="text" name="cep" placeholder="CEP" value={endereco.cep} onChange={handleCepChange} maxLength="9" required />
-          <input type="text" name="logradouro" placeholder="Logradouro" value={endereco.logradouro} onChange={handleInputChange} required />
-          <input type="text" name="numero" placeholder="Número" value={endereco.numero} onChange={handleInputChange} required />
-          <input type="text" name="complemento" placeholder="Complemento (Opcional)" value={endereco.complemento} onChange={handleInputChange} />
-          <input type="text" name="bairro" placeholder="Bairro" value={endereco.bairro} onChange={handleInputChange} required />
-          <input type="text" name="cidade" placeholder="Cidade" value={endereco.cidade} onChange={handleInputChange} required />
-          <input type="text" name="estado" placeholder="Estado" value={endereco.estado} onChange={handleInputChange} required />
-        </fieldset>
-        
-        <fieldset>
-            <legend>Currículo</legend>
-            <label htmlFor="curriculo">Anexe seu currículo (PDF, DOC, DOCX):</label>
-            <input id="curriculo" type="file" name="curriculo" onChange={handleFileChange} accept=".pdf,.doc,.docx" required />
-        </fieldset>
-
-        <div className="form-actions">
-          <Button type="submit" disabled={isLoading}>{isLoading ? "Enviando..." : "Confirmar Inscrição"}</Button>
-          <Button type="button" className="btn-cancel" onClick={() => navigate("/")}>Cancelar</Button>
+    return (
+        <div className={etapa === 1 ? "inscricao-vaga-container" : "inscricao-vaga-container etapa2"}>
+            {etapa === 1 && (
+                <>
+                    <h2>Inscreva-se na Vaga</h2>
+                    <form className="inscricao-form" onSubmit={handleSubmitForm}>
+                        <div className="form-colunas">
+                            <div className="form-col">
+                                <label>
+                                    Nome Completo:
+                                    <Input type="text" name="nome" value={form.nome} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Email:
+                                    <Input type="email" name="email" value={form.email} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Gênero:
+                                    <select name="genero" value={form.genero} onChange={handleChange} required>
+                                        <option value="">Selecione</option>
+                                        <option value="masculino">Masculino</option>
+                                        <option value="feminino">Feminino</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </label>
+                                <label>
+                                    Bairro:
+                                    <Input type="text" name="bairro" value={form.bairro} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Complemento:
+                                    <Input type="text" name="complemento" value={form.complemento} onChange={handleChange} />
+                                </label>
+                            </div>
+                            <div className="form-col">
+                                <label>
+                                    CPF:
+                                    <Input type="text" name="cpf" value={form.cpf} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Telefone:
+                                    <Input type="text" name="telefone" value={form.telefone || ""} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    CEP:
+                                    <Input type="text" name="cep" value={form.cep} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Endereço:
+                                    <Input type="text" name="endereco" value={form.endereco} onChange={handleChange} required />
+                                </label>
+                                <label>
+                                    Currículo (PDF):
+                                    <Input type="file" name="curriculo" accept=".pdf" onChange={handleChange} required />
+                                </label>
+                            </div>
+                        </div>
+                        <Button type="submit" className="btn-enviar">Continuar</Button>
+                    </form>
+                </>
+            )}
+            {etapa === 2 && !inscricaoEnviada && (
+                <>
+                    <h2>Perguntas sobre a vaga</h2>
+                    <form className="inscricao-form" onSubmit={handleSubmitPerguntas}>
+                        {perguntasVaga.map((p) => (
+                            <label key={p.id}>
+                                {p.pergunta}
+                                {p.tipo === "text" ? (
+                                    <textarea
+                                        name={`pergunta_${p.id}`}
+                                        value={respostas[`pergunta_${p.id}`] || ""}
+                                        onChange={handlePerguntaChange}
+                                        required
+                                    />
+                                ) : p.tipo === "select" ? (
+                                    <select
+                                        name={`pergunta_${p.id}`}
+                                        value={respostas[`pergunta_${p.id}`] || ""}
+                                        onChange={handlePerguntaChange}
+                                        required
+                                    >
+                                        <option value="">Selecione</option>
+                                        {p.opcoes.map((op) => (
+                                            <option key={op} value={op}>{op}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <Input
+                                        type="text"
+                                        name={`pergunta_${p.id}`}
+                                        value={respostas[`pergunta_${p.id}`] || ""}
+                                        onChange={handlePerguntaChange}
+                                        required
+                                    />
+                                )}
+                            </label>
+                        ))}
+                        <Button type="submit" className="btn-enviar" >Enviar Inscrição</Button>
+                    </form>
+                </>
+            )}
+            {etapa === 2 && inscricaoEnviada && (
+                <div style={{ textAlign: "center", padding: "40px 0" }}>
+                    <h2>Inscrição enviada com sucesso!</h2>
+                    <Link to="/inicio" className="btn-enviar" style={{ textDecoration: "none" }}>Voltar para a tela inicial</Link>
+                </div>
+            )}
         </div>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default InscricaoVaga;

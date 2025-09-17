@@ -1,72 +1,114 @@
-.inscricao-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.inscricao-container h1 {
-  text-align: center;
-  color: #333;
-}
-
-.vaga-info-card {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border: 1px solid #eee;
-}
-
-.vaga-info-card h2 {
-  margin-top: 0;
-  color: #007bff;
-}
-
-.inscricao-form h3, .inscricao-form p {
-  text-align: center;
-}
-
-.inscricao-form fieldset {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.inscricao-form legend {
-  padding: 0 10px;
-  font-weight: bold;
-  color: #555;
-}
-
-.inscricao-form input[type="text"],
-.inscricao-form input[type="file"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.inscricao-form input[type="file"] {
-    padding: 5px;
-}
-
-.form-actions {
+.inscricao-vaga-main-container {
   display: flex;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  margin-top: 50px;
+  padding: 0 16px;
+}
+
+h2 {
+  margin: 10px;
+}
+
+.inscricao-vaga-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 40px;
+}
+
+.inscricao-vaga-info {
+  flex: 1;
+  background: #f5f7fa;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 40px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
 }
 
-.btn-cancel {
-  background-color: #dc3545 !important;
+.inscricao-form .form-colunas {
+  display: flex;
+  gap: 32px;
 }
 
-.btn-cancel:hover {
-  background-color: #c82333 !important;
+.form-col {
+  flex: 1;
+}
+
+.inscricao-form label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.inscricao-form input,
+.inscricao-form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.btn-enviar {
+  background: #127067;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 16px;
+  margin: 0 auto;
+}
+
+.btn-enviar:hover {
+  background: #179387;
+}
+
+.inscricao-vaga-container {
+  max-width: 70%;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 40px;
+  transition: max-width 0.3s, padding 0.3s;
+}
+
+.inscricao-vaga-container.etapa2 {
+  max-width: 500px;
+  padding: 32px;
+}
+
+/* Responsivo para telas menores */
+@media (max-width: 900px) {
+  .inscricao-vaga-main-container {
+    flex-direction: column;
+    gap: 24px;
+    max-width: 600px;
+    margin-top: 24px;
+  }
+  .inscricao-vaga-container,
+  .inscricao-vaga-info {
+    padding: 24px;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 700px) {
+  .inscricao-form .form-colunas {
+    flex-direction: column;
+    gap: 0;
+  }
+  .inscricao-vaga-container {
+    padding: 24px;
+  }
 }

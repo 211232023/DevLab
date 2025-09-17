@@ -4,7 +4,7 @@
   align-items: center;
   gap: 25px;
   padding: 25px;
-  background-color: #e6ebf2;
+  background-color: #f0f2f5;
 }
 
 /* O contêiner principal da vaga agora usa flex-direction: column */
