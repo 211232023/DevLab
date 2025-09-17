@@ -148,8 +148,8 @@ const Perfil = () => {
             <Input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Repita a nova senha" value={formData.confirmarSenha} onChange={handleChange} />
           </div>
           <div className="btn-group">
-            <Button type="submit" className="save-btn">Salvar</Button>
-            <Button type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button>
+            <button type="submit" className="save-btn">Salvar</button>
+            <button type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</button>
           </div>
         </form>
       ) : (
@@ -159,7 +159,7 @@ const Perfil = () => {
           <p><strong>CPF:</strong> {user.cpf}</p>
           <p><strong>Telefone:</strong> {user.telefone}</p>
           <p><strong>Gênero:</strong> {user.genero || "Não informado"}</p>
-          <Button className="edit-btn" onClick={handleEdit}>Editar Perfil</Button>
+          <button className="edit-btn" onClick={handleEdit}>Editar Perfil</button>
         </div>
       )}
     </div>

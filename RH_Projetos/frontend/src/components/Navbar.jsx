@@ -27,7 +27,6 @@ const Navbar = () => {
       return (
         <>
           <Link to="/inicio" className="nav-link">Vagas</Link>
-          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
           <Link to="/perfil" className="nav-link">Perfil</Link>
           <Link to="/dashboard-rh" className="nav-link">Dashboard</Link>
           <Link to="/cadastro-vaga" className="nav-link">Cadastrar Vaga</Link>
