@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = async (userData) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/usuarios/${user.id}`, { // Rota atualizada
+      const response = await fetch(`http://localhost:3001/api/usuarios/${user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -32,14 +32,23 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(userData),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data);
-        localStorage.setItem('user', JSON.stringify(data));
-      } else {
-        throw new Error(data.error || 'Erro ao atualizar o usuário.');
+      if (!response.ok) {
+        // Se a resposta não for OK, vamos tentar ler como texto para ver o erro
+        const errorText = await response.text();
+        try {
+            // Tenta interpretar como JSON para pegar a mensagem de erro específica
+            const errorJson = JSON.parse(errorText);
+            throw new Error(errorJson.error || 'Erro ao atualizar o usuário.');
+        } catch (e) {
+            // Se não for JSON, provavelmente é um erro de servidor (HTML)
+            console.error("Erro do servidor:", errorText);
+            throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
+        }
       }
+
+      const data = await response.json();
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
     } catch (error) {
       console.error('Erro na requisição de atualização:', error);
       throw error;
