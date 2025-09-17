@@ -67,7 +67,7 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-logo">DevLab</Link>
+      <Link to="/" className="navbar-logo"><img src="/logo2.png" className='logoNavbar'/></Link>
       <div className="navbar-links">
         {renderLinks()}
       </div>
