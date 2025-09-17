@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useAuth } from "../../AuthContext"; // Importa o hook para autenticação
+import axios from "axios"; // Para fazer a requisição à API
+import { useAuth } from "../../AuthContext"; // Para obter o ID do usuário de RH
 import "./CadastroVaga.css";
 import Button from "../../components/Button";
-import Navbar from "../../components/Navbar"; // Adicionado para consistência da página
+import Navbar from "../../components/Navbar"; // Adicionado para manter o layout da página
 
 export default function CadastroVaga() {
-  const { user } = useAuth(); // Pega o usuário logado do contexto
+  // Hook para obter informações do usuário logado
+  const { user } = useAuth();
 
+  // Estado do formulário, mantido como você definiu
   const [form, setForm] = useState({
     nome: "",
     area: "",
@@ -51,17 +53,21 @@ export default function CadastroVaga() {
     }, 300);
   };
 
-  // Função que envia os dados para o backend
+  /**
+   * Função executada ao submeter o formulário.
+   * Ela monta o objeto de dados e o envia para o backend.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Valida se o usuário de RH está logado
     if (!user || !user.id) {
-      alert("Erro de autenticação. Por favor, faça o login novamente.");
+      alert("Usuário não autenticado. Por favor, faça login novamente.");
       return;
     }
 
-    // Mapeia os dados do formulário para a estrutura da tabela do banco
-    const vagaData = {
+    // Mapeia os dados do estado 'form' para o padrão da tabela do banco de dados
+    const vagaDataParaAPI = {
       rh_id: user.id,
       titulo: form.nome,
       area: form.area,
@@ -70,24 +76,27 @@ export default function CadastroVaga() {
       data_Abertura: form.dataInicial,
       data_fechamento: form.dataLimite,
       escala_trabalho: form.escala,
-      // Converte o array de benefícios em uma string separada por vírgulas
-      beneficios: form.beneficios.join(', '), 
+      // O backend espera uma string, então unimos o array de benefícios
+      beneficios: form.beneficios.join(', '),
     };
 
     try {
-      // Envia os dados para a API - ajuste a URL se necessário
-      const response = await axios.post("http://localhost:3001/vagas", vagaData);
-      console.log("Vaga cadastrada:", response.data);
+      // Faz a requisição POST para a API
+      const response = await axios.post("http://localhost:3001/vagas", vagaDataParaAPI);
+      
+      console.log("Vaga cadastrada com sucesso:", response.data);
       alert("Vaga cadastrada com sucesso!");
-      // Opcional: Limpar o formulário após o envio
+      
+      // Limpa o formulário após o cadastro
       setForm({
         nome: "", area: "", beneficios: [], salario: "", escala: "",
         dataInicial: "", dataLimite: "", descricao: "",
       });
+      setMostrarBeneficios(false);
 
     } catch (error) {
       console.error("Erro ao cadastrar vaga:", error.response ? error.response.data : error.message);
-      alert("Falha ao cadastrar a vaga. Verifique o console para detalhes.");
+      alert("Falha ao cadastrar a vaga. Verifique os dados e tente novamente.");
     }
   };
 
@@ -103,14 +112,20 @@ export default function CadastroVaga() {
         <form onSubmit={handleSubmit} className="form-vaga">
           <label htmlFor="nome">Nome da vaga</label>
           <input
-            id="nome" type="text" name="nome" placeholder="Ex: Desenvolvedor Frontend"
-            value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })}
+            id="nome"
+            type="text"
+            name="nome"
+            placeholder="Ex: Desenvolvedor Frontend"
+            value={form.nome}
+            onChange={(e) => setForm({ ...form, nome: e.target.value })}
             required
           />
 
           <label htmlFor="area">Área</label>
           <select
-            id="area" name="area" value={form.area}
+            id="area"
+            name="area"
+            value={form.area}
             onChange={(e) => setForm({ ...form, area: e.target.value })}
             required
           >
@@ -125,7 +140,8 @@ export default function CadastroVaga() {
 
           <div className="form-group">
             <button
-              type="button" className="beneficios-toggle-btn"
+              type="button"
+              className="beneficios-toggle-btn"
               onClick={() => setMostrarBeneficios(!mostrarBeneficios)}
             >
               {mostrarBeneficios ? "Ocultar Benefícios" : "Adicionar Benefícios"}
@@ -144,14 +160,19 @@ export default function CadastroVaga() {
                     style={{ animationDuration: "0.3s" }}
                   >
                     {b}
-                    <span className="remove-tag" onClick={() => handleRemoveBeneficio(b)}>
+                    <span
+                      className="remove-tag"
+                      onClick={() => handleRemoveBeneficio(b)}
+                    >
                       ✕
                     </span>
                   </div>
                 ))}
                 <input
-                  type="text" placeholder="Digite um benefício..."
-                  value={novoBeneficio} onChange={(e) => setNovoBeneficio(e.target.value)}
+                  type="text"
+                  placeholder="Digite um benefício..."
+                  value={novoBeneficio}
+                  onChange={(e) => setNovoBeneficio(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -160,10 +181,13 @@ export default function CadastroVaga() {
                   }}
                 />
               </div>
+
               <div className="beneficios-predefinidos">
                 {beneficiosPreDefinidos.map((b) => (
                   <button
-                    type="button" key={b} className="btn-beneficio-pre fade-in"
+                    type="button"
+                    key={b}
+                    className="btn-beneficio-pre fade-in"
                     onClick={() => handleAddBeneficio(b)}
                   >
                     {b}
@@ -175,15 +199,22 @@ export default function CadastroVaga() {
 
           <label htmlFor="salario">Salário</label>
           <input
-            id="salario" type="number" name="salario" placeholder="Ex: 3500.00"
-            step="0.01" value={form.salario}
+            id="salario"
+            type="number"
+            name="salario"
+            placeholder="Ex: 3500.00"
+            step="0.01"
+            value={form.salario}
             onChange={(e) => setForm({ ...form, salario: e.target.value })}
             required
           />
 
           <label htmlFor="escala">Escala de trabalho</label>
           <input
-            id="escala" type="text" name="escala" placeholder="Ex: 6x1, 5x2, 12x36..."
+            id="escala"
+            type="text"
+            name="escala"
+            placeholder="Ex: 6x1, 5x2, 12x36..."
             value={form.escala}
             onChange={(e) => setForm({ ...form, escala: e.target.value })}
             required
@@ -193,7 +224,9 @@ export default function CadastroVaga() {
             <div>
               <label htmlFor="dataInicial">Data de Abertura</label>
               <input
-                id="dataInicial" type="date" name="dataInicial"
+                id="dataInicial"
+                type="date"
+                name="dataInicial"
                 value={form.dataInicial}
                 onChange={(e) =>
                   setForm({ ...form, dataInicial: e.target.value })
@@ -204,7 +237,9 @@ export default function CadastroVaga() {
             <div>
               <label htmlFor="dataLimite">Data de Fechamento</label>
               <input
-                id="dataLimite" type="date" name="dataLimite"
+                id="dataLimite"
+                type="date"
+                name="dataLimite"
                 value={form.dataLimite}
                 onChange={(e) => setForm({ ...form, dataLimite: e.target.value })}
                 required
@@ -214,7 +249,8 @@ export default function CadastroVaga() {
 
           <label htmlFor="descricao">Descrição da vaga</label>
           <textarea
-            id="descricao" name="descricao"
+            id="descricao"
+            name="descricao"
             placeholder="Descreva as responsabilidades, requisitos e diferenciais..."
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
@@ -223,10 +259,14 @@ export default function CadastroVaga() {
           />
 
           <div className="form-actions">
-            <Button type="submit" className="btn-cadastroVaga">Cadastrar</Button>
+            <Button type="submit" className="btn-cadastroVaga">
+              Cadastrar
+            </Button>
             <Button
               style={{ backgroundColor: "red" }}
-              type="button" onClick={handleCancel} className="btn-cancel"
+              type="button"
+              onClick={handleCancel}
+              className="btn-cancel"
             >
               Cancelar
             </Button>

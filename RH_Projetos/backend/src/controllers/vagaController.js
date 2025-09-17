@@ -1,8 +1,10 @@
 const db = require('../config/db');
 
-// Criar uma nova vaga
+/**
+ * Cria uma nova vaga a partir dos dados enviados pelo frontend.
+ */
 exports.createVaga = (req, res) => {
-    // Extrai os dados do corpo da requisição, que agora correspondem à tabela
+    // Extrai os campos do corpo da requisição
     const { 
         rh_id, 
         titulo, 
@@ -20,6 +22,7 @@ exports.createVaga = (req, res) => {
         return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
     }
 
+    // Query SQL para inserir a nova vaga na tabela
     const query = `
         INSERT INTO vagas (
             rh_id, 
@@ -34,6 +37,7 @@ exports.createVaga = (req, res) => {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
+    // Array com os valores para a query
     const values = [
         rh_id,
         titulo,
@@ -43,19 +47,22 @@ exports.createVaga = (req, res) => {
         data_Abertura,
         data_fechamento,
         escala_trabalho,
-        beneficios // O valor de 'beneficios' já vem como string do frontend
+        beneficios, // O benefício já chega como uma string formatada
     ];
 
+    // Executa a query no banco de dados
     db.query(query, values, (err, result) => {
         if (err) {
-            console.error('Erro ao criar vaga:', err);
+            console.error('Erro ao criar vaga no banco de dados:', err);
             return res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
         }
         res.status(201).json({ message: 'Vaga criada com sucesso!', vagaId: result.insertId });
     });
 };
 
-// Obter todas as vagas (mantido para referência)
+/**
+ * Obtém todas as vagas cadastradas.
+ */
 exports.getAllVagas = (req, res) => {
     const query = 'SELECT * FROM vagas';
     db.query(query, (err, results) => {
@@ -67,4 +74,4 @@ exports.getAllVagas = (req, res) => {
     });
 };
 
-// ... (outras funções do seu controller podem continuar aqui)
+// Se houver outras funções no seu controller, elas permanecerão aqui.
