@@ -1,20 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const usuarioController = require('../controllers/usuarioController');
+const vagaController = require('../controllers/vagaController');
 
-// Rota para criar um novo usuário (POST /api/usuarios)
-router.post('/', usuarioController.createUsuario);
+// Rota para listar todas as vagas
+// GET /api/vagas
+router.get('/', vagaController.listarVagas);
 
-// Rota para buscar todos os usuários (GET /api/usuarios)
-router.get('/', usuarioController.getAllUsuarios);
+// Rota para cadastrar uma nova vaga
+// POST /api/vagas
+router.post('/', vagaController.cadastrarVaga);
 
-// Rota para buscar um usuário pelo ID (GET /api/usuarios/:id)
-router.get('/:id', usuarioController.getUsuarioById);
-
-// Rota para ATUALIZAR um usuário (PUT /api/usuarios/:id) - A rota que faltava!
-router.put('/:id', usuarioController.updateUsuario);
-
-// Rota para deletar um usuário (DELETE /api/usuarios/:id)
-router.delete('/:id', usuarioController.deleteUsuario);
+// Rota para obter uma vaga específica por ID
+// GET /api/vagas/1 (ou qualquer outro ID)
+router.get('/:id', vagaController.getVagaPorId);
 
 module.exports = router;

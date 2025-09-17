@@ -1,7 +1,8 @@
 const db = require('../config/db');
 
-// --- FUNÇÃO DE CRIAR VAGA ATUALIZADA ---
-exports.createVaga = async (req, res) => {
+// 1. Defina todas as suas funções como constantes (const)
+
+const createVaga = async (req, res) => {
     const { 
         rh_id, titulo, area, salario, descricao, 
         data_Abertura, data_fechamento, escala_trabalho, beneficios 
@@ -23,45 +24,31 @@ exports.createVaga = async (req, res) => {
         data_Abertura, data_fechamento, escala_trabalho, beneficios
     ];
 
-    let connection;
     try {
-        // Pega uma conexão do pool
-        connection = await db.getConnection(); 
-        const [result] = await connection.query(query, values);
+        const [result] = await db.query(query, values);
         res.status(201).json({ message: 'Vaga criada com sucesso!', vagaId: result.insertId });
     } catch (err) {
         console.error('Erro ao criar vaga:', err);
         res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
-    } finally {
-        // Libera a conexão de volta para o pool, estando ela com erro ou não
-        if (connection) connection.release(); 
     }
 };
 
-// --- DEMAIS FUNÇÕES ATUALIZADAS PARA USAR ASYNC/AWAIT ---
-
-exports.getAllVagas = async (req, res) => {
+const getAllVagas = async (req, res) => {
     const query = 'SELECT * FROM vagas';
-    let connection;
     try {
-        connection = await db.getConnection();
-        const [results] = await connection.query(query);
+        const [results] = await db.query(query);
         res.json(results);
     } catch (err) {
         console.error('Erro ao obter vagas:', err);
         res.status(500).send('Erro ao obter vagas');
-    } finally {
-        if (connection) connection.release();
     }
 };
 
-exports.getVagaById = async (req, res) => {
+const getVagaById = async (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM vagas WHERE id = ?';
-    let connection;
     try {
-        connection = await db.getConnection();
-        const [results] = await connection.query(query, [id]);
+        const [results] = await db.query(query, [id]);
         if (results.length === 0) {
             return res.status(404).send('Vaga não encontrada');
         }
@@ -69,12 +56,10 @@ exports.getVagaById = async (req, res) => {
     } catch (err) {
         console.error('Erro ao obter vaga:', err);
         res.status(500).send('Erro ao obter vaga');
-    } finally {
-        if (connection) connection.release();
     }
 };
 
-exports.updateVaga = async (req, res) => {
+const updateVaga = async (req, res) => {
     const { id } = req.params;
     const { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios } = req.body;
     const query = `
@@ -84,10 +69,8 @@ exports.updateVaga = async (req, res) => {
     `;
     const values = [titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, id];
 
-    let connection;
     try {
-        connection = await db.getConnection();
-        const [result] = await connection.query(query, values);
+        const [result] = await db.query(query, values);
         if (result.affectedRows === 0) {
             return res.status(404).send('Vaga não encontrada para atualização');
         }
@@ -95,18 +78,14 @@ exports.updateVaga = async (req, res) => {
     } catch (err) {
         console.error('Erro ao atualizar vaga:', err);
         res.status(500).send('Erro ao atualizar vaga');
-    } finally {
-        if (connection) connection.release();
     }
 };
 
-exports.deleteVaga = async (req, res) => {
+const deleteVaga = async (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM vagas WHERE id = ?';
-    let connection;
     try {
-        connection = await db.getConnection();
-        const [result] = await connection.query(query, [id]);
+        const [result] = await db.query(query, [id]);
         if (result.affectedRows === 0) {
             return res.status(404).send('Vaga não encontrada para deletar');
         }
@@ -114,7 +93,14 @@ exports.deleteVaga = async (req, res) => {
     } catch (err) {
         console.error('Erro ao deletar vaga:', err);
         res.status(500).send('Erro ao deletar vaga');
-    } finally {
-        if (connection) connection.release();
     }
+};
+
+// 2. Exporte todas as funções em um único objeto no final do arquivo
+module.exports = {
+    createVaga,
+    getAllVagas,
+    getVagaById,
+    updateVaga,
+    deleteVaga
 };
