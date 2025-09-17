@@ -139,8 +139,6 @@ const Perfil = () => {
           <div className="btn-group">
             <button type="submit" className="save-btn">Salvar</button>
             <button type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</button>
-            <Button type="submit" className="save-btn">Salvar</Button>
-            <Button style={{backgroundColor:"red"}} type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button>
           </div>
         </form>
       ) : (
