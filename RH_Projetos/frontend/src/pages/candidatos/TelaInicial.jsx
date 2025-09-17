@@ -1,164 +1,112 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./TelaInicial.css";
 import { useNavigate } from "react-router-dom";
-
-const vagas = [
-  {
-    id: 1,
-    nome: "Desenvolvedor Frontend",
-    descricao:
-      "Estamos em busca de uma pessoa desenvolvedora frontend apaixonada por tecnologia e com olhar apurado para a experiência do usuário. A pessoa será responsável por desenvolver interfaces modernas, responsivas e performáticas, colaborando com times de produto, design e backend.",
-    responsabilidades: [
-      "Desenvolver e manter interfaces web responsivas e acessíveis",
-      "Trabalhar em conjunto com designers e backend para implementar funcionalidades",
-      "Garantir a performance e usabilidade das aplicações",
-      "Participar de code reviews e colaborar com boas práticas de desenvolvimento",
-      "Acompanhar tendências e propor melhorias técnicas",
-    ],
-    beneficios: "Vale Transporte, Vale Refeição",
-    horario: "09:00 - 18:00",
-    salario: "R$ 5.000,00",
-    requisitos: {
-      obrigatorios: [
-        "Experiência com HTML, CSS, JavaScript",
-        "Domínio em frameworks modernos (React, Vue ou Angular)",
-        "Consumo de APIs RESTful",
-        "Versionamento com Git",
-        "Conhecimento em boas práticas de UX/UI",
-      ],
-      diferenciais: [
-        "Experiência com TypeScript",
-        "Conhecimento em testes automatizados (Jest, Testing Library)",
-        "Experiência com ferramentas como Webpack, Vite, etc.",
-        "Familiaridade com metodologias ágeis (Scrum, Kanban)",
-      ],
-    },
-  },
-  {
-    id: 2,
-    nome: "Analista de Dados",
-    descricao:
-      "Procuramos uma pessoa analista de dados com perfil analítico e foco em resolução de problemas. Você atuará em conjunto com times de produto, marketing e tecnologia para transformar dados em insights acionáveis, apoiando decisões estratégicas com base em análises e visualizações de dados.",
-    responsabilidades: [
-      "Coletar, organizar e analisar grandes volumes de dados",
-      "Criar relatórios e dashboards para suporte à tomada de decisão",
-      "Garantir a integridade e qualidade dos dados",
-      "Colaborar com equipes de produto e tecnologia para implementar soluções baseadas em dados",
-    ],
-    beneficios: "Plano de Saúde, Vale Alimentação",
-    horario: "08:00 - 17:00",
-    salario: "R$ 6.500,00",
-    requisitos: {
-      obrigatorios: [
-        "Experiência com SQL e Python",
-        "Conhecimento em ferramentas de BI (Power BI, Tableau)",
-        "Habilidade em análise de dados e criação de relatórios",
-        "Familiaridade com bancos de dados relacionais",
-      ],
-      diferenciais: [
-        "Experiência com Big Data e ferramentas como Hadoop ou Spark",
-        "Conhecimento em Machine Learning",
-        "Certificação em análise de dados ou BI",
-        "Experiência com metodologias ágeis",
-      ],
-    },
-  },
-];
+import axios from "axios";
+import Button from "../../components/Button";
 
 const candidatarVaga = (vaga) => {
-  // Recupera vagas já candidatas
   const candidaturas = JSON.parse(localStorage.getItem("candidaturas")) || [];
-  // Evita duplicidade
   if (!candidaturas.find((v) => v.id === vaga.id)) {
     candidaturas.push(vaga);
     localStorage.setItem("candidaturas", JSON.stringify(candidaturas));
-    alert("Preencha seus dados!");
   } else {
-    alert("Você já se candidatou a esta vaga.");
+
   }
 };
 
 const TelaInicial = () => {
-  const [expandido, setExpandido] = useState(null); // Estado para controlar qual box está expandida
+  const [vagas, setVagas] = useState([]);
+  const [expandido, setExpandido] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchVagas = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/vagas");
+        setVagas(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar vagas:", error);
+      }
+    };
+    fetchVagas();
+  }, []);
+
   const toggleExpandir = (id) => {
-    setExpandido(expandido === id ? null : id); // Alterna entre expandir e recolher
+    setExpandido(expandido === id ? null : id);
   };
 
   return (
     <div className="tela-inicial">
       {vagas.map((vaga) => (
-        <div
-          key={vaga.id}
-          className={`vaga-box ${expandido === vaga.id ? "expandido" : ""}`}
-        >
-          <div className="vaga-esquerda">
-            <h2>{vaga.nome}</h2>
-            <p>
-              <strong>Descrição da vaga:</strong>
-            </p>
-            <p>{vaga.descricao}</p>
-            {expandido === vaga.id && (
-              <>
-                <p>
-                  <strong>Responsabilidades:</strong>
-                </p>
-                <ul>
-                  {vaga.responsabilidades.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-          <div className="vaga-direita">
-            {expandido === vaga.id && (
-              <>
-                <p>
-                  <strong>Requisitos obrigatórios:</strong>
-                </p>
-                <ul>
-                  {vaga.requisitos.obrigatorios.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-                <p>
-                  <strong>Diferenciais:</strong>
-                </p>
-                <ul>
-                  {vaga.requisitos.diferenciais.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            <p>
-              <strong>Benefícios:</strong> {vaga.beneficios}
-            </p>
-            <p>
-              <strong>Horário:</strong> {vaga.horario}
-            </p>
-            <p>
-              <strong>Salário:</strong> {vaga.salario}
-            </p>
-            <div className="vaga-botoes">
-              <button
-                className="btn-ver-mais"
-                onClick={() => toggleExpandir(vaga.id)}
-              >
-                {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
-              </button>
-
-              <button
-                className="btn-candidatar"
-                onClick={() => {
-                  candidatarVaga(vaga); // 1ª ação: salva a candidatura
-                  navigate(`/inscricao/${vaga.id}`); // 2ª ação: navega para inscrição
-                }}
-              >
-                Candidatar
-              </button>
+        <div key={vaga.id} className="vaga-box">
+          {/* Conteúdo sempre visível */}
+          <div className="vaga-conteudo">
+            <div className="vaga-esquerda">
+              <p>
+                <h2>{vaga.titulo}</h2>
+              </p>
+              <p>
+                <strong>Área:</strong> {vaga.area}
+              </p>
+               <p>
+                <strong>Salário:</strong> R${" "}
+                {parseFloat(vaga.salario).toFixed(2)}
+              </p>
             </div>
+            <div className="vaga-direita">
+        
+            </div>
+          </div>
+
+          {/* Conteúdo que expande */}
+          <div
+            className={`vaga-detalhes ${
+              expandido === vaga.id ? "expandido" : ""
+            }`}
+          >
+            <div className="vaga-detalhes-conteudo">
+              <p>
+                <strong>Descrição da vaga:</strong>
+              </p>
+              <p style={{ whiteSpace: "pre-wrap" }}>{vaga.descricao}</p>
+              <p>
+                <strong>Benefícios:</strong> {vaga.beneficios}
+              <p>
+                <strong>Escala:</strong> {vaga.escala_trabalho}
+              </p>
+              </p>
+              <div className="datas">
+                <p>
+                  <strong>Abertura:</strong>{" "}
+                  {new Date(vaga.data_Abertura).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Fechamento:</strong>{" "}
+                  {new Date(vaga.data_fechamento).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botões sempre visíveis */}
+          <div className="vaga-botoes-container">
+            <Button
+              style={{backgroundColor:"gray"}}
+              className="btn-ver-mais"
+              onClick={() => toggleExpandir(vaga.id)}
+            >
+              {expandido === vaga.id ? "Ver Menos" : "Ver Mais"}
+            </Button>
+            <Button
+              className="btn-candidatar"
+              onClick={() => {
+                const vagaParaCandidatar = { ...vaga, nome: vaga.titulo };
+                candidatarVaga(vagaParaCandidatar);
+                navigate(`/inscricao/${vaga.id}`);
+              }}
+            >
+              Candidatar
+            </Button>
           </div>
         </div>
       ))}

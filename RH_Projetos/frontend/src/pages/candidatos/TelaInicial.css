@@ -1,130 +1,105 @@
-/* Estilo base */
+.tela-inicial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  padding: 25px;
+  background-color: #f0f2f5;
+}
+
+/* O contêiner principal da vaga agora usa flex-direction: column */
 .vaga-box {
-    display: flex;
-    justify-content: space-between;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 40px;
-    padding: 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-    height: auto; /* Altura ajustável para conteúdo dinâmico */
-    flex-wrap: wrap; /* Permite que os elementos se ajustem em telas menores */
-    width: 50%;
-    margin: 0 auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
+  display: flex;
+  flex-direction: column; /* Organiza os filhos (conteúdo, detalhes, botões) em coluna */
+  width: 80%;
+  max-width: 900px;
+  padding: 40px;
+  border: 1px solid #ddd;
+  border-radius: 40px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Remova a altura e a transição daqui */
+}
+
+/* Container para o conteúdo sempre visível */
+.vaga-conteudo {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .vaga-esquerda {
-    flex: 1;
-    padding-right: 20px;
-    border-right: 1px solid #ddd;
-}
-
-.vaga-esquerda h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.vaga-esquerda p {
-    margin: 10px 0 0;
-    color: #555;
-    text-align: justify;
+  width: 65%;
+  padding-right: 20px;
 }
 
 .vaga-direita {
-    flex: 1;
-    padding-left: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  width: 35%;
+  text-align: right;
 }
 
-.vaga-direita p {
-    margin: 5px 0;
-    color: #555;
+/* --- A MÁGICA ACONTECE AQUI --- */
+/* O container que irá expandir e recolher */
+.vaga-detalhes {
+  max-height: 0; /* Começa recolhido, com altura zero */
+  overflow: hidden; /* Esconde o conteúdo que transborda */
+  transition: max-height 0.5s ease-in-out; /* Anima a mudança de altura */
+  border-top: 1px solid transparent; /* Borda invisível para a transição */
 }
 
-li {
-    margin: 5px 0;
-    color: #555;
+/* Quando expandido, a altura aumenta e a borda aparece */
+.vaga-detalhes.expandido {
+  max-height: 500px; /* Altura máxima para caber o conteúdo. Ajuste se necessário. */
+  border-top: 1px solid #eee;
+  margin-top: 15px; /* Espaçamento entre o conteúdo fixo e o expansível */
+  padding-top: 15px;
 }
 
-.vaga-botoes {
-    display: flex;
-    gap: 10px;
-    margin-top: auto;
-    justify-content: center; /* Centraliza os botões */
+/* Adicionado um padding interno para o conteúdo não ficar colado nas bordas durante a animação */
+.vaga-detalhes-conteudo {
+  padding-bottom: 10px;
+}
+/* --- FIM DA MÁGICA --- */
+
+
+.datas p {
+  margin: 4px 0;
 }
 
-.btn-ver-mais,
-.btn-candidatar {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 1rem;
-    width: 40%
+/* Container dos botões, sempre no final */
+.vaga-botoes-container {
+  display: flex;
+  justify-content: flex-end; /* Alinha os botões à direita */
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #eee; /* Linha separadora acima dos botões */
+  margin-top: 15px;
+}
+
+.btn-ver-mais, .btn-candidatar {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background-color 0.3s;
 }
 
 .btn-ver-mais {
-    background-color: #095bb3;
-    color: #fff;
-    margin-top: 10px;
-}
-
-.btn-candidatar {
-    background-color: #127067;
-    color: #fff;
-    margin-top: 10px;
+  background-color: #f0f0f0;
+  color: #333;
 }
 
 .btn-ver-mais:hover {
-    background-color: #074a91;
+  background-color: #e0e0e0;
+}
+
+.btn-candidatar {
+  background-color: #007bff;
+  color: white;
 }
 
 .btn-candidatar:hover {
-    background-color: #0e5a53;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .vaga-box {
-        flex-direction: column; /* Empilha os elementos em telas menores */
-        padding: 15px;
-        width: 80%;
-    }
-
-    .vaga-esquerda {
-        padding-right: 0;
-        border-right: none;
-        margin-bottom: 15px; /* Espaço entre as seções */
-    }
-
-    .vaga-direita {
-        padding-left: 0;
-    }
-
-    .vaga-botoes {
-        flex-direction: column; /* Empilha os botões em telas menores */
-        gap: 10px;
-    }
-
-    .btn-ver-mais,
-    .btn-candidatar {
-        width: 100%; /* Botões ocupam toda a largura */
-    }
-}
-
-@media (max-width: 480px) {
-    .vaga-esquerda h2 {
-        font-size: 1.2rem; /* Reduz o tamanho do título */
-    }
-
-    .btn-ver-mais,
-    .btn-candidatar {
-        font-size: 0.9rem; /* Reduz o tamanho do texto dos botões */
-    }
+  background-color: #0056b3;
 }

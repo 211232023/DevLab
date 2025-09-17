@@ -148,6 +148,7 @@ const Perfil = () => {
           <p><strong>CPF:</strong> {user.cpf}</p>
           <p><strong>Telefone:</strong> {user.telefone}</p>
           <p><strong>Gênero:</strong> {user.genero || "Não informado"}</p>
+          <br />
           <Button className="edit-btn" onClick={handleEdit}>Editar Perfil</Button>
         </div>
       )}
