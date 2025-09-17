@@ -2,17 +2,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #94b3de;
+  background-color: #127067;
   color: white;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
+.logoNavbar {
+  width: 120px;
 }
 
 .navbar-links {
@@ -45,5 +42,5 @@
 }
 
 .nav-button:hover {
-  background-color: #21a1f1;
+  background-color: #087ac2;
 }
