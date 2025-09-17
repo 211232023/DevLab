@@ -43,7 +43,7 @@
   flex-wrap: wrap;
 }
 
-.form-row > div {
+.form-row>div {
   flex: 1;
   min-width: 200px;
 }
@@ -63,6 +63,19 @@ textarea {
 
 /* Botão Cancelar */
 .btn-cancel {
+  background-color: rgb(252, 186, 186);
+  color: black;
+  font-size: 15px;
+  border: none;
+  font-style: italic;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-cancel:hover {
+  background-color: rgb(253, 67, 67);
   background: linear-gradient(135deg, #ff9a9e, #f6416c);
   color: white;
   font-size: 18px;
@@ -70,8 +83,21 @@ textarea {
   border: none;
   cursor: pointer;
   border-radius: 25px;
-  padding: 6px 18px; /* Menor vertical (6px) */
+  padding: 6px 18px;
+  /* Menor vertical (6px) */
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-cadastroVaga {
+  background-color: #1db3a4;
+  color: white;
+  font-size: 15px;
+  padding: 8px 16px;
+  font-style: italic;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
 .btn-cancel:hover {
@@ -93,11 +119,13 @@ textarea {
   border: none;
   cursor: pointer;
   border-radius: 25px;
-  padding: 6px 18px; /* Menor vertical (6px) */
+  padding: 6px 18px;
+  /* Menor vertical (6px) */
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .btn-cadastroVaga:hover {
+  background-color: #27e3d0;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 176, 155, 0.4);
 }
@@ -142,6 +170,7 @@ textarea {
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -210,6 +239,7 @@ textarea {
 .horario-opcao:hover {
   background: #f0f0f0;
 }
+
 /* Fade-out ao remover tag */
 .fade-out {
   animation: fadeOut 0.3s forwards;
@@ -220,15 +250,18 @@ textarea {
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.8);
   }
 }
+
 .beneficios-toggle-btn {
   width: 100%;
   padding: 10px;
-  background-color: #179387; /* cor diferente do botão de cadastro */
+  background-color: #179387;
+  /* cor diferente do botão de cadastro */
   color: white;
   border: none;
   border-radius: 4px;
