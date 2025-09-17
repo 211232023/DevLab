@@ -1,15 +1,20 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useAuth } from "../../AuthContext";
 import "./CadastroVaga.css";
 import Button from "../../components/Button";
 
+// A Navbar foi removida daqui, pois já é renderizada pelo AppRoutes.jsx
+
 export default function CadastroVaga() {
+  const { user } = useAuth();
+
   const [form, setForm] = useState({
     nome: "",
+    area: "",
     beneficios: [],
     salario: "",
     escala: "",
-    horaInicio: "",
-    horaFim: "",
     dataInicial: "",
     dataLimite: "",
     descricao: "",
@@ -17,20 +22,12 @@ export default function CadastroVaga() {
 
   const [novoBeneficio, setNovoBeneficio] = useState("");
   const [removendo, setRemovendo] = useState([]);
-  const [showHorario, setShowHorario] = useState({ inicio: false, fim: false });
   const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
 
   const todosBeneficiosPreDefinidos = [
-    "Vale-refeição",
-    "Vale-transporte",
-    "Plano de saúde",
-    "Seguro de vida",
-    "Home office",
-    "Auxílio creche",
-    "Bônus anual",
-    "Participação nos lucros",
-    "Estacionamento",
-    "Assistência odontológica",
+    "Vale-refeição", "Vale-transporte", "Plano de saúde", "Seguro de vida",
+    "Home office", "Auxílio creche", "Bônus anual", "Participação nos lucros",
+    "Estacionamento", "Assistência odontológica",
   ];
 
   const beneficiosPreDefinidos = todosBeneficiosPreDefinidos.filter(
@@ -55,76 +52,103 @@ export default function CadastroVaga() {
     }, 300);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Dados da vaga:", form);
-    alert("Vaga cadastrada com sucesso!");
+
+    if (!user || !user.id) {
+      alert("Erro de autenticação. Por favor, faça o login novamente.");
+      return;
+    }
+
+    const vagaDataParaAPI = {
+      rh_id: user.id,
+      titulo: form.nome,
+      area: form.area,
+      salario: parseFloat(form.salario),
+      descricao: form.descricao,
+      data_Abertura: form.dataInicial,
+      data_fechamento: form.dataLimite,
+      escala_trabalho: form.escala,
+      beneficios: form.beneficios.join(', '),
+    };
+
+    try {
+      const response = await axios.post("http://localhost:3001/vagas", vagaDataParaAPI);
+
+      console.log("Vaga cadastrada:", response.data);
+      alert("Vaga cadastrada com sucesso!");
+
+      setForm({
+        nome: "", area: "", beneficios: [], salario: "", escala: "",
+        dataInicial: "", dataLimite: "", descricao: "",
+      });
+      setMostrarBeneficios(false);
+
+    } catch (error) {
+      console.error("Erro ao cadastrar vaga:", error.response ? error.response.data : error.message);
+      alert("Falha ao cadastrar a vaga. Verifique o console para detalhes.");
+    }
   };
 
   const handleCancel = () => {
     window.history.back();
   };
 
-  const horarios = Array.from({ length: 24 }, (_, h) =>
-    Array.from({ length: 12 }, (_, i) => {
-      const minutos = String(i * 5).padStart(2, "0");
-      return `${String(h).padStart(2, "0")}:${minutos}`;
-    })
-  ).flat();
-
   return (
+    // O <Navbar /> foi removido do topo deste return
     <div className="cadastro-vaga-container">
       <h2>Cadastro da Vaga</h2>
       <form onSubmit={handleSubmit} className="form-vaga">
-        {/* Nome da vaga */}
         <label htmlFor="nome">Nome da vaga</label>
         <input
-          id="nome"
-          type="text"
-          name="nome"
-          placeholder="Ex: Desenvolvedor Frontend"
-          value={form.nome}
-          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          id="nome" type="text" name="nome" placeholder="Ex: Desenvolvedor Frontend"
+          value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })}
           required
         />
 
-        {/* Botão mostrar/ocultar benefícios */}
+        <label htmlFor="area">Área</label>
+        <select
+          id="area" name="area" value={form.area}
+          onChange={(e) => setForm({ ...form, area: e.target.value })}
+          required
+        >
+          <option value="">Selecione a área</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Engenharia">Engenharia</option>
+          <option value="Ciências Humanas e Sociais">Ciências Humanas e Sociais</option>
+          <option value="Gestão e Negócios">Gestão e Negócios</option>
+          <option value="Artes e Design">Artes e Design</option>
+        </select>
+
         <div className="form-group">
           <button
-            type="button"
-            className="beneficios-toggle-btn"
+            type="button" className="beneficios-toggle-btn"
             onClick={() => setMostrarBeneficios(!mostrarBeneficios)}
           >
-            {mostrarBeneficios ? "Ocultar Benefícios" : "Mostrar Benefícios"}
+            {mostrarBeneficios ? "Ocultar Benefícios" : "Adicionar Benefícios"}
           </button>
         </div>
 
-        {/* Seção de benefícios */}
         {mostrarBeneficios && (
           <div className="beneficios-container">
             <div className="beneficios-box">
               {form.beneficios.map((b) => (
                 <div
                   key={b}
-                  className={`beneficio-tag fade-in ${
-                    removendo.includes(b) ? "fade-out" : ""
-                  }`}
+                  className={`beneficio-tag fade-in ${removendo.includes(b) ? "fade-out" : ""
+                    }`}
                   style={{ animationDuration: "0.3s" }}
                 >
                   {b}
-                  <span
-                    className="remove-tag"
-                    onClick={() => handleRemoveBeneficio(b)}
-                  >
+                  <span className="remove-tag" onClick={() => handleRemoveBeneficio(b)}>
                     ✕
                   </span>
                 </div>
               ))}
               <input
-                type="text"
-                placeholder="Digite um benefício..."
-                value={novoBeneficio}
-                onChange={(e) => setNovoBeneficio(e.target.value)}
+                type="text" placeholder="Digite um benefício..."
+                value={novoBeneficio} onChange={(e) => setNovoBeneficio(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -133,13 +157,10 @@ export default function CadastroVaga() {
                 }}
               />
             </div>
-
             <div className="beneficios-predefinidos">
               {beneficiosPreDefinidos.map((b) => (
                 <button
-                  type="button"
-                  key={b}
-                  className="btn-beneficio-pre fade-in"
+                  type="button" key={b} className="btn-beneficio-pre fade-in"
                   onClick={() => handleAddBeneficio(b)}
                 >
                   {b}
@@ -149,117 +170,27 @@ export default function CadastroVaga() {
           </div>
         )}
 
-        {/* Salário */}
         <label htmlFor="salario">Salário</label>
         <input
-          id="salario"
-          type="number"
-          name="salario"
-          placeholder="Ex: 3500.00"
-          step="0.01"
-          value={form.salario}
+          id="salario" type="number" name="salario" placeholder="Ex: 3500.00"
+          step="0.01" value={form.salario}
           onChange={(e) => setForm({ ...form, salario: e.target.value })}
           required
         />
 
-        {/* Escala e horários */}
+        <label htmlFor="escala">Escala de trabalho</label>
+        <input
+          id="escala" type="text" name="escala" placeholder="Ex: 6x1, 5x2, 12x36..."
+          value={form.escala}
+          onChange={(e) => setForm({ ...form, escala: e.target.value })}
+          required
+        />
+
         <div className="form-row">
           <div>
-            <label htmlFor="escala">Escala de trabalho</label>
-            <select
-              id="escala"
-              name="escala"
-              value={form.escala}
-              onChange={(e) => setForm({ ...form, escala: e.target.value })}
-              className="input-select"
-              required
-            >
-              <option value="">Selecione a escala</option>
-              <option value="6x1">6x1</option>
-              <option value="5x2">5x2</option>
-              <option value="12x36">12x36</option>
-              <option value="4x2">4x2</option>
-              <option value="Escala Rotativa">Escala Rotativa</option>
-            </select>
-          </div>
-
-          <div className="form-row">
-            <div className="horario-wrapper">
-              <label htmlFor="horaInicio">Horário de início</label>
-              <input
-                id="horaInicio"
-                type="time"
-                name="horaInicio"
-                value={form.horaInicio}
-                onChange={(e) =>
-                  setForm({ ...form, horaInicio: e.target.value })
-                }
-                onFocus={() => setShowHorario({ ...showHorario, inicio: true })}
-                onBlur={() =>
-                  setTimeout(
-                    () => setShowHorario({ ...showHorario, inicio: false }),
-                    200
-                  )
-                }
-                required
-              />
-              {showHorario.inicio && (
-                <div className="horario-scroll">
-                  {horarios.map((hora) => (
-                    <div
-                      key={hora}
-                      className="horario-opcao"
-                      onClick={() => setForm({ ...form, horaInicio: hora })}
-                    >
-                      {hora}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="horario-wrapper">
-              <label htmlFor="horaFim">Horário de término</label>
-              <input
-                id="horaFim"
-                type="time"
-                name="horaFim"
-                value={form.horaFim}
-                onChange={(e) => setForm({ ...form, horaFim: e.target.value })}
-                onFocus={() => setShowHorario({ ...showHorario, fim: true })}
-                onBlur={() =>
-                  setTimeout(
-                    () => setShowHorario({ ...showHorario, fim: false }),
-                    200
-                  )
-                }
-                required
-              />
-              {showHorario.fim && (
-                <div className="horario-scroll">
-                  {horarios.map((hora) => (
-                    <div
-                      key={hora}
-                      className="horario-opcao"
-                      onClick={() => setForm({ ...form, horaFim: hora })}
-                    >
-                      {hora}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Datas */}
-        <div className="form-row">
-          <div>
-            <label htmlFor="dataInicial">Data inicial</label>
+            <label htmlFor="dataInicial">Data de Abertura</label>
             <input
-              id="dataInicial"
-              type="date"
-              name="dataInicial"
+              id="dataInicial" type="date" name="dataInicial"
               value={form.dataInicial}
               onChange={(e) =>
                 setForm({ ...form, dataInicial: e.target.value })
@@ -268,11 +199,9 @@ export default function CadastroVaga() {
             />
           </div>
           <div>
-            <label htmlFor="dataLimite">Data limite</label>
+            <label htmlFor="dataLimite">Data de Fechamento</label>
             <input
-              id="dataLimite"
-              type="date"
-              name="dataLimite"
+              id="dataLimite" type="date" name="dataLimite"
               value={form.dataLimite}
               onChange={(e) => setForm({ ...form, dataLimite: e.target.value })}
               required
@@ -280,26 +209,29 @@ export default function CadastroVaga() {
           </div>
         </div>
 
-        {/* Descrição */}
         <label htmlFor="descricao">Descrição da vaga</label>
         <textarea
-          id="descricao"
-          name="descricao"
+          id="descricao" name="descricao"
           placeholder="Descreva as responsabilidades, requisitos e diferenciais..."
           value={form.descricao}
           onChange={(e) => setForm({ ...form, descricao: e.target.value })}
           rows="5"
+          required
         />
 
-        {/* Ações */}
         <div className="form-actions">
           <button type="submit" className="btn-cadastroVaga">
             Cadastrar
           </button>
-          <button
+          <button>
             type="button"
             onClick={handleCancel}
             className="btn-cancel"
+          </button>
+          <button type="submit" className="btn-cadastroVaga">Cadastrar</button>
+          <button
+            style={{ backgroundColor: "red" }}
+            type="button" onClick={handleCancel} className="btn-cancel"
           >
             Cancelar
           </button>

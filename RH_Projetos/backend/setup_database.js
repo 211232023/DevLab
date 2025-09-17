@@ -22,7 +22,7 @@ const createDatabaseAndTables = async () => {
 
         // Comandos SQL para criar as tabelas
         const createTablesSql = [
-            `CREATE TABLE IF NOT EXISTS candidatos (
+            `CREATE TABLE IF NOT EXISTS usuarios (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 nome VARCHAR(100) NOT NULL,
                 cpf CHAR(11) UNIQUE NOT NULL,

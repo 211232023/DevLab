@@ -13,7 +13,6 @@ const Perfil = () => {
     cpf: "",
     telefone: "",
     genero: "",
-    tipo: "", // Adicionado o campo tipo
     senha: "",
     confirmarSenha: "",
   });
@@ -27,7 +26,6 @@ const Perfil = () => {
         cpf: user.cpf || "",
         telefone: user.telefone || "",
         genero: user.genero || "",
-        tipo: user.tipo || "Candidato", // Adicionado
         senha: "",
         confirmarSenha: "",
       });
@@ -46,7 +44,6 @@ const Perfil = () => {
         cpf: user.cpf || "",
         telefone: user.telefone || "",
         genero: user.genero || "",
-        tipo: user.tipo || "Candidato", // Adicionado
         senha: "",
         confirmarSenha: "",
       });
@@ -79,7 +76,6 @@ const Perfil = () => {
         cpf: formData.cpf,
         telefone: formData.telefone,
         genero: formData.genero,
-        tipo: formData.tipo, // Adicionado
       };
       
       // Adiciona a senha apenas se ela foi alterada
@@ -131,13 +127,6 @@ const Perfil = () => {
               <option value="Outro">Outro</option>
             </select>
           </div>
-           <div className="form-group">
-            <label htmlFor="tipo">Tipo de Usuário:</label>
-            <select id="tipo" name="tipo" value={formData.tipo} onChange={handleChange} className="input-select">
-              <option value="Candidato">Candidato</option>
-              <option value="RH">Recursos Humanos</option>
-            </select>
-          </div>
           {/* CAMPOS DE SENHA */}
           <div className="form-group">
             <label htmlFor="senha">Nova Senha:</label>
@@ -150,6 +139,8 @@ const Perfil = () => {
           <div className="btn-group">
             <button type="submit" className="save-btn">Salvar</button>
             <button type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</button>
+            <Button type="submit" className="save-btn">Salvar</Button>
+            <Button style={{backgroundColor:"red"}} type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button>
           </div>
         </form>
       ) : (
