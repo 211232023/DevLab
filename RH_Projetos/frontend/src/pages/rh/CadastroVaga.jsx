@@ -220,12 +220,12 @@ export default function CadastroVaga() {
         />
 
         <div className="form-actions">
-          <button type="submit" className="btn-cadastroVaga">Cadastrar</button>
-          <button
+          <Button type="submit" className="btn-cadastroVaga">Cadastrar</Button>
+          <Button style={{backgroundColor:"red"}}
             type="button" onClick={handleCancel} className="btn-cancel"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
       </form>
     </div>
