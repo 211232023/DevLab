@@ -176,6 +176,16 @@ textarea {
   position: relative;
   flex: 1;
 }
+/* Linha de horários */
+.form-row.horarios {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.horario-wrapper {
+  flex: 1;
+}
 
 .horario-scroll {
   position: absolute;
