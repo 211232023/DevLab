@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
-// Criar uma nova vaga
-exports.createVaga = (req, res) => {
+// --- FUNÇÃO DE CRIAR VAGA ATUALIZADA ---
+exports.createVaga = async (req, res) => {
     const { 
         rh_id, titulo, area, salario, descricao, 
         data_Abertura, data_fechamento, escala_trabalho, beneficios 
@@ -23,45 +23,58 @@ exports.createVaga = (req, res) => {
         data_Abertura, data_fechamento, escala_trabalho, beneficios
     ];
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            console.error('Erro ao criar vaga:', err);
-            return res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
-        }
+    let connection;
+    try {
+        // Pega uma conexão do pool
+        connection = await db.getConnection(); 
+        const [result] = await connection.query(query, values);
         res.status(201).json({ message: 'Vaga criada com sucesso!', vagaId: result.insertId });
-    });
+    } catch (err) {
+        console.error('Erro ao criar vaga:', err);
+        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
+    } finally {
+        // Libera a conexão de volta para o pool, estando ela com erro ou não
+        if (connection) connection.release(); 
+    }
 };
 
-// Obter todas as vagas
-exports.getAllVagas = (req, res) => {
+// --- DEMAIS FUNÇÕES ATUALIZADAS PARA USAR ASYNC/AWAIT ---
+
+exports.getAllVagas = async (req, res) => {
     const query = 'SELECT * FROM vagas';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Erro ao obter vagas:', err);
-            return res.status(500).send('Erro ao obter vagas');
-        }
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [results] = await connection.query(query);
         res.json(results);
-    });
+    } catch (err) {
+        console.error('Erro ao obter vagas:', err);
+        res.status(500).send('Erro ao obter vagas');
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
-// Obter uma vaga específica pelo ID
-exports.getVagaById = (req, res) => {
+exports.getVagaById = async (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM vagas WHERE id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Erro ao obter vaga:', err);
-            return res.status(500).send('Erro ao obter vaga');
-        }
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [results] = await connection.query(query, [id]);
         if (results.length === 0) {
             return res.status(404).send('Vaga não encontrada');
         }
         res.json(results[0]);
-    });
+    } catch (err) {
+        console.error('Erro ao obter vaga:', err);
+        res.status(500).send('Erro ao obter vaga');
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
-// Atualizar uma vaga
-exports.updateVaga = (req, res) => {
+exports.updateVaga = async (req, res) => {
     const { id } = req.params;
     const { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios } = req.body;
     const query = `
@@ -71,30 +84,37 @@ exports.updateVaga = (req, res) => {
     `;
     const values = [titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, id];
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            console.error('Erro ao atualizar vaga:', err);
-            return res.status(500).send('Erro ao atualizar vaga');
-        }
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [result] = await connection.query(query, values);
         if (result.affectedRows === 0) {
             return res.status(404).send('Vaga não encontrada para atualização');
         }
         res.send('Vaga atualizada com sucesso');
-    });
+    } catch (err) {
+        console.error('Erro ao atualizar vaga:', err);
+        res.status(500).send('Erro ao atualizar vaga');
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
-// Deletar uma vaga
-exports.deleteVaga = (req, res) => {
+exports.deleteVaga = async (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM vagas WHERE id = ?';
-    db.query(query, [id], (err, result) => {
-        if (err) {
-            console.error('Erro ao deletar vaga:', err);
-            return res.status(500).send('Erro ao deletar vaga');
-        }
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [result] = await connection.query(query, [id]);
         if (result.affectedRows === 0) {
             return res.status(404).send('Vaga não encontrada para deletar');
         }
         res.send('Vaga deletada com sucesso');
-    });
+    } catch (err) {
+        console.error('Erro ao deletar vaga:', err);
+        res.status(500).send('Erro ao deletar vaga');
+    } finally {
+        if (connection) connection.release();
+    }
 };

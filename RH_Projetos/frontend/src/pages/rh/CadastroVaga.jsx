@@ -4,12 +4,10 @@ import { useAuth } from "../../AuthContext";
 import "./CadastroVaga.css";
 import Button from "../../components/Button";
 
-// A Navbar foi removida daqui, pois já é renderizada pelo AppRoutes.jsx
-
 export default function CadastroVaga() {
   const { user } = useAuth();
 
-  const [form, setForm] = useState({
+  const estadoInicialForm = {
     nome: "",
     area: "",
     beneficios: [],
@@ -18,11 +16,16 @@ export default function CadastroVaga() {
     dataInicial: "",
     dataLimite: "",
     descricao: "",
-  });
+  };
 
+  const [form, setForm] = useState(estadoInicialForm);
   const [novoBeneficio, setNovoBeneficio] = useState("");
   const [removendo, setRemovendo] = useState([]);
   const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
+
+  // --- NOVOS ESTADOS PARA CONTROLE DE FEEDBACK ---
+  const [isLoading, setIsLoading] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
 
   const todosBeneficiosPreDefinidos = [
     "Vale-refeição", "Vale-transporte", "Plano de saúde", "Seguro de vida",
@@ -33,6 +36,13 @@ export default function CadastroVaga() {
   const beneficiosPreDefinidos = todosBeneficiosPreDefinidos.filter(
     (b) => !form.beneficios.includes(b)
   );
+  
+  // --- NOVA FUNÇÃO PARA LIDAR COM MUDANÇAS NOS INPUTS ---
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
 
   const handleAddBeneficio = (b) => {
     if (b && !form.beneficios.includes(b)) {
@@ -52,11 +62,15 @@ export default function CadastroVaga() {
     }, 300);
   };
 
+  // --- FUNÇÃO DE SUBMISSÃO ATUALIZADA ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Bloqueia o botão
+    setMensagemSucesso(""); // Limpa mensagem anterior
 
     if (!user || !user.id) {
       alert("Erro de autenticação. Por favor, faça o login novamente.");
+      setIsLoading(false); // Libera o botão
       return;
     }
 
@@ -73,20 +87,20 @@ export default function CadastroVaga() {
     };
 
     try {
-      const response = await axios.post("http://localhost:3001/vagas", vagaDataParaAPI);
+      const response = await axios.post("http://localhost:3001/api/vagas", vagaDataParaAPI);
 
       console.log("Vaga cadastrada:", response.data);
-      alert("Vaga cadastrada com sucesso!");
+      setMensagemSucesso("Vaga cadastrada com sucesso!"); // Define a mensagem de sucesso
 
-      setForm({
-        nome: "", area: "", beneficios: [], salario: "", escala: "",
-        dataInicial: "", dataLimite: "", descricao: "",
-      });
+      // Reseta o formulário para o estado inicial
+      setForm(estadoInicialForm);
       setMostrarBeneficios(false);
 
     } catch (error) {
       console.error("Erro ao cadastrar vaga:", error.response ? error.response.data : error.message);
       alert("Falha ao cadastrar a vaga. Verifique o console para detalhes.");
+    } finally {
+      setIsLoading(false); // Libera o botão, independente de sucesso ou falha
     }
   };
 
@@ -95,21 +109,26 @@ export default function CadastroVaga() {
   };
 
   return (
-    // O <Navbar /> foi removido do topo deste return
     <div className="cadastro-vaga-container">
       <h2>Cadastro da Vaga</h2>
+
+      {/* Exibe a mensagem de sucesso quando ela existir */}
+      {mensagemSucesso && (
+        <div className="mensagem-sucesso">{mensagemSucesso}</div>
+      )}
+
       <form onSubmit={handleSubmit} className="form-vaga">
         <label htmlFor="nome">Nome da vaga</label>
         <input
           id="nome" type="text" name="nome" placeholder="Ex: Desenvolvedor Frontend"
-          value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          value={form.nome} onChange={handleChange}
           required
         />
 
         <label htmlFor="area">Área</label>
         <select
           id="area" name="area" value={form.area}
-          onChange={(e) => setForm({ ...form, area: e.target.value })}
+          onChange={handleChange}
           required
         >
           <option value="">Selecione a área</option>
@@ -136,8 +155,7 @@ export default function CadastroVaga() {
               {form.beneficios.map((b) => (
                 <div
                   key={b}
-                  className={`beneficio-tag fade-in ${removendo.includes(b) ? "fade-out" : ""
-                    }`}
+                  className={`beneficio-tag fade-in ${removendo.includes(b) ? "fade-out" : ""}`}
                   style={{ animationDuration: "0.3s" }}
                 >
                   {b}
@@ -174,7 +192,7 @@ export default function CadastroVaga() {
         <input
           id="salario" type="number" name="salario" placeholder="Ex: 3500.00"
           step="0.01" value={form.salario}
-          onChange={(e) => setForm({ ...form, salario: e.target.value })}
+          onChange={handleChange}
           required
         />
 
@@ -182,7 +200,7 @@ export default function CadastroVaga() {
         <input
           id="escala" type="text" name="escala" placeholder="Ex: 6x1, 5x2, 12x36..."
           value={form.escala}
-          onChange={(e) => setForm({ ...form, escala: e.target.value })}
+          onChange={handleChange}
           required
         />
 
@@ -192,9 +210,7 @@ export default function CadastroVaga() {
             <input
               id="dataInicial" type="date" name="dataInicial"
               value={form.dataInicial}
-              onChange={(e) =>
-                setForm({ ...form, dataInicial: e.target.value })
-              }
+              onChange={handleChange}
               required
             />
           </div>
@@ -203,7 +219,7 @@ export default function CadastroVaga() {
             <input
               id="dataLimite" type="date" name="dataLimite"
               value={form.dataLimite}
-              onChange={(e) => setForm({ ...form, dataLimite: e.target.value })}
+              onChange={handleChange}
               required
             />
           </div>
@@ -214,13 +230,16 @@ export default function CadastroVaga() {
           id="descricao" name="descricao"
           placeholder="Descreva as responsabilidades, requisitos e diferenciais..."
           value={form.descricao}
-          onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+          onChange={handleChange}
           rows="5"
           required
         />
 
         <div className="form-actions">
-          <Button type="submit" className="btn-cadastroVaga">Cadastrar</Button>
+          {/* Botão atualizado para mostrar estado de loading */}
+          <Button type="submit" className="btn-cadastroVaga" disabled={isLoading}>
+            {isLoading ? "Cadastrando..." : "Cadastrar"}
+          </Button>
           <Button style={{backgroundColor:"red"}}
             type="button" onClick={handleCancel} className="btn-cancel"
           >
