@@ -11,6 +11,9 @@ const Perfil = () => {
     email: "",
     cpf: "",
     telefone: "",
+    genero: "",
+    senha: "",
+    confirmarSenha: "",
   });
 
   useEffect(() => {
@@ -20,6 +23,9 @@ const Perfil = () => {
         email: user.email || "",
         cpf: user.cpf || "",
         telefone: user.telefone || "",
+        genero: user.genero || "",
+        senha: "",
+        confirmarSenha: "",
       });
     }
   }, [user]);
@@ -36,6 +42,9 @@ const Perfil = () => {
         email: user.email || "",
         cpf: user.cpf || "",
         telefone: user.telefone || "",
+        genero: user.genero || "",
+        senha: "",
+        confirmarSenha: "",
       });
     }
   };
@@ -47,12 +56,22 @@ const Perfil = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.senha && formData.senha !== formData.confirmarSenha) {
+      alert("As senhas não coincidem.");
+      return;
+    }
+
     try {
-      // Cria um novo objeto de dados para enviar, garantindo que o nome seja enviado.
       const dataToSend = {
         ...formData,
-        nome: formData.nome, // Garante que o campo nome está no corpo da requisição
+        nome: formData.nome,
       };
+      
+      if (!formData.senha) {
+        delete dataToSend.senha;
+      }
+
       await updateUser(dataToSend);
       setIsEditing(false);
       alert("Perfil atualizado com sucesso!");
@@ -111,11 +130,44 @@ const Perfil = () => {
               onChange={handleChange}
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="genero">Gênero:</label>
+            <Input
+              type="text"
+              id="genero"
+              name="genero"
+              value={formData.genero}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="senha">Nova Senha:</label>
+            <Input
+              type="password"
+              id="senha"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="confirmarSenha">Confirmar Nova Senha:</label>
+            <Input
+              type="password"
+              id="confirmarSenha"
+              name="confirmarSenha"
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+            />
+          </div>
           <div className="btn-group">
             <button type="submit" className="save-btn">
               Salvar
             </button>
             <button type="button" className="cancel-btn" onClick={handleCancel}>
+            </button>
+            <br />
+            <button style={{ backgroundColor: "red" }} type="button" className="cancel-btn" onClick={handleCancel}>
               Cancelar
             </button>
           </div>
@@ -134,6 +186,11 @@ const Perfil = () => {
           <p>
             <strong>Telefone:</strong> {user.telefone}
           </p>
+          <button className="edit-btn" onClick={handleEdit}>
+          <p>
+            <strong>Gênero:</strong> {user.genero}
+          </p>
+          </button>
           <button className="edit-btn" onClick={handleEdit}>
             Editar Perfil
           </button>
