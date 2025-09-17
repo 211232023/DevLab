@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../AuthContext";
 import "./Perfil.css";
-import Button from "../../components/Button";
 import Input from "../../components/Input";
 
 const Perfil = () => {
@@ -113,12 +112,12 @@ const Perfil = () => {
             />
           </div>
           <div className="btn-group">
-            <Button type="submit" className="save-btn">
+            <button type="submit" className="save-btn">
               Salvar
-            </Button>
-            <Button type="button" className="cancel-btn" onClick={handleCancel}>
+            </button>
+            <button type="button" className="cancel-btn" onClick={handleCancel}>
               Cancelar
-            </Button>
+            </button>
           </div>
         </form>
       ) : (
@@ -135,9 +134,9 @@ const Perfil = () => {
           <p>
             <strong>Telefone:</strong> {user.telefone}
           </p>
-          <Button className="edit-btn" onClick={handleEdit}>
+          <button className="edit-btn" onClick={handleEdit}>
             Editar Perfil
-          </Button>
+          </button>
         </div>
       )}
     </div>

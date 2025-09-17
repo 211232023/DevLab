@@ -30,6 +30,53 @@
 .perfil-lista strong {
   color: #127067;
 }
+.edit-btn {
+  font-size: 15px;
+  background-color: #1db3a4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+}
+.edit-btn:hover {
+  background-color: #27e3d0;
+}
+
+.save-btn {
+  font-size: 15px;
+  background-color: #1db3a4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+}
+.save-btn:hover {
+  background-color: #27e3d0;
+}
+.cancel-btn {
+  font-size: 15px;
+  background-color: #fdb4b4;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+}
+.cancel-btn:hover {
+  background-color: #f46f6f;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
 
 .btn-atualizar {
   display: block;
