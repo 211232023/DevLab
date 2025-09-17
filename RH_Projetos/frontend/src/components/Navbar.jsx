@@ -30,7 +30,7 @@ const Navbar = () => {
           <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
           <Link to="/perfil" className="nav-link">Perfil</Link>
           <Link to="/dashboard-rh" className="nav-link">Dashboard</Link>
-          <Link to="/cadastrar-vaga" className="nav-link">Cadastrar Vaga</Link>
+          <Link to="/cadastro-vaga" className="nav-link">Cadastrar Vaga</Link>
           <Link to="/gestao-vagas" className="nav-link">Gerenciar Vagas</Link>
           <button onClick={handleLogout} className="nav-button">Sair</button>
         </>

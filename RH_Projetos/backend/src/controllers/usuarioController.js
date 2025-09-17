@@ -46,7 +46,7 @@ exports.getUsuarioById = async (req, res) => {
 exports.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, cpf, email, genero, telefone } = req.body;
+    const { nome, cpf, email, genero, telefone, senha } = req.body;
 
     const [usuarioRows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
     if (usuarioRows.length === 0) {
@@ -62,10 +62,19 @@ exports.updateUsuario = async (req, res) => {
       telefone: telefone !== undefined ? telefone : usuario.telefone,
     };
 
-    await pool.query(
-      'UPDATE usuarios SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ? WHERE id = ?',
-      [updatedUsuario.nome, updatedUsuario.cpf, updatedUsuario.email, updatedUsuario.genero, updatedUsuario.telefone, id]
-    );
+    let query = 'UPDATE usuarios SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ?';
+    const queryParams = [updatedUsuario.nome, updatedUsuario.cpf, updatedUsuario.email, updatedUsuario.genero, updatedUsuario.telefone];
+
+    if (senha) {
+      const hashedPassword = await bcrypt.hash(senha, 10);
+      query += ', senha = ?';
+      queryParams.push(hashedPassword);
+    }
+
+    query += ' WHERE id = ?';
+    queryParams.push(id);
+
+    await pool.query(query, queryParams);
 
     res.json({ id: parseInt(id, 10), ...updatedUsuario });
   } catch (err) {
@@ -73,6 +82,7 @@ exports.updateUsuario = async (req, res) => {
     res.status(500).json({ error: 'Erro ao atualizar usuário' });
   }
 };
+
 
 // DELETE
 exports.deleteUsuario = async (req, res) => {
