@@ -25,7 +25,7 @@ const etapas = [
         nome: "Manuais da Empresa",
         descricao: "Leia os manuais e políticas internas.",
         status: "pendente",
-        rota: null
+        rota: "/manuais"
     },
     {
         nome: "Envio de Documentos",
