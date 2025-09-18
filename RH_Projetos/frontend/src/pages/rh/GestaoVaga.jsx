@@ -1,110 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../AuthContext'; // Verifique o caminho para seu AuthContext
-import axios from 'axios';
-import Navbar from '../../components/Navbar';
-import './GestaoVaga.css'; // Criaremos este arquivo a seguir
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import axios from "axios";
+import "./GestaoVaga.css";
+import Button from "../../components/Button";
 
 const GestaoVaga = () => {
-  const { user } = useAuth();
-  const [vagas, setVagas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { vagaId } = useParams();
+  const [vaga, setVaga] = useState(null);
+  const [candidatos, setCandidatos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (user && user.id && (user.tipo === 'RH' || user.tipo === 'ADMIN')) {
-      const fetchVagasComCandidatos = async () => {
-        try {
-          setLoading(true);
-          const response = await axios.get(`http://localhost:3001/api/vagas/gestao/${user.id}`);
-          setVagas(response.data);
-          setError('');
-        } catch (err) {
-          console.error("Erro ao buscar dados de gestão:", err);
-          setError('Não foi possível carregar os dados. Tente novamente mais tarde.');
-        } finally {
-          setLoading(false);
-        }
-      };
+    const fetchVagaECandidatos = async () => {
+      try {
+        setIsLoading(true);
+        const [vagaRes, candidatosRes] = await Promise.all([
+          axios.get(`http://localhost:3001/api/vagas/${vagaId}`),
+          axios.get(`http://localhost:3001/api/candidaturas/vagas/${vagaId}/candidatos`)
+        ]);
+        setVaga(vagaRes.data);
+        setCandidatos(candidatosRes.data);
+      } catch (err) {
+        setError("Não foi possível carregar os dados da vaga e dos candidatos.");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      fetchVagasComCandidatos();
-    } else {
-        setLoading(false);
-        // Redireciona ou mostra mensagem se não for RH
-        setError('Acesso negado. Esta página é apenas para recrutadores.');
+    fetchVagaECandidatos();
+  }, [vagaId]);
+
+  const handleDownloadCurriculo = (curriculoData, nomeCandidato) => {
+    if (!curriculoData) {
+      alert("Este candidato não possui currículo.");
+      return;
     }
-  }, [user]);
 
-  if (loading) {
-    return <div className="loading-container">Carregando vagas...</div>;
+    // O backend envia o Buffer como um objeto com `data`
+    const byteArray = new Uint8Array(curriculoData.data);
+    const blob = new Blob([byteArray], { type: "application/octet-stream" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `curriculo-${nomeCandidato.replace(/\s+/g, "_")}.pdf`; // ou .doc, .docx
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+  if (isLoading) {
+    return <div className="gestao-vaga-container"><p>Carregando...</p></div>;
   }
 
   if (error) {
-    return <div className="error-container">{error}</div>;
+    return <div className="gestao-vaga-container"><p className="error-message">{error}</p></div>;
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="gestao-vaga-container">
-        <h1>Minhas Vagas</h1>
-        {vagas.length > 0 ? (
-          vagas.map((vaga) => (
-            <div key={vaga.id} className="vaga-card-gestao">
-              <h2>{vaga.titulo}</h2>
-              <p><strong>Área:</strong> {vaga.area}</p>
+    <div className="gestao-vaga-container">
+      <Link to="/rh/vagas" className="back-link">
+        &larr; Voltar para a lista de vagas
+      </Link>
+      {vaga && (
+        <div className="vaga-header">
+          <h1>Gestão da Vaga: {vaga.titulo}</h1>
+          <p><strong>Área:</strong> {vaga.area}</p>
+        </div>
+      )}
 
-              <h3 className="titulo-tabela">Candidatos Inscritos</h3>
-              {vaga.candidatos && vaga.candidatos.length > 0 ? (
-                <div className="tabela-candidatos-wrapper">
-                  <table className="tabela-candidatos">
-                    <thead>
-                      <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th>Currículo</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {vaga.candidatos.map((candidato) => (
-                        <tr key={candidato.candidatura_id}>
-                          <td>{candidato.nome}</td>
-                          <td>{candidato.email}</td>
-                          <td>{candidato.telefone}</td>
-                          <td>
-                            {candidato.curriculo ? (
-                              <a href={`http://localhost:3001/${candidato.curriculo}`} target="_blank" rel="noopener noreferrer" className="link-curriculo">
-                                Ver Arquivo
-                              </a>
-                            ) : (
-                              'Não enviado'
-                            )}
-                          </td>
-                          <td>
-                            <span className={`status-candidato status-${candidato.status.toLowerCase().replace(' ', '-')}`}>
-                              {candidato.status}
-                            </span>
-                          </td>
-                          <td>
-                            {/* Espaço para futuras ações */}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="nenhum-candidato-inscrito">Nenhum candidato inscrito para esta vaga ainda.</p>
-              )}
-            </div>
-          ))
+      <div className="candidatos-lista">
+        <h2>Candidatos Inscritos</h2>
+        {candidatos.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Endereço</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {candidatos.map((candidato) => (
+                <tr key={candidato.id}>
+                  <td>{candidato.nome_candidato}</td>
+                  <td>{candidato.email_candidato}</td>
+                  <td>{candidato.endereco}</td>
+                  <td>
+                    <span className={`status status-${candidato.status.toLowerCase().replace(" ", "-")}`}>
+                      {candidato.status}
+                    </span>
+                  </td>
+                  <td>
+                    <Button
+                      onClick={() => handleDownloadCurriculo(candidato.curriculo, candidato.nome_candidato)}
+                      disabled={!candidato.curriculo}
+                    >
+                      Ver Currículo
+                    </Button>
+                    {/* Adicionar mais ações aqui, como "Aprovar", "Reprovar", etc. */}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
-          <p className="nenhuma-vaga-cadastrada">Você ainda não cadastrou nenhuma vaga.</p>
+          <p>Nenhum candidato inscrito para esta vaga ainda.</p>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

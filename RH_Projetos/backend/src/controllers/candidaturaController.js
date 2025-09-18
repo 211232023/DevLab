@@ -82,3 +82,37 @@ exports.desistirDeVaga = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor ao tentar desistir da vaga.' });
   }
 };
+
+// Listar todos os candidatos de uma vaga específica
+exports.listarCandidatosPorVaga = async (req, res) => {
+  // A linha mais importante: pegando o vaga_id dos parâmetros da rota
+  const { vaga_id } = req.params;
+
+  // Verificação para garantir que vaga_id não seja undefined
+  if (!vaga_id) {
+    return res.status(400).json({ message: 'O ID da vaga é obrigatório.' });
+  }
+
+  try {
+    const [candidatos] = await db.query(
+      `SELECT
+         c.id, c.candidato_id, c.status, c.endereco,
+         u.nome as nome_candidato, u.email as email_candidato,
+         c.curriculo
+       FROM candidaturas c
+       JOIN usuarios u ON c.candidato_id = u.id
+       WHERE c.vaga_id = ?`,
+      [vaga_id] // Passando o vaga_id para a query
+    );
+
+    // O restante do seu código permanece o mesmo
+    if (candidatos.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    res.status(200).json(candidatos);
+  } catch (error) {
+    console.error('Erro ao buscar candidatos da vaga:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos da vaga.' });
+  }
+};

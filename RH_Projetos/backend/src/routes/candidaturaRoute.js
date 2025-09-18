@@ -10,4 +10,7 @@ router.get('/usuario/:candidato_id', candidaturaController.listarCandidaturasPor
 
 router.delete('/:candidatura_id', candidaturaController.desistirDeVaga);
 
+// Rota para listar todos os candidatos de uma vaga (ex: GET /api/candidaturas/vagas/12/candidatos)
+router.get('/vagas/:vaga_id/candidatos', candidaturaController.listarCandidatosPorVaga);
+
 module.exports = router;

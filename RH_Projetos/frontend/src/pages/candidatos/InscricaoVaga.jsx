@@ -80,13 +80,18 @@ const InscricaoVaga = () => {
 
     setIsLoading(true);
 
-    // **NOTA:** Aqui você precisará implementar a lógica para salvar
-    // o endereço no perfil do usuário e fazer o upload do currículo.
-    // Por enquanto, vamos focar em criar a candidatura.
+    const enderecoCompleto = `${endereco.logradouro}, ${endereco.numero}, ${endereco.complemento ? endereco.complemento + ' - ' : ''}${endereco.bairro}, ${endereco.cidade} - ${endereco.estado}, CEP: ${endereco.cep}`;
+    
+    const formData = new FormData();
+    formData.append('candidato_id', user.id);
+    formData.append('endereco', enderecoCompleto);
+    formData.append('curriculo', curriculo);
 
     try {
-      await axios.post(`http://localhost:3001/api/candidaturas/vagas/${vagaId}`, {
-        candidato_id: user.id,
+      await axios.post(`http://localhost:3001/api/candidaturas/vagas/${vagaId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       alert("Inscrição realizada com sucesso!");
