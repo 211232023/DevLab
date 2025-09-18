@@ -190,3 +190,29 @@ exports.listarVagasComCandidatos = async (req, res) => {
     if (connection) connection.release();
   }
 };
+
+// Listar todas as vagas de um usuário específico
+exports.listarVagasPorUsuario = async (req, res) => {
+  const { usuario_id } = req.params;
+
+  if (!usuario_id) {
+    return res.status(400).json({ message: 'O ID do usuário é obrigatório.' });
+  }
+
+  try {
+    // Adicionada a cláusula "WHERE v.usuario_id = ?" para filtrar as vagas
+    const [vagas] = await db.query(
+      'SELECT v.*, u.nome as nome_usuario FROM vagas v JOIN usuarios u ON v.usuario_id = u.id WHERE v.usuario_id = ?',
+      [usuario_id]
+    );
+
+    if (vagas.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    res.status(200).json(vagas);
+  } catch (error) {
+    console.error('Erro ao buscar vagas por usuário:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar as vagas.' });
+  }
+};

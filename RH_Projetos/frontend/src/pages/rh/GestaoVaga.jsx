@@ -1,141 +1,132 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import "./GestaoVaga.css";
-import Button from "../../components/Button";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../../AuthContext';
+import { Link } from 'react-router-dom';
+import './GestaoVaga.css';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const GestaoVaga = () => {
-  const { vagaId } = useParams();
-  const [vaga, setVaga] = useState(null);
-  const [candidatos, setCandidatos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Começa como true
-  const [error, setError] = useState("");
+  const { auth } = useAuth();
+  const [vagasComCandidatos, setVagasComCandidatos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Flag para evitar atualização de estado se o componente for desmontado
-    let isMounted = true;
-
-    const fetchVagaECandidatos = async () => {
-      // Se não houver vagaId, para a execução e exibe a página
-      if (!vagaId) {
-        setIsLoading(false);
+    const carregarVagasECandidatos = async () => {
+      if (!auth.userId) {
+        setLoading(false);
+        setError('ID do usuário não encontrado. Faça login novamente.');
         return;
       }
 
-      setIsLoading(true); // Ativa o loading antes de buscar
+      setLoading(true);
+      setError('');
+
       try {
-        const [vagaRes, candidatosRes] = await Promise.all([
-          axios.get(`http://localhost:3001/api/vagas/${vagaId}`),
-          axios.get(`http://localhost:3001/api/candidaturas/vagas/${vagaId}/candidatos`)
-        ]);
+        // 1. Buscar as vagas do usuário logado
+        const vagasResponse = await axios.get(`http://localhost:3001/api/vagas/usuario/${auth.userId}`);
+        const vagasData = vagasResponse.data;
 
-        if (isMounted) {
-          setVaga(vagaRes.data);
-          // Garante que 'candidatos' seja sempre um array
-          setCandidatos(Array.isArray(candidatosRes.data) ? candidatosRes.data : []);
+        if (vagasData.length === 0) {
+          setVagasComCandidatos([]);
+          setLoading(false);
+          return;
         }
 
+        // 2. Para cada vaga, buscar a lista de candidatos
+        const vagasCompletas = await Promise.all(
+          vagasData.map(async (vaga) => {
+            try {
+              const candidatosResponse = await axios.get(`http://localhost:3001/api/candidaturas/vagas/${vaga.id}/candidatos`);
+              return { ...vaga, candidatos: candidatosResponse.data };
+            } catch (err) {
+              console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
+              return { ...vaga, candidatos: [] }; // Retorna a vaga mesmo que a busca de candidatos falhe
+            }
+          })
+        );
+
+        setVagasComCandidatos(vagasCompletas);
       } catch (err) {
-        if (isMounted) {
-          setError("Não foi possível carregar os dados da vaga e dos candidatos.");
-        }
-        console.error(err);
+        console.error('Erro ao carregar vagas:', err);
+        setError('Não foi possível carregar as informações das vagas. Tente novamente mais tarde.');
       } finally {
-        if (isMounted) {
-          setIsLoading(false); // Garante que o loading termine, com sucesso ou erro
-        }
+        setLoading(false);
       }
     };
 
-    fetchVagaECandidatos();
+    carregarVagasECandidatos();
+  }, [auth.userId]);
 
-    // Função de limpeza que é executada quando o componente "desmonta"
-    return () => {
-      isMounted = false;
-    };
-  }, [vagaId]); // Dependência correta
-
-  const handleDownloadCurriculo = (curriculoData, nomeCandidato) => {
-    if (!curriculoData) {
-      alert("Este candidato não possui currículo.");
-      return;
-    }
-    
-    const byteArray = new Uint8Array(curriculoData.data);
-    const blob = new Blob([byteArray], { type: "application/octet-stream" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = `curriculo-${nomeCandidato.replace(/\s+/g, '_')}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Renderiza o estado de "Carregando..."
-  if (isLoading) {
-    return <div className="gestao-vaga-container"><p>Carregando...</p></div>;
+  if (loading) {
+    return <div>Carregando...</div>;
   }
 
-  // Renderiza o estado de erro
   if (error) {
-    return <div className="gestao-vaga-container"><p className="error-message">{error}</p></div>;
+    return <div>{error}</div>;
   }
 
-  // Renderização principal
   return (
-    <div className="gestao-vaga-container">
-      <Link to="/rh/vagas" className="back-link">
-        &larr; Voltar para a lista de vagas
-      </Link>
-      {vaga && (
-        <div className="vaga-header">
-          <h1>Gestão da Vaga: {vaga.titulo}</h1>
-          <p><strong>Área:</strong> {vaga.area}</p>
-        </div>
-      )}
-
-      <div className="candidatos-lista">
-        <h2>Candidatos Inscritos</h2>
-        {candidatos.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Endereço</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {candidatos.map((candidato) => (
-                <tr key={candidato.id}>
-                  <td>{candidato.nome_candidato}</td>
-                  <td>{candidato.email_candidato}</td>
-                  <td>{candidato.endereco}</td>
-                  <td>
-                    <span className={`status status-${candidato.status.toLowerCase().replace(" ", "-")}`}>
-                      {candidato.status}
-                    </span>
-                  </td>
-                  <td>
-                    <Button
-                      onClick={() => handleDownloadCurriculo(candidato.curriculo, candidato.nome_candidato)}
-                      disabled={!candidato.curriculo}
-                    >
-                      Ver Currículo
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <>
+      <Navbar />
+      <div className="gestao-vaga-container">
+        <h1>Gestão de Vagas</h1>
+        <p>Acompanhe e gerencie as vagas que você cadastrou.</p>
+        
+        {vagasComCandidatos.length === 0 ? (
+          <div className="nenhuma-vaga">
+            <p>Você ainda não cadastrou nenhuma vaga.</p>
+            <Link to="/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
+          </div>
         ) : (
-          // Mensagem para quando não há candidatos
-          <p>Nenhum candidato inscrito para esta vaga ainda.</p>
+          vagasComCandidatos.map((vaga) => (
+            <div key={vaga.id} className="vaga-card">
+              <div className="vaga-header">
+                <h2>{vaga.titulo}</h2>
+                <p className="vaga-localizacao">{vaga.localizacao} - {vaga.tipo_contrato}</p>
+              </div>
+              <div className="vaga-body">
+                <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
+                {vaga.candidatos.length > 0 ? (
+                  <table className="candidatos-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vaga.candidatos.map((candidato) => (
+                        <tr key={candidato.id}>
+                          <td>{candidato.nome_candidato}</td>
+                          <td>{candidato.email_candidato}</td>
+                          <td>
+                            <span className={`status-pill status-${candidato.status.toLowerCase().replace(' ', '-')}`}>
+                              {candidato.status}
+                            </span>
+                          </td>
+                          <td>
+                            <Link to={`/detalhe-vaga/${vaga.id}`} className="btn-ver-detalhes">
+                              Ver Detalhes
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>Ainda não há candidatos inscritos para esta vaga.</p>
+                )}
+              </div>
+            </div>
+          ))
         )}
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
