@@ -17,7 +17,5 @@ router.put('/:id', usuarioController.updateUsuario);
 // Rota para deletar um usuário (DELETE /api/usuarios/:id)
 router.delete('/:id', usuarioController.deleteUsuario);
 
-// Rota para buscar todas as vagas de um recrutador e seus candidatos
-router.get('/gestao/:recrutador_id', vagaController.listarVagasComCandidatos);
 
 module.exports = router;
