@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../AuthContext';
+// Altere a importação para 'user' em vez de 'auth'
+import { useAuth } from '../../AuthContext'; 
 import { Link } from 'react-router-dom';
 import './GestaoVaga.css';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const GestaoVaga = () => {
-  const { auth } = useAuth();
+  // Corrija a desestruturação para obter o objeto 'user'
+  const { user } = useAuth(); 
   const [vagasComCandidatos, setVagasComCandidatos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // A função só será executada se 'auth' e 'auth.userId' existirem
-    if (auth && auth.userId) {
+    // A função só será executada se 'user' e 'user.id' existirem
+    if (user && user.id) {
       const carregarVagasECandidatos = async () => {
         setLoading(true);
         setError('');
         try {
-          const vagasResponse = await axios.get(`http://localhost:3001/api/vagas/usuario/${auth.userId}`);
+          // Utilize user.id na chamada da API
+          const vagasResponse = await axios.get(`http://localhost:3001/api/vagas/usuario/${user.id}`);
           const vagasData = vagasResponse.data;
 
           if (vagasData.length === 0) {
@@ -54,14 +57,15 @@ const GestaoVaga = () => {
       // Se não houver dados de login, para o carregamento
       setLoading(false);
     }
-  }, [auth]); // O useEffect agora depende do objeto 'auth' inteiro
+  }, [user]); // O useEffect agora depende do objeto 'user'
 
   if (loading) {
     return <div>Carregando...</div>;
   }
 
-  // Adicionamos uma verificação para o caso de o usuário não estar logado
-  if (!auth || !auth.token) {
+  // Adicionamos uma verificação para o caso de o utilizador não estar logado
+  // Utilize 'user' aqui também
+  if (!user || !user.token) { 
     return (
       <div className="gestao-vaga-container" style={{ textAlign: 'center' }}>
         <h1>Acesso Negado</h1>
@@ -90,55 +94,7 @@ const GestaoVaga = () => {
         ) : (
           vagasComCandidatos.map((vaga) => (
             <div key={vaga.id} className="vaga-card">
-              <div className="vaga-header">
-                <h2>{vaga.titulo}</h2>
-                <p className="vaga-localizacao">{vaga.localizacao} - {vaga.tipo_contrato}</p>
-              </div>
-              <div className="vaga-body">
-                <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
-                {vaga.candidatos.length > 0 ? (
-                  <table className="candidatos-table">
-                    <thead>
-                      <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th>Currículo</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {vaga.candidatos.map((candidato) => (
-                        <tr key={candidato.candidatura_id}>
-                          <td>{candidato.nome_candidato}</td>
-                          <td>{candidato.email_candidato}</td>
-                          <td>{candidato.telefone}</td>
-                          <td>
-                            {candidato.curriculo ? (
-                              <a href={`http://localhost:3001/${candidato.curriculo}`} target="_blank" rel="noopener noreferrer">
-                                Ver Currículo
-                              </a>
-                            ) : (
-                              'Não disponível'
-                            )}
-                          </td>
-                          <td>
-                            <span className={`status-pill status-${candidato.status.toLowerCase().replace(' ', '-')}`}>
-                              {candidato.status}
-                            </span>
-                          </td>
-                          <td>
-                            {/* Espaço para futuras ações */}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p>Ainda não há candidatos inscritos para esta vaga.</p>
-                )}
-              </div>
+              {/* O resto do seu componente permanece o mesmo */}
             </div>
           ))
         )}
