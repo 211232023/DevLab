@@ -137,7 +137,7 @@ const Perfil = () => {
             <Input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Repita a nova senha" value={formData.confirmarSenha} onChange={handleChange} />
           </div>
           <div className="btn-group">
-            <Button style={{backgroundColor:"red"}} type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button>
+            <Button style={{backgroundColor:"red"}} type="button" className="cancel-btn" onClick={handleCancel}>Cancelar</Button> 
             <Button type="submit" className="save-btn">Salvar</Button>
           </div>
         </form>
