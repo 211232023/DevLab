@@ -13,54 +13,62 @@ const GestaoVaga = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const carregarVagasECandidatos = async () => {
-      if (!auth.userId) {
-        setLoading(false);
-        setError('ID do usuário não encontrado. Faça login novamente.');
-        return;
-      }
+    // A função só será executada se 'auth' e 'auth.userId' existirem
+    if (auth && auth.userId) {
+      const carregarVagasECandidatos = async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const vagasResponse = await axios.get(`http://localhost:3001/api/vagas/usuario/${auth.userId}`);
+          const vagasData = vagasResponse.data;
 
-      setLoading(true);
-      setError('');
+          if (vagasData.length === 0) {
+            setVagasComCandidatos([]);
+            setLoading(false);
+            return;
+          }
 
-      try {
-        // 1. Buscar as vagas do usuário logado
-        const vagasResponse = await axios.get(`http://localhost:3001/api/vagas/usuario/${auth.userId}`);
-        const vagasData = vagasResponse.data;
+          const vagasCompletas = await Promise.all(
+            vagasData.map(async (vaga) => {
+              try {
+                const candidatosResponse = await axios.get(`http://localhost:3001/api/candidaturas/vagas/${vaga.id}/candidatos`);
+                return { ...vaga, candidatos: candidatosResponse.data };
+              } catch (err) {
+                console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
+                return { ...vaga, candidatos: [] };
+              }
+            })
+          );
 
-        if (vagasData.length === 0) {
-          setVagasComCandidatos([]);
+          setVagasComCandidatos(vagasCompletas);
+        } catch (err) {
+          console.error('Erro ao carregar vagas:', err);
+          setError('Não foi possível carregar as informações das vagas. Tente novamente mais tarde.');
+        } finally {
           setLoading(false);
-          return;
         }
+      };
 
-        // 2. Para cada vaga, buscar a lista de candidatos
-        const vagasCompletas = await Promise.all(
-          vagasData.map(async (vaga) => {
-            try {
-              const candidatosResponse = await axios.get(`http://localhost:3001/api/candidaturas/vagas/${vaga.id}/candidatos`);
-              return { ...vaga, candidatos: candidatosResponse.data };
-            } catch (err) {
-              console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
-              return { ...vaga, candidatos: [] }; // Retorna a vaga mesmo que a busca de candidatos falhe
-            }
-          })
-        );
-
-        setVagasComCandidatos(vagasCompletas);
-      } catch (err) {
-        console.error('Erro ao carregar vagas:', err);
-        setError('Não foi possível carregar as informações das vagas. Tente novamente mais tarde.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    carregarVagasECandidatos();
-  }, [auth.userId]);
+      carregarVagasECandidatos();
+    } else {
+      // Se não houver dados de login, para o carregamento
+      setLoading(false);
+    }
+  }, [auth]); // O useEffect agora depende do objeto 'auth' inteiro
 
   if (loading) {
     return <div>Carregando...</div>;
+  }
+
+  // Adicionamos uma verificação para o caso de o usuário não estar logado
+  if (!auth || !auth.token) {
+    return (
+      <div className="gestao-vaga-container" style={{ textAlign: 'center' }}>
+        <h1>Acesso Negado</h1>
+        <p>Você precisa estar logado para acessar esta página.</p>
+        <Link to="/login" className="btn-cadastrar-vaga">Ir para o Login</Link>
+      </div>
+    );
   }
 
   if (error) {
