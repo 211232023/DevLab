@@ -17,4 +17,5 @@ router.put('/:id', usuarioController.updateUsuario);
 // Rota para deletar um usuário (DELETE /api/usuarios/:id)
 router.delete('/:id', usuarioController.deleteUsuario);
 
+
 module.exports = router;

@@ -17,4 +17,7 @@ router.put('/:id', vagaController.updateVaga);
 // DELETE /vagas/:id -> Deletar uma vaga
 router.delete('/:id', vagaController.deleteVaga);
 
+// Rota para buscar todas as vagas de um recrutador e seus candidatos
+router.get('/gestao/:recrutador_id', vagaController.listarVagasComCandidatos);
+
 module.exports = router;

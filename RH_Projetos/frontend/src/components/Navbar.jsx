@@ -31,6 +31,8 @@ const Navbar = () => {
           <Link to="/dashboard-rh" className="nav-link">Dashboard</Link>
           <Link to="/cadastro-vaga" className="nav-link">Cadastrar Vaga</Link>
           <Link to="/gestao-vagas" className="nav-link">Gerenciar Vagas</Link>
+          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
+          <Link to="/gestao-vaga" className="nav-link">Gestão de Vaga</Link>
           <button onClick={handleLogout} className="nav-button">Sair</button>
         </>
       );

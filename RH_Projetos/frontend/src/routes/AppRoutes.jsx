@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Telas Candidatos
 import Cadastro from "../pages/candidatos/Cadastro";
@@ -12,6 +13,7 @@ import TelaInicial from "../pages/candidatos/TelaInicial";
 import Teste from "../pages/candidatos/Teste";
 import Perfil from "../pages/candidatos/Perfil";
 import Home from "../pages/candidatos/Home";
+import Documentos from "../pages/candidatos/Documentos";
 
 // Telas Rh
 import CadastroVaga from "../pages/rh/CadastroVaga";
@@ -35,11 +37,12 @@ export default function AppRoutes() {
                 <Route path="/teste" element={<Teste />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
+                <Route path="/documentos" element={<Documentos />} />
 
                 {/* RH */}
                 <Route path="/cadastro-vaga" element={<CadastroVaga />} />
                 <Route path="/vaga/:id" element={<DetalheVaga />} />
-                <Route path="/candidato/:id" element={<GestaoVaga />} />
+                <Route path="/gestao-vaga" element={<GestaoVaga />} />
             </Routes>
         </BrowserRouter>
     );
