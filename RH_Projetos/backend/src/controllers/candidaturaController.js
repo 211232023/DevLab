@@ -3,11 +3,15 @@ const db = require('../config/db');
 // Inscrever um candidato em uma vaga
 exports.inscreverCandidato = async (req, res) => {
   const { vaga_id } = req.params;
-  const { candidato_id } = req.body; 
+  // Os campos de texto vêm em req.body
+  const { candidato_id, endereco } = req.body; 
 
-  if (!candidato_id || !vaga_id) {
-    return res.status(400).json({ message: 'ID do candidato e da vaga são obrigatórios.' });
+  // O arquivo vem em req.files
+  if (!candidato_id || !vaga_id || !endereco || !req.files || !req.files.curriculo) {
+    return res.status(400).json({ message: 'Todos os campos, incluindo o currículo, são obrigatórios.' });
   }
+
+  const curriculo = req.files.curriculo.data; // Buffer do arquivo
 
   try {
     const [jaInscrito] = await db.query(
@@ -23,12 +27,16 @@ exports.inscreverCandidato = async (req, res) => {
       candidato_id,
       vaga_id,
       data_inscricao: new Date(),
-      status: 'Aguardando Teste', // CORRIGIDO: Status inicial correto
+      status: 'Aguardando Teste',
+      curriculo,
+      endereco,
     };
 
     const [result] = await db.query('INSERT INTO candidaturas SET ?', novaCandidatura);
 
-    res.status(201).json({ id: result.insertId, ...novaCandidatura });
+    // Evita enviar o buffer do currículo de volta na resposta
+    const { curriculo: _, ...candidaturaInfo } = novaCandidatura;
+    res.status(201).json({ id: result.insertId, ...candidaturaInfo });
   } catch (error) {
     console.error('Erro ao se inscrever na vaga:', error);
     res.status(500).json({ message: 'Erro no servidor ao tentar realizar a inscrição.' });

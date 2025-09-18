@@ -8,56 +8,80 @@ const GestaoVaga = () => {
   const { vagaId } = useParams();
   const [vaga, setVaga] = useState(null);
   const [candidatos, setCandidatos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Começa como true
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Flag para evitar atualização de estado se o componente for desmontado
+    let isMounted = true;
+
     const fetchVagaECandidatos = async () => {
+      // Se não houver vagaId, para a execução e exibe a página
+      if (!vagaId) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true); // Ativa o loading antes de buscar
       try {
-        setIsLoading(true);
         const [vagaRes, candidatosRes] = await Promise.all([
           axios.get(`http://localhost:3001/api/vagas/${vagaId}`),
           axios.get(`http://localhost:3001/api/candidaturas/vagas/${vagaId}/candidatos`)
         ]);
-        setVaga(vagaRes.data);
-        setCandidatos(candidatosRes.data);
+
+        if (isMounted) {
+          setVaga(vagaRes.data);
+          // Garante que 'candidatos' seja sempre um array
+          setCandidatos(Array.isArray(candidatosRes.data) ? candidatosRes.data : []);
+        }
+
       } catch (err) {
-        setError("Não foi possível carregar os dados da vaga e dos candidatos.");
+        if (isMounted) {
+          setError("Não foi possível carregar os dados da vaga e dos candidatos.");
+        }
         console.error(err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false); // Garante que o loading termine, com sucesso ou erro
+        }
       }
     };
 
     fetchVagaECandidatos();
-  }, [vagaId]);
+
+    // Função de limpeza que é executada quando o componente "desmonta"
+    return () => {
+      isMounted = false;
+    };
+  }, [vagaId]); // Dependência correta
 
   const handleDownloadCurriculo = (curriculoData, nomeCandidato) => {
     if (!curriculoData) {
       alert("Este candidato não possui currículo.");
       return;
     }
-
-    // O backend envia o Buffer como um objeto com `data`
+    
     const byteArray = new Uint8Array(curriculoData.data);
     const blob = new Blob([byteArray], { type: "application/octet-stream" });
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = `curriculo-${nomeCandidato.replace(/\s+/g, "_")}.pdf`; // ou .doc, .docx
+    link.download = `curriculo-${nomeCandidato.replace(/\s+/g, '_')}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-
+  // Renderiza o estado de "Carregando..."
   if (isLoading) {
     return <div className="gestao-vaga-container"><p>Carregando...</p></div>;
   }
 
+  // Renderiza o estado de erro
   if (error) {
     return <div className="gestao-vaga-container"><p className="error-message">{error}</p></div>;
   }
 
+  // Renderização principal
   return (
     <div className="gestao-vaga-container">
       <Link to="/rh/vagas" className="back-link">
@@ -101,13 +125,13 @@ const GestaoVaga = () => {
                     >
                       Ver Currículo
                     </Button>
-                    {/* Adicionar mais ações aqui, como "Aprovar", "Reprovar", etc. */}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
+          // Mensagem para quando não há candidatos
           <p>Nenhum candidato inscrito para esta vaga ainda.</p>
         )}
       </div>
