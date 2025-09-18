@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Documentos.css";
+import Button from "../../components/Button";
 
 const Documentos = () => {
     const [form, setForm] = useState({
@@ -78,18 +79,18 @@ const Documentos = () => {
                         CNH (opcional):
                         <input type="file" name="cnh" accept=".pdf,.jpg,.png" onChange={handleChange} />
                     </label>
-                    <button type="submit" className="btn-enviar">Enviar Documentos</button>
+                    <Button type="submit" className="btn-enviar">Enviar Documentos</Button>
                 </form>
             ) : (
-                <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ textAlign: "center" }}>
                     <h3>Documentos enviados com sucesso!</h3>
-                    <button
+                    <Button
                         className="btn-enviar"
                         onClick={() => navigate("/etapas/:vagasId")}
                         style={{ marginTop: "24px" }}
                     >
                         Voltar para Etapas
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>
