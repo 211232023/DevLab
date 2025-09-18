@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(fileUpload()); // <-- Mova esta linha para cá
+app.use(express.static('public')); 
 
 // --- ORGANIZANDO AS ROTAS ---
 app.use('/api/auth', authRoutes);

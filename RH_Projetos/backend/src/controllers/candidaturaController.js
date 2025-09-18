@@ -1,19 +1,17 @@
 const db = require('../config/db');
+const path = require('path');
 
 // Inscrever um candidato em uma vaga
 exports.inscreverCandidato = async (req, res) => {
   const { vaga_id } = req.params;
-  // Os campos de texto vêm em req.body
-  const { candidato_id, endereco } = req.body; 
+  const { candidato_id, endereco } = req.body;
 
-  // O arquivo vem em req.files
   if (!candidato_id || !vaga_id || !endereco || !req.files || !req.files.curriculo) {
     return res.status(400).json({ message: 'Todos os campos, incluindo o currículo, são obrigatórios.' });
   }
 
-  const curriculo = req.files.curriculo.data; // Buffer do arquivo
-
   try {
+    // 1. Verifica se o candidato já está inscrito
     const [jaInscrito] = await db.query(
       'SELECT * FROM candidaturas WHERE candidato_id = ? AND vaga_id = ?',
       [candidato_id, vaga_id]
@@ -23,20 +21,32 @@ exports.inscreverCandidato = async (req, res) => {
       return res.status(409).json({ message: 'Você já se candidatou para esta vaga.' });
     }
 
+    // 2. Prepara para salvar o arquivo
+    const curriculoFile = req.files.curriculo;
+    // Cria um nome de arquivo único para evitar conflitos
+    const curriculo_path = `uploads/${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
+
+    // Define o caminho completo onde o arquivo será salvo
+    const uploadPath = path.join(__dirname, '..', '..', 'public', curriculo_path);
+
+    // 3. Move o arquivo para a pasta de uploads
+    await curriculoFile.mv(uploadPath);
+
+    // 4. Cria o objeto para inserir no banco de dados com o CAMINHO do arquivo
     const novaCandidatura = {
       candidato_id,
       vaga_id,
       data_inscricao: new Date(),
       status: 'Aguardando Teste',
-      curriculo,
+      curriculo: curriculo_path, // <-- Salva o caminho, não o buffer
       endereco,
     };
 
+    // 5. Insere no banco de dados
     const [result] = await db.query('INSERT INTO candidaturas SET ?', novaCandidatura);
 
-    // Evita enviar o buffer do currículo de volta na resposta
-    const { curriculo: _, ...candidaturaInfo } = novaCandidatura;
-    res.status(201).json({ id: result.insertId, ...candidaturaInfo });
+    res.status(201).json({ id: result.insertId, ...novaCandidatura });
+
   } catch (error) {
     console.error('Erro ao se inscrever na vaga:', error);
     res.status(500).json({ message: 'Erro no servidor ao tentar realizar a inscrição.' });
@@ -93,10 +103,8 @@ exports.desistirDeVaga = async (req, res) => {
 
 // Listar todos os candidatos de uma vaga específica
 exports.listarCandidatosPorVaga = async (req, res) => {
-  // A linha mais importante: pegando o vaga_id dos parâmetros da rota
   const { vaga_id } = req.params;
 
-  // Verificação para garantir que vaga_id não seja undefined
   if (!vaga_id) {
     return res.status(400).json({ message: 'O ID da vaga é obrigatório.' });
   }
@@ -104,16 +112,16 @@ exports.listarCandidatosPorVaga = async (req, res) => {
   try {
     const [candidatos] = await db.query(
       `SELECT
-         c.id, c.candidato_id, c.status, c.endereco,
-         u.nome as nome_candidato, u.email as email_candidato,
-         c.curriculo
-       FROM candidaturas c
-       JOIN usuarios u ON c.candidato_id = u.id
-       WHERE c.vaga_id = ?`,
-      [vaga_id] // Passando o vaga_id para a query
+          c.id, c.candidato_id, c.status, c.endereco,
+          u.nome as nome_candidato, u.email as email_candidato,
+          u.telefone, -- <-- ADICIONE ESTA LINHA PARA BUSCAR O TELEFONE
+          c.curriculo
+        FROM candidaturas c
+        JOIN usuarios u ON c.candidato_id = u.id
+        WHERE c.vaga_id = ?`,
+      [vaga_id]
     );
 
-    // O restante do seu código permanece o mesmo
     if (candidatos.length === 0) {
       return res.status(200).json([]);
     }

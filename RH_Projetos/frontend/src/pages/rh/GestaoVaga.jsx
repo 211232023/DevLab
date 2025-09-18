@@ -115,12 +115,11 @@ const GestaoVaga = () => {
                             <tr key={candidato.candidatura_id}>
                               <td>{candidato.nome_candidato}</td>
                               <td>{candidato.email_candidato}</td>
-                              {/* Exibindo o telefone */}
                               <td>{candidato.telefone || 'Não informado'}</td>
                               <td>
                                 {candidato.curriculo ? (
                                   <a 
-                                    // Correção: Usar o caminho do currículo diretamente
+                                    // Esta linha está correta para receber um caminho de texto
                                     href={`http://localhost:3001/${candidato.curriculo}`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
