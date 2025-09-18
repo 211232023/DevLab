@@ -65,7 +65,7 @@ const GestaoVaga = () => {
 
   // Adicionamos uma verificação para o caso de o utilizador não estar logado
   // Utilize 'user' aqui também
-  if (!user || !user.token) { 
+  if (!user || !user.id) {
     return (
       <div className="gestao-vaga-container" style={{ textAlign: 'center' }}>
         <h1>Acesso Negado</h1>
