@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Documentos.css";
 import Button from "../../components/Button";
+import Input from "../../components/Input";
 
 const Documentos = () => {
     const [form, setForm] = useState({
@@ -55,29 +56,29 @@ const Documentos = () => {
                     </label>
                     <label>
                         RG/CPF (obrigatório):
-                        <input type="file" name="rgcpf" accept=".pdf,.jpg,.png" onChange={handleChange} required />
+                        <Input type="file" name="rgcpf" accept=".pdf,.jpg,.png" onChange={handleChange} required />
                     </label>
                     <label>
                         Certidão de nascimento (obrigatório):
-                        <input type="file" name="certidao" accept=".pdf,.jpg,.png" onChange={handleChange} required />
+                        <Input type="file" name="certidao" accept=".pdf,.jpg,.png" onChange={handleChange} required />
                     </label>
                     <label>
                         Comprovante de residência (obrigatório):
-                        <input type="file" name="residencia" accept=".pdf,.jpg,.png" onChange={handleChange} required />
+                        <Input type="file" name="residencia" accept=".pdf,.jpg,.png" onChange={handleChange} required />
                     </label>
                     <label>
                         Histórico escolar (obrigatório):
-                        <input type="file" name="historico" accept=".pdf,.jpg,.png" onChange={handleChange} required />
+                        <Input type="file" name="historico" accept=".pdf,.jpg,.png" onChange={handleChange} required />
                     </label>
                     {form.genero === "masculino" && (
                         <label>
                             Reservista (obrigatório para homens):
-                            <input type="file" name="reservista" accept=".pdf,.jpg,.png" onChange={handleChange} required />
+                            <Input type="file" name="reservista" accept=".pdf,.jpg,.png" onChange={handleChange} required />
                         </label>
                     )}
                     <label>
                         CNH (opcional):
-                        <input type="file" name="cnh" accept=".pdf,.jpg,.png" onChange={handleChange} />
+                        <Input type="file" name="cnh" accept=".pdf,.jpg,.png" onChange={handleChange} />
                     </label>
                     <Button type="submit" className="btn-enviar">Enviar Documentos</Button>
                 </form>
