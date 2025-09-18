@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Telas Candidatos
 import Cadastro from "../pages/candidatos/Cadastro";
 import Etapas from "../pages/candidatos/Etapas";
+import ManualEmpresa from "../pages/candidatos/ManualEmpresa";
 import InscricaoVaga from "../pages/candidatos/InscricaoVaga";
 import Login from "../pages/candidatos/Login";
 import MinhasCandidaturas from "../pages/candidatos/MinhasCandidaturas";
@@ -31,6 +33,7 @@ export default function AppRoutes() {
                 <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
                 <Route path="/etapas/:vagaId" element={<Etapas />} />
+                <Route path="/manuais" element={<ManualEmpresa />} />
                 <Route path="/teste" element={<Teste />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
