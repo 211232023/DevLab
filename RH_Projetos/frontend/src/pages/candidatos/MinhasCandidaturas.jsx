@@ -76,7 +76,7 @@ const MinhasCandidaturas = () => {
                 <p><strong>Área:</strong> {candidatura.area}</p>
                 <p><strong>Status:</strong> <span className={`status status-${candidatura.status.toLowerCase().replace(' ', '-')}`}>{candidatura.status}</span></p>
                 <div className="candidatura-actions">
-                  <Button style={{backgroundColor:"red"}} onClick={() => handleDesistir(candidatura.id)} className="btn-desistir">
+                  <Button style={{backgroundColor:"#cc4040ff"}} onClick={() => handleDesistir(candidatura.id)} className="btn-desistir">
                     Desistir
                   </Button>
                   {/* CORREÇÃO 4: Troque o Link por um button */}

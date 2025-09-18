@@ -82,9 +82,7 @@ const GestaoVaga = () => {
   return (
     <>
       <div className="gestao-vaga-container">
-        <h1>Gestão de Vagas</h1>
-        <p>Acompanhe e gerencie as vagas que você cadastrou.</p>
-        
+        <h1>Gestão de Vagas</h1>      
         {vagasComCandidatos.length === 0 ? (
           <div className="nenhuma-vaga">
             <p>Você ainda não cadastrou nenhuma vaga.</p>
@@ -94,8 +92,6 @@ const GestaoVaga = () => {
               vagasComCandidatos.map((vaga) => (
                 <div key={vaga.id} className="vaga-card">
                   <h2>{vaga.titulo}</h2>
-                  <p>{vaga.descricao}</p>
-                  
                   <div className="candidatos-table-container">
                     <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
                     {vaga.candidatos.length > 0 ? (

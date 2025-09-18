@@ -240,7 +240,7 @@ export default function CadastroVaga() {
           <Button type="submit" className="btn-cadastroVaga" disabled={isLoading}>
             {isLoading ? "Cadastrando..." : "Cadastrar"}
           </Button>
-          <Button style={{backgroundColor:"red"}}
+          <Button style={{backgroundColor:"#cc4040ff"}}
             type="button" onClick={handleCancel} className="btn-cancel"
           >
             Cancelar
