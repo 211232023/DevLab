@@ -81,7 +81,6 @@ const GestaoVaga = () => {
 
   return (
     <>
-      <Navbar />
       <div className="gestao-vaga-container">
         <h1>Gestão de Vagas</h1>
         <p>Acompanhe e gerencie as vagas que você cadastrou.</p>
@@ -99,7 +98,6 @@ const GestaoVaga = () => {
           ))
         )}
       </div>
-      <Footer />
     </>
   );
 };

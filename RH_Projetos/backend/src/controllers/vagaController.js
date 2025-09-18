@@ -212,7 +212,7 @@ exports.listarVagasPorUsuario = async (req, res) => {
             vagas.map(async (vaga) => {
                 const [candidatos] = await connection.query(
                     `SELECT
-                       u.nome as nome_candidato, u.email as email_candidato, u.telefone, u.curriculo as curriculo,
+                       u.nome as nome_candidato, u.email as email_candidato, u.telefone, c.curriculo as curriculo,
                        c.id as candidatura_id, c.status
                      FROM candidaturas c
                      JOIN usuarios u ON c.candidato_id = u.id
