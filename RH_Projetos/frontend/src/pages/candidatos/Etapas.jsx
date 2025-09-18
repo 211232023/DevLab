@@ -31,7 +31,7 @@ const etapas = [
         nome: "Envio de Documentos",
         descricao: "Envie os documentos solicitados.",
         status: "pendente",
-        rota: null
+        rota: "/etapas"
     }
 ];
 

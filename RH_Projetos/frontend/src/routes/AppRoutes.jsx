@@ -11,6 +11,7 @@ import TelaInicial from "../pages/candidatos/TelaInicial";
 import Teste from "../pages/candidatos/Teste";
 import Perfil from "../pages/candidatos/Perfil";
 import Home from "../pages/candidatos/Home";
+import Documentos from "../pages/candidatos/Documentos";
 
 // Telas Rh
 import CadastroVaga from "../pages/rh/CadastroVaga";
@@ -33,6 +34,7 @@ export default function AppRoutes() {
                 <Route path="/teste" element={<Teste />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
+                <Route path="/documentos" element={<Documentos />} />
 
                 {/* RH */}
                 <Route path="/cadastro-vaga" element={<CadastroVaga />} />
