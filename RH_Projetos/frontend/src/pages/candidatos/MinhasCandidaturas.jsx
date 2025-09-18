@@ -1,68 +1,98 @@
-import React, { useEffect, useState } from "react";
-import "./MinhasCandidaturas.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // CORREÇÃO 1: Importe useNavigate
+import { useAuth } from '../../AuthContext';
+import './MinhasCandidaturas.css';
+import Button from '../../components/Button';
 
 const MinhasCandidaturas = () => {
-    const [vagasCandidatadas, setVagasCandidatadas] = useState([]);
-    const navigate = useNavigate();
+  const [candidaturas, setCandidaturas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { user } = useAuth();
+  const navigate = useNavigate(); // CORREÇÃO 2: Instancie o hook
 
-    useEffect(() => {
-        // Busca as vagas candidatas do localStorage
-        const vagas = JSON.parse(localStorage.getItem("candidaturas")) || [];
-        setVagasCandidatadas(vagas);
-    }, []);
-
-    const handleDesistir = (vagaId) => {
-        const confirmacao = window.confirm("Tem certeza que deseja desistir da candidatura?");
-        if (!confirmacao) {
-            return; // Se o usuario cancelar, nao faz nada
+  useEffect(() => {
+    if (user && user.id) {
+      const fetchCandidaturas = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get(`http://localhost:3001/api/candidaturas/usuario/${user.id}`);
+          setCandidaturas(response.data);
+          setError('');
+        } catch (err) {
+          if (err.response && err.response.status === 404) {
+            setCandidaturas([]);
+          } else {
+            setError('Erro ao buscar suas candidaturas.');
+            console.error(err);
+          }
+        } finally {
+          setLoading(false);
         }
-        const novasVagas = vagasCandidatadas.filter(vaga => vaga.id !== vagaId);
-        setVagasCandidatadas(novasVagas);
-        localStorage.setItem("candidaturas", JSON.stringify(novasVagas));
-    };
+      };
 
-    const renderVagas = () => {
-        if (vagasCandidatadas.length === 0) {
-            return <p className="semVaga">Você ainda não se candidatou a nenhuma vaga. Vá até a página
-            de vagas e candidate-se!</p>;
-        }
-        return (
-            <ul>
-                {vagasCandidatadas.map((vaga, idx) => (
-                    <ul className="lista-vagas" key={vaga.nome || vaga.descricao || vaga.requisitos.obrigatorios || idx}>
-                        <strong className="nome-vagas">{vaga.nome || "-"}</strong>
-                        <br />
-                        <br />
-                        <strong>{vaga.descricao || "-"}</strong>
-                        <br />
-                        <br />
-                        <strong> Requisitos obrigatórios:{" "}
-                            {Array.isArray(vaga.requisitos?.obrigatorios)
-                                ? vaga.requisitos.obrigatorios.join(", ")
-                                : vaga.requisitos?.obrigatorios || "-"}.
-                        </strong>
-                        <br />
-                        <br />
-                        <button className="bt-informacao" onClick={() => navigate(`/etapas/${vaga.id}`)}>Ver progresso </button>
-                        <button className="bt-desistir" onClick={() => handleDesistir(vaga.id)}>Desistir</button>
-                        <div className="status">Status: Em andamento</div>
-                    </ul>
-                ))}
-            </ul>
-        );
-    };
+      fetchCandidaturas();
+    } else {
+      setLoading(false);
+      setError('Você precisa estar logado para ver suas candidaturas.');
+    }
+  }, [user]);
 
+  const handleDesistir = async (candidaturaId) => {
+    if (window.confirm('Tem certeza de que deseja desistir desta vaga?')) {
+      try {
+        await axios.delete(`http://localhost:3001/api/candidaturas/${candidaturaId}`);
+        setCandidaturas(candidaturas.filter(c => c.id !== candidaturaId));
+      } catch (err) {
+        alert('Erro ao tentar desistir da vaga.');
+        console.error(err);
+      }
+    }
+  };
 
-    return (
-        <div className="minhas-candidaturas">
-            <h2>Minhas candidaturas</h2>
-            {renderVagas()}
+  // CORREÇÃO 3: Crie a função para navegar
+  const handleVerProgresso = (candidaturaId) => {
+    navigate(`/etapas/${candidaturaId}`);
+  };
 
+  if (loading) {
+    return <div className="loading-container">Carregando...</div>;
+  }
 
-        </div>
-    )
+  if (error) {
+    return <div className="error-container">{error}</div>;
+  }
+
+  return (
+    <>
+      <div className="minhas-candidaturas-container">
+        <h1>Minhas Candidaturas</h1>
+        {candidaturas.length > 0 ? (
+          <div className="lista-candidaturas">
+            {candidaturas.map((candidatura) => (
+              <div key={candidatura.id} className="candidatura-card">
+                <h2>{candidatura.nome_vaga}</h2>
+                <p><strong>Área:</strong> {candidatura.area}</p>
+                <p><strong>Status:</strong> <span className={`status status-${candidatura.status.toLowerCase().replace(' ', '-')}`}>{candidatura.status}</span></p>
+                <div className="candidatura-actions">
+                  <Button style={{backgroundColor:"red"}} onClick={() => handleDesistir(candidatura.id)} className="btn-desistir">
+                    Desistir
+                  </Button>
+                  {/* CORREÇÃO 4: Troque o Link por um button */}
+                  <Button onClick={() => handleVerProgresso(candidatura.id)} className="btn-progresso">
+                    Ver Progresso
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="nenhuma-candidatura">Você ainda não se candidatou a nenhuma vaga.</p>
+        )}
+      </div>
+    </>
+  );
 };
-
 
 export default MinhasCandidaturas;

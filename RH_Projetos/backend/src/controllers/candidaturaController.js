@@ -60,3 +60,25 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor ao buscar as candidaturas.' });
   }
 };
+
+// Desistir de uma candidatura
+exports.desistirDeVaga = async (req, res) => {
+  const { candidatura_id } = req.params;
+
+  if (!candidatura_id) {
+    return res.status(400).json({ message: 'O ID da candidatura é obrigatório.' });
+  }
+
+  try {
+    const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [candidatura_id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Candidatura não encontrada.' });
+    }
+
+    res.status(200).json({ message: 'Você desistiu da vaga com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao desistir da vaga:', error);
+    res.status(500).json({ message: 'Erro no servidor ao tentar desistir da vaga.' });
+  }
+};

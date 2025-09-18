@@ -8,4 +8,6 @@ router.post('/vagas/:vaga_id', candidaturaController.inscreverCandidato);
 // Rota para listar todas as candidaturas de um usuário (ex: GET /api/candidaturas/usuario/5)
 router.get('/usuario/:candidato_id', candidaturaController.listarCandidaturasPorCandidato);
 
+router.delete('/:candidatura_id', candidaturaController.desistirDeVaga);
+
 module.exports = router;
