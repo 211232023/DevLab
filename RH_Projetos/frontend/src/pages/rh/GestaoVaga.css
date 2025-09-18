@@ -1,0 +1,96 @@
+.gestao-vaga-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.gestao-vaga-container h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.vaga-card-gestao {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vaga-card-gestao h2 {
+  margin-top: 0;
+  color: #0056b3;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.titulo-tabela {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #444;
+  font-size: 1.25rem;
+}
+
+.tabela-candidatos-wrapper {
+  overflow-x: auto;
+}
+
+.tabela-candidatos {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.tabela-candidatos th,
+.tabela-candidatos td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.tabela-candidatos thead tr {
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: bold;
+}
+
+.tabela-candidatos tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela-candidatos tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.link-curriculo {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link-curriculo:hover {
+    text-decoration: underline;
+}
+
+.status-candidato {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.status-aguardando-teste {
+  background-color: #ffc107; /* Amarelo */
+}
+
+.nenhum-candidato-inscrito,
+.nenhuma-vaga-cadastrada {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: #666;
+}

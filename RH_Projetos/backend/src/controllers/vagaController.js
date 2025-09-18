@@ -118,3 +118,69 @@ exports.deleteVaga = async (req, res) => {
         if (connection) connection.release();
     }
 };
+
+exports.listarCandidatosPorVaga = async (req, res) => {
+  const { vaga_id } = req.params;
+
+  try {
+    const [candidatos] = await db.query(
+      `SELECT 
+         u.nome, u.email, u.telefone,
+         c.id as candidatura_id, c.status, c.curriculo_path as curriculo
+       FROM candidaturas c
+       JOIN usuarios u ON c.candidato_id = u.id
+       WHERE c.vaga_id = ?`,
+      [vaga_id]
+    );
+
+    if (candidatos.length === 0) {
+      // É normal uma vaga não ter candidatos ainda, então retornamos um array vazio.
+      return res.status(200).json([]);
+    }
+
+    res.status(200).json(candidatos);
+  } catch (error) {
+    console.error('Erro ao buscar candidatos da vaga:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos.' });
+  }
+};
+
+// Listar todas as vagas de um recrutador com seus respectivos candidatos
+exports.listarVagasComCandidatos = async (req, res) => {
+  const { recrutador_id } = req.params;
+
+  if (!recrutador_id) {
+    return res.status(400).json({ message: 'O ID do recrutador é obrigatório.' });
+  }
+
+  try {
+    // 1. Pega todas as vagas do recrutador
+    const [vagas] = await db.query('SELECT * FROM vagas WHERE rh_id = ?', [recrutador_id]);
+
+    if (vagas.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // 2. Para cada vaga, busca os candidatos
+    const vagasComCandidatos = await Promise.all(
+      vagas.map(async (vaga) => {
+        const [candidatos] = await db.query(
+          `SELECT 
+             u.nome, u.email, u.telefone,
+             c.id as candidatura_id, c.status, c.curriculo_path as curriculo
+           FROM candidaturas c
+           JOIN usuarios u ON c.candidato_id = u.id
+           WHERE c.vaga_id = ?`,
+          [vaga.id]
+        );
+        // Retorna a vaga com um novo campo 'candidatos'
+        return { ...vaga, candidatos };
+      })
+    );
+
+    res.status(200).json(vagasComCandidatos);
+  } catch (error) {
+    console.error('Erro ao buscar vagas com candidatos:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar os dados de gestão.' });
+  }
+};
