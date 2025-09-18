@@ -20,4 +20,7 @@ router.delete('/:id', vagaController.deleteVaga);
 // Rota para buscar todas as vagas de um recrutador e seus candidatos
 router.get('/gestao/:recrutador_id', vagaController.listarVagasComCandidatos);
 
+// Rota para buscar todas as vagas de um usuário específico
+router.get('/usuario/:usuario_id', vagaController.listarVagasPorUsuario);
+
 module.exports = router;

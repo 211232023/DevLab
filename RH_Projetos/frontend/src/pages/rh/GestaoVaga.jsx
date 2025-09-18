@@ -102,24 +102,34 @@ const GestaoVaga = () => {
                       <tr>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Telefone</th>
+                        <th>Currículo</th>
                         <th>Status</th>
                         <th>Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {vaga.candidatos.map((candidato) => (
-                        <tr key={candidato.id}>
+                        <tr key={candidato.candidatura_id}>
                           <td>{candidato.nome_candidato}</td>
                           <td>{candidato.email_candidato}</td>
+                          <td>{candidato.telefone}</td>
+                          <td>
+                            {candidato.curriculo ? (
+                              <a href={`http://localhost:3001/${candidato.curriculo}`} target="_blank" rel="noopener noreferrer">
+                                Ver Currículo
+                              </a>
+                            ) : (
+                              'Não disponível'
+                            )}
+                          </td>
                           <td>
                             <span className={`status-pill status-${candidato.status.toLowerCase().replace(' ', '-')}`}>
                               {candidato.status}
                             </span>
                           </td>
                           <td>
-                            <Link to={`/detalhe-vaga/${vaga.id}`} className="btn-ver-detalhes">
-                              Ver Detalhes
-                            </Link>
+                            {/* Espaço para futuras ações */}
                           </td>
                         </tr>
                       ))}

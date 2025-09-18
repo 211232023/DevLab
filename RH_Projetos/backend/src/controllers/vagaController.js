@@ -191,28 +191,43 @@ exports.listarVagasComCandidatos = async (req, res) => {
   }
 };
 
-// Listar todas as vagas de um usuário específico
 exports.listarVagasPorUsuario = async (req, res) => {
-  const { usuario_id } = req.params;
+    const { usuario_id } = req.params;
 
-  if (!usuario_id) {
-    return res.status(400).json({ message: 'O ID do usuário é obrigatório.' });
-  }
-
-  try {
-    // Adicionada a cláusula "WHERE v.usuario_id = ?" para filtrar as vagas
-    const [vagas] = await db.query(
-      'SELECT v.*, u.nome as nome_usuario FROM vagas v JOIN usuarios u ON v.usuario_id = u.id WHERE v.usuario_id = ?',
-      [usuario_id]
-    );
-
-    if (vagas.length === 0) {
-      return res.status(200).json([]);
+    if (!usuario_id) {
+        return res.status(400).json({ message: 'O ID do usuário é obrigatório.' });
     }
 
-    res.status(200).json(vagas);
-  } catch (error) {
-    console.error('Erro ao buscar vagas por usuário:', error);
-    res.status(500).json({ message: 'Erro no servidor ao buscar as vagas.' });
-  }
+    let connection;
+    try {
+        connection = await db.getConnection();
+
+        const [vagas] = await connection.query('SELECT * FROM vagas WHERE rh_id = ?', [usuario_id]);
+
+        if (vagas.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const vagasComCandidatos = await Promise.all(
+            vagas.map(async (vaga) => {
+                const [candidatos] = await connection.query(
+                    `SELECT
+                       u.nome as nome_candidato, u.email as email_candidato, u.telefone, u.curriculo_path as curriculo,
+                       c.id as candidatura_id, c.status
+                     FROM candidaturas c
+                     JOIN usuarios u ON c.candidato_id = u.id
+                     WHERE c.vaga_id = ?`,
+                    [vaga.id]
+                );
+                return { ...vaga, candidatos };
+            })
+        );
+
+        res.status(200).json(vagasComCandidatos);
+    } catch (error) {
+        console.error('Erro ao buscar vagas por usuário:', error);
+        res.status(500).json({ message: 'Erro no servidor ao buscar as vagas.' });
+    } finally {
+        if (connection) connection.release();
+    }
 };
