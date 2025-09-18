@@ -90,13 +90,63 @@ const GestaoVaga = () => {
             <p>Você ainda não cadastrou nenhuma vaga.</p>
             <Link to="/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
           </div>
-        ) : (
-          vagasComCandidatos.map((vaga) => (
-            <div key={vaga.id} className="vaga-card">
-              {/* O resto do seu componente permanece o mesmo */}
-            </div>
-          ))
-        )}
+           ) : (
+              vagasComCandidatos.map((vaga) => (
+                <div key={vaga.id} className="vaga-card">
+                  <h2>{vaga.titulo}</h2>
+                  <p>{vaga.descricao}</p>
+                  
+                  <div className="candidatos-table-container">
+                    <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
+                    {vaga.candidatos.length > 0 ? (
+                      <table className="candidatos-table">
+                        <thead>
+                          <tr>
+                            <th>Nome do Candidato</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Currículo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {vaga.candidatos.map((candidato) => (
+                            <tr key={candidato.candidatura_id}>
+                              <td>{candidato.nome_candidato}</td>
+                              <td>{candidato.email_candidato}</td>
+                              {/* Exibindo o telefone */}
+                              <td>{candidato.telefone || 'Não informado'}</td>
+                              <td>
+                                {candidato.curriculo ? (
+                                  <a 
+                                    // Correção: Usar o caminho do currículo diretamente
+                                    href={`http://localhost:3001/${candidato.curriculo}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="link-curriculo"
+                                  >
+                                    Ver Currículo
+                                  </a>
+                                ) : (
+                                  'Não enviado'
+                                )}
+                              </td>
+                              <td>{candidato.status}</td>
+                              <td>
+                                {/* Futuras ações */}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Nenhum candidato inscrito para esta vaga ainda.</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
       </div>
     </>
   );

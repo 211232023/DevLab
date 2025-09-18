@@ -94,3 +94,50 @@
     font-size: 1.1rem;
     color: #666;
 }
+
+/* ... (estilos que já existem no arquivo) */
+
+/* Estilos para a nova tabela de candidatos */
+.candidatos-table-container {
+  margin-top: 20px;
+}
+
+.candidatos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.candidatos-table th,
+.candidatos-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.candidatos-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.candidatos-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.candidatos-table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.link-curriculo {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-curriculo:hover {
+  text-decoration: underline;
+}
