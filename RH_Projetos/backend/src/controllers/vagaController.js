@@ -126,7 +126,7 @@ exports.listarCandidatosPorVaga = async (req, res) => {
     const [candidatos] = await db.query(
       `SELECT 
          u.nome, u.email, u.telefone,
-         c.id as candidatura_id, c.status, c.curriculo_path as curriculo
+         c.id as candidatura_id, c.status, u.curriculo_path as curriculo 
        FROM candidaturas c
        JOIN usuarios u ON c.candidato_id = u.id
        WHERE c.vaga_id = ?`,
@@ -153,34 +153,40 @@ exports.listarVagasComCandidatos = async (req, res) => {
     return res.status(400).json({ message: 'O ID do recrutador é obrigatório.' });
   }
 
+  let connection;
   try {
+    // Pega uma conexão do pool
+    connection = await db.getConnection();
+
     // 1. Pega todas as vagas do recrutador
-    const [vagas] = await db.query('SELECT * FROM vagas WHERE rh_id = ?', [recrutador_id]);
+    const [vagas] = await connection.query('SELECT * FROM vagas WHERE rh_id = ?', [recrutador_id]);
 
     if (vagas.length === 0) {
+      // Se não houver vagas, retorna um array vazio.
       return res.status(200).json([]);
     }
 
-    // 2. Para cada vaga, busca os candidatos
-    const vagasComCandidatos = await Promise.all(
-      vagas.map(async (vaga) => {
-        const [candidatos] = await db.query(
-          `SELECT 
-             u.nome, u.email, u.telefone,
-             c.id as candidatura_id, c.status, c.curriculo_path as curriculo
-           FROM candidaturas c
-           JOIN usuarios u ON c.candidato_id = u.id
-           WHERE c.vaga_id = ?`,
-          [vaga.id]
-        );
-        // Retorna a vaga com um novo campo 'candidatos'
-        return { ...vaga, candidatos };
-      })
-    );
+    // 2. Para cada vaga, busca os candidatos de forma sequencial
+    const vagasComCandidatos = [];
+    for (const vaga of vagas) {
+      const [candidatos] = await connection.query(
+        `SELECT
+           u.nome, u.email, u.telefone,
+           c.id as candidatura_id, c.status, u.curriculo_path as curriculo
+         FROM candidaturas c
+         JOIN usuarios u ON c.candidato_id = u.id
+         WHERE c.vaga_id = ?`,
+        [vaga.id]
+      );
+      vagasComCandidatos.push({ ...vaga, candidatos });
+    }
 
     res.status(200).json(vagasComCandidatos);
   } catch (error) {
     console.error('Erro ao buscar vagas com candidatos:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar os dados de gestão.' });
+  } finally {
+    // Libera a conexão de volta para o pool
+    if (connection) connection.release();
   }
 };
