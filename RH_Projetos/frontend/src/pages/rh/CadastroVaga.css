@@ -277,3 +277,113 @@ textarea {
   text-align: center;
   font-weight: bold;
 }
+
+.questao-manager {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.questao-manager h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.colunas-questoes {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.coluna {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    height: 400px; /* Altura fixa */
+    display: flex;
+    flex-direction: column;
+}
+
+.coluna h3 {
+    margin-top: 0;
+    color: #0056b3;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.lista-questoes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto; /* Habilita a rolagem se a lista for grande */
+}
+
+.lista-questoes li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.lista-questoes li:hover {
+    background-color: #f7f7f7;
+}
+
+.lista-questoes li:last-child {
+    border-bottom: none;
+}
+
+.lista-questoes li span {
+    flex-grow: 1;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.lista-questoes li span strong {
+    color: #555;
+    font-weight: 600;
+}
+
+.lista-questoes li button {
+    border-radius: 50%;
+    border: none;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    line-height: 28px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background-color: #28a745; /* Verde */
+}
+
+.lista-questoes li button:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+.lista-questoes li button.remover {
+    background-color: #dc3545; /* Vermelho */
+}
+
+.mensagem-erro {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
