@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const vagaController = require('../controllers/vagaController');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 // POST /vagas -> Criar uma nova vaga
 router.post('/', vagaController.createVaga);
@@ -22,5 +23,11 @@ router.get('/gestao/:recrutador_id', vagaController.listarVagasComCandidatos);
 
 // Rota para buscar todas as vagas de um usuário específico
 router.get('/usuario/:usuario_id', vagaController.listarVagasPorUsuario);
+
+// Rota para buscar todas as vagas (protegida para ADMIN e RH)
+router.get('/', protect, authorize('ADMIN', 'RH'), vagaController.getAllVagas);
+
+// Rota para buscar vagas por usuário (pode ser mantida se necessário)
+router.get('/usuario/:usuario_id', protect, vagaController.listarVagasPorUsuario);
 
 module.exports = router;
