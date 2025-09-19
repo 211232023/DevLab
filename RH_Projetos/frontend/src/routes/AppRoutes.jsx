@@ -34,6 +34,7 @@ export default function AppRoutes() {
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
                 <Route path="/etapas/:vagaId" element={<Etapas />} />
                 <Route path="/manuais" element={<ManualEmpresa />} />
+                <Route path="/manual/:candidaturaId" element={<ManualEmpresa />} />
                 <Route path="/teste" element={<Teste />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
