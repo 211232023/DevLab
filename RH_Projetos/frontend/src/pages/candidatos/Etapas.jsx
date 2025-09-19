@@ -19,7 +19,7 @@ const etapas = [
         nome: "Triagem",
         descricao: "Aguardando análise do RH.",
         status: "pendente",
-        rota: null
+        rota: "/triagem"
     },
     {
         nome: "Manuais da Empresa",
