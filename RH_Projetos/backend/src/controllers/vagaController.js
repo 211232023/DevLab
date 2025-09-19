@@ -1,40 +1,63 @@
 const db = require('../config/db');
 
 // --- FUNÇÃO DE CRIAR VAGA ATUALIZADA ---
-exports.createVaga = async (req, res) => {
-    const { 
-        rh_id, titulo, area, salario, descricao, 
-        data_Abertura, data_fechamento, escala_trabalho, beneficios 
-    } = req.body;
+// Em src/controllers/vagaController.js
 
-    if (!rh_id || !titulo || !area || !salario || !descricao || !data_Abertura || !data_fechamento || !escala_trabalho) {
-        return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
+exports.createVagaCompleta = async (req, res) => {
+    const { vagaData, testeData, questoes } = req.body;
+
+    if (!vagaData || !testeData || !questoes || questoes.length === 0) {
+        return res.status(400).json({ error: 'Dados da vaga, teste e pelo menos uma questão são obrigatórios.' });
     }
 
-    const query = `
-        INSERT INTO vagas (
-            rh_id, titulo, area, salario, descricao, 
-            data_Abertura, data_fechamento, escala_trabalho, beneficios
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    const values = [
-        rh_id, titulo, area, salario, descricao, 
-        data_Abertura, data_fechamento, escala_trabalho, beneficios
-    ];
-
-    let connection;
+    const connection = await db.getConnection();
     try {
-        // Pega uma conexão do pool
-        connection = await db.getConnection(); 
-        const [result] = await connection.query(query, values);
-        res.status(201).json({ message: 'Vaga criada com sucesso!', vagaId: result.insertId });
+        await connection.beginTransaction();
+
+        // 1. Criar a Vaga
+        const [vagaResult] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
+        const vagaId = vagaResult.insertId;
+
+        // 2. Criar o Teste
+        const testeParaSalvar = { ...testeData, vaga_id: vagaId };
+        const [testeResult] = await connection.query('INSERT INTO testes SET ?', [testeParaSalvar]);
+        const testeId = testeResult.insertId;
+
+        // 3. Criar as Questões, Alternativas e associar ao teste
+        for (const questao of questoes) {
+            const { enunciado, area_conhecimento, alternativas } = questao;
+            
+            const [questaoResult] = await connection.query(
+                'INSERT INTO questoes (enunciado, area_conhecimento) VALUES (?, ?)',
+                [enunciado, area_conhecimento]
+            );
+            const questaoId = questaoResult.insertId;
+
+            // --- LINHA ADICIONADA: Associa a questão criada ao teste ---
+            await connection.query(
+                'INSERT INTO testes_questoes (teste_id, questao_id) VALUES (?, ?)',
+                [testeId, questaoId]
+            );
+
+            // Insere as alternativas da questão
+            if (alternativas && alternativas.length > 0) {
+                const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta]);
+                await connection.query(
+                    'INSERT INTO alternativas (questao_id, texto, correta) VALUES ?',
+                    [alternativasValues]
+                );
+            }
+        }
+
+        await connection.commit();
+        res.status(201).json({ message: 'Vaga e teste criados com sucesso!', vagaId: vagaId });
+
     } catch (err) {
-        console.error('Erro ao criar vaga:', err);
+        await connection.rollback();
+        console.error('Erro ao criar vaga completa:', err);
         res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
     } finally {
-        // Libera a conexão de volta para o pool, estando ela com erro ou não
-        if (connection) connection.release(); 
+        connection.release();
     }
 };
 
@@ -232,5 +255,57 @@ exports.listarVagasPorUsuario = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor ao buscar as vagas.' });
     } finally {
         if (connection) connection.release();
+    }
+};
+
+exports.createVagaCompleta = async (req, res) => {
+    const { vagaData, testeData, questoes } = req.body;
+
+    // Validação básica
+    if (!vagaData || !testeData || !questoes || questoes.length === 0) {
+        return res.status(400).json({ error: 'Dados da vaga, teste e pelo menos uma questão são obrigatórios.' });
+    }
+
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Criar a Vaga
+        const [vagaResult] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
+        const vagaId = vagaResult.insertId;
+
+        // 2. Criar o Teste
+        const testeParaSalvar = { ...testeData, vaga_id: vagaId };
+        const [testeResult] = await connection.query('INSERT INTO testes SET ?', [testeParaSalvar]);
+        const testeId = testeResult.insertId;
+
+        // 3. Criar as Questões e Alternativas
+        for (const questao of questoes) {
+            const { enunciado, area_conhecimento, alternativas } = questao;
+            
+            const [questaoResult] = await connection.query(
+                'INSERT INTO questoes (enunciado, area_conhecimento) VALUES (?, ?)',
+                [enunciado, area_conhecimento]
+            );
+            const questaoId = questaoResult.insertId;
+
+            const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta]);
+            await connection.query(
+                'INSERT INTO alternativas (questao_id, texto, correta) VALUES ?',
+                [alternativasValues]
+            );
+        }
+
+        // Se tudo deu certo, confirma as operações
+        await connection.commit();
+        res.status(201).json({ message: 'Vaga e teste criados com sucesso!', vagaId: vagaId });
+
+    } catch (err) {
+        // Se algo deu errado, desfaz tudo
+        await connection.rollback();
+        console.error('Erro ao criar vaga completa:', err);
+        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
+    } finally {
+        connection.release();
     }
 };

@@ -178,3 +178,24 @@ exports.deleteCandidatura = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor ao tentar eliminar a candidatura.' });
   }
 };
+
+// Adicione esta função em src/controllers/candidaturaController.js
+
+exports.getCandidaturaById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [candidaturas] = await db.query(
+      'SELECT * FROM candidaturas WHERE id = ?', 
+      [id]
+    );
+
+    if (candidaturas.length === 0) {
+      return res.status(404).json({ message: 'Candidatura não encontrada.' });
+    }
+
+    res.status(200).json(candidaturas[0]);
+  } catch (error) {
+    console.error('Erro ao buscar candidatura:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar os dados da candidatura.' });
+  }
+};

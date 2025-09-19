@@ -1,110 +1,141 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from 'react-router-dom';
 import "./CadastroVaga.css";
 import Button from "../../components/Button";
 
+// --- Componente do Modal para Nova Questão (Corrigido) ---
+const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
+    const [enunciado, setEnunciado] = useState('');
+    const [area, setArea] = useState('');
+    const [alternativas, setAlternativas] = useState([
+        { texto: '', correta: true },
+        { texto: '', correta: false },
+        { texto: '', correta: false },
+        { texto: '', correta: false },
+    ]);
+    const [error, setError] = useState('');
+
+    const handleAlternativaChange = (index, field, value) => {
+        const novasAlternativas = alternativas.map((alt, i) => {
+            if (i === index) {
+                return field === 'correta' ? { ...alt, correta: true } : { ...alt, [field]: value };
+            }
+            return field === 'correta' ? { ...alt, correta: false } : alt;
+        });
+        setAlternativas(novasAlternativas);
+    };
+
+    const handleAddQuestao = () => {
+        setError('');
+        if (!enunciado || !area) {
+            setError('Preencha o enunciado e a área da questão.');
+            return;
+        }
+        const alternativasPreenchidas = alternativas.filter(a => a.texto.trim() !== '');
+        if (alternativasPreenchidas.length < 2) {
+            setError('A questão deve ter pelo menos duas alternativas.');
+            return;
+        }
+        if (!alternativasPreenchidas.some(a => a.correta)) {
+            setError('Marque uma alternativa como correta.');
+            return;
+        }
+        onQuestaoCriada({ enunciado, area_conhecimento: area, alternativas: alternativasPreenchidas });
+        onClose();
+    };
+
+    return (
+        <div className="modal-backdrop">
+            <div className="modal-content">
+                <h2>Criar Nova Questão</h2>
+                {error && <p className="mensagem-erro">{error}</p>}
+                <div className="form-group-modal">
+                    <label>Enunciado da Questão</label>
+                    <textarea value={enunciado} onChange={(e) => setEnunciado(e.target.value)} required />
+                </div>
+                <div className="form-group-modal">
+                    <label>Área de Conhecimento</label>
+                    <input type="text" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Ex: JavaScript, Lógica, Vendas" required />
+                </div>
+                <div className="form-group-modal">
+                    <label>Alternativas (Marque a correta)</label>
+                    {alternativas.map((alt, index) => (
+                        <div key={index} className="alternativa-input">
+                            <input type="radio" name="correta" checked={alt.correta} onChange={() => handleAlternativaChange(index, 'correta', true)} />
+                            <input type="text" placeholder={`Alternativa ${index + 1}`} value={alt.texto} onChange={(e) => handleAlternativaChange(index, 'texto', e.target.value)} />
+                        </div>
+                    ))}
+                </div>
+                <div className="modal-actions">
+                    <Button type="button" onClick={onClose} className="btn-cancel">Cancelar</Button>
+                    <Button type="button" onClick={handleAddQuestao}>Adicionar Questão</Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- Componente Principal ---
 export default function CadastroVaga() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // --- Estados para controle do fluxo ---
-    const [step, setStep] = useState(1); // 1: Vaga, 2: Teste, 3: Questões
-    const [vagaId, setVagaId] = useState(null);
-    const [testeId, setTesteId] = useState(null);
+    const [step, setStep] = useState(1);
     
-    // --- Estados do formulário da Vaga (do seu código antigo) ---
-    const estadoInicialFormVaga = {
-        nome: "",
-        area: "",
-        beneficios: [],
-        salario: "",
-        escala: "",
-        dataInicial: "",
-        dataLimite: "",
-        descricao: "",
-    };
-    const [formVaga, setFormVaga] = useState(estadoInicialFormVaga);
+    // Estados para guardar TODOS os dados antes de enviar
+    const [formVaga, setFormVaga] = useState({
+        nome: "", area: "", beneficios: [], salario: "",
+        escala: "", dataInicial: "", dataLimite: "", descricao: "",
+    });
+    const [testeData, setTesteData] = useState({ titulo: '', descricao: '' });
+    const [questoesDoTeste, setQuestoesDoTeste] = useState([]);
+
+    // Estados de UI
     const [novoBeneficio, setNovoBeneficio] = useState("");
     const [removendo, setRemovendo] = useState([]);
     const [mostrarBeneficios, setMostrarBeneficios] = useState(false);
-    
-    // --- Estados dos formulários de Teste e Questões ---
-    const [testeData, setTesteData] = useState({ titulo: '', descricao: '' });
-    const [questoesBanco, setQuestoesBanco] = useState([]);
-    const [questoesDoTeste, setQuestoesDoTeste] = useState([]);
-
-    // --- Estados de Feedback e Carregamento ---
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
-    // --- Carregar o banco de questões na Etapa 3 ---
-    useEffect(() => {
-        if (step === 3) {
-            const fetchQuestoes = async () => {
-                setIsLoading(true);
-                try {
-                    const res = await axios.get('http://localhost:3001/api/questoes');
-                    setQuestoesBanco(res.data);
-                } catch (err) {
-                    console.error('Erro ao buscar questões:', err);
-                    setError('Não foi possível carregar o banco de questões.');
-                } finally {
-                    setIsLoading(false);
-                }
-            };
-            fetchQuestoes();
-        }
-    }, [step]);
+    // Lógica de Benefícios
+    const todosBeneficiosPreDefinidos = ["Vale-refeição", "Vale-transporte", "Plano de saúde", "Seguro de vida", "Home office", "Auxílio creche", "Bônus anual", "Participação nos lucros", "Estacionamento", "Assistência odontológica"];
+    const beneficiosPreDefinidos = todosBeneficiosPreDefinidos.filter(b => !formVaga.beneficios.includes(b));
     
-    // --- Lógica de Benefícios (do seu código antigo) ---
-    const todosBeneficiosPreDefinidos = [
-        "Vale-refeição", "Vale-transporte", "Plano de saúde", "Seguro de vida",
-        "Home office", "Auxílio creche", "Bônus anual", "Participação nos lucros",
-        "Estacionamento", "Assistência odontológica",
-    ];
-    const beneficiosPreDefinidos = todosBeneficiosPreDefinidos.filter(
-        (b) => !formVaga.beneficios.includes(b)
-    );
     const handleAddBeneficio = (b) => {
         if (b && !formVaga.beneficios.includes(b)) {
             setFormVaga({ ...formVaga, beneficios: [...formVaga.beneficios, b] });
             setNovoBeneficio("");
         }
     };
+    
     const handleRemoveBeneficio = (b) => {
-        setRemovendo((prev) => [...prev, b]);
+        setRemovendo(prev => [...prev, b]);
         setTimeout(() => {
-            setFormVaga({
-                ...formVaga,
-                beneficios: formVaga.beneficios.filter((item) => item !== b),
-            });
-            setRemovendo((prev) => prev.filter((item) => item !== b));
+            setFormVaga(prev => ({ ...prev, beneficios: prev.beneficios.filter(item => item !== b) }));
+            setRemovendo(prev => prev.filter(item => item !== b));
         }, 300);
     };
+
+    const handleVagaChange = (e) => setFormVaga({ ...formVaga, [e.target.name]: e.target.value });
+    const handleTesteChange = (e) => setTesteData({ ...testeData, [e.target.name]: e.target.value });
     
-    // --- Handlers de Mudança nos Inputs ---
-    const handleVagaChange = (e) => {
-        const { name, value } = e.target;
-        setFormVaga({ ...formVaga, [name]: value });
+    // Funções de Questões
+    const handleQuestaoCriada = (novaQuestao) => {
+        setQuestoesDoTeste(prev => [...prev, novaQuestao]);
     };
-    const handleTesteChange = (e) => {
-        setTesteData({ ...testeData, [e.target.name]: e.target.value });
+    const handleRemoveQuestao = (index) => {
+        setQuestoesDoTeste(prev => prev.filter((_, i) => i !== index));
     };
 
-    // --- Handlers de Submissão por Etapa ---
-    const handleVagaSubmit = async (e) => {
-        e.preventDefault();
+    // Submissão Final
+    const handleFinalSubmit = async () => {
         setIsLoading(true);
-        setError("");
-        if (!user || !user.id) {
-            alert("Erro de autenticação. Por favor, faça o login novamente.");
-            setIsLoading(false);
-            return;
-        }
-        
-        const vagaDataParaAPI = {
+        setError('');
+
+        const vagaPayload = {
             rh_id: user.id,
             titulo: formVaga.nome,
             area: formVaga.area,
@@ -115,206 +146,119 @@ export default function CadastroVaga() {
             escala_trabalho: formVaga.escala,
             beneficios: formVaga.beneficios.join(', '),
         };
-
+        
         try {
-            const response = await axios.post("http://localhost:3001/api/vagas", vagaDataParaAPI);
-            setVagaId(response.data.vagaId);
-            setStep(2); // Sucesso! Avança para a próxima etapa.
-        } catch (error) {
-            console.error("Erro ao cadastrar vaga:", error.response ? error.response.data : error.message);
-            setError("Falha ao cadastrar a vaga. Verifique os campos e tente novamente.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleTesteSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
-        try {
-            const response = await axios.post('http://localhost:3001/api/testes', {
-                ...testeData,
-                vaga_id: vagaId
+            await axios.post("http://localhost:3001/api/vagas/completa", {
+                vagaData: vagaPayload,
+                testeData: testeData,
+                questoes: questoesDoTeste
             });
-            setTesteId(response.data.testeId);
-            setStep(3); // Avança para a etapa de adicionar questões
-        } catch (err) {
-            setError(err.response?.data?.message || 'Erro ao criar teste.');
+            alert('Vaga e teste cadastrados com sucesso!');
+            navigate('/gestao-vagas');
+        } catch (error) {
+            setError(error.response?.data?.error || "Erro ao salvar a vaga. Verifique todos os campos.");
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleNextStep = () => setStep(step + 1);
+    const handlePrevStep = () => setStep(step - 1);
     
-    // --- Handlers de Gerenciamento de Questões ---
-    const handleAddQuestao = async (questao) => {
-        try {
-            await axios.post(`http://localhost:3001/api/testes/${testeId}/questoes`, { questao_id: questao.id });
-            setQuestoesDoTeste(prev => [...prev, questao]);
-        } catch (err) {
-             alert(err.response?.data?.message || 'Erro ao adicionar questão.');
-        }
-    };
-    const handleRemoveQuestao = async (questaoId) => {
-        try {
-            await axios.delete(`http://localhost:3001/api/testes/${testeId}/questoes/${questaoId}`);
-            setQuestoesDoTeste(prev => prev.filter(q => q.id !== questaoId));
-        } catch (err) {
-            alert(err.response?.data?.message || 'Erro ao remover questão.');
-        }
-    };
-    
-    const handleFinalizar = () => {
-        alert('Vaga e teste cadastrados com sucesso!');
-        navigate('/gestao-vagas');
-    };
-
-    const handleCancel = () => {
-        if (step > 1) {
-            setStep(step - 1); // Volta para a etapa anterior
-        } else {
-            navigate(-1); // Se estiver na primeira etapa, volta para a página anterior
-        }
-    };
-
-
-    // --- FUNÇÕES DE RENDERIZAÇÃO ---
+    // Funções de Renderização
     const renderVagaForm = () => (
-        <form onSubmit={handleVagaSubmit} className="form-vaga">
+        <div className="form-vaga">
             <label htmlFor="nome">Nome da vaga</label>
             <input id="nome" type="text" name="nome" placeholder="Ex: Desenvolvedor Frontend" value={formVaga.nome} onChange={handleVagaChange} required />
-            
             <label htmlFor="area">Área</label>
             <select id="area" name="area" value={formVaga.area} onChange={handleVagaChange} required>
                 <option value="">Selecione a área</option>
                 <option value="Saúde">Saúde</option>
                 <option value="Tecnologia">Tecnologia</option>
                 <option value="Engenharia">Engenharia</option>
-                <option value="Ciências Humanas e Sociais">Ciências Humanas e Sociais</option>
-                <option value="Gestão e Negócios">Gestão e Negócios</option>
-                <option value="Artes e Design">Artes e Design</option>
             </select>
-
             <div className="form-group">
                 <button type="button" className="beneficios-toggle-btn" onClick={() => setMostrarBeneficios(!mostrarBeneficios)}>
                     {mostrarBeneficios ? "Ocultar Benefícios" : "Adicionar Benefícios"}
                 </button>
             </div>
-
             {mostrarBeneficios && (
                 <div className="beneficios-container">
                     <div className="beneficios-box">
                         {formVaga.beneficios.map((b) => (
-                            <div key={b} className={`beneficio-tag fade-in ${removendo.includes(b) ? "fade-out" : ""}`} style={{ animationDuration: "0.3s" }}>
-                                {b}
-                                <span className="remove-tag" onClick={() => handleRemoveBeneficio(b)}>✕</span>
+                            <div key={b} className={`beneficio-tag fade-in ${removendo.includes(b) ? "fade-out" : ""}`}>
+                                {b}<span className="remove-tag" onClick={() => handleRemoveBeneficio(b)}>✕</span>
                             </div>
                         ))}
                         <input type="text" placeholder="Digite um benefício..." value={novoBeneficio} onChange={(e) => setNovoBeneficio(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddBeneficio(novoBeneficio.trim()); } }} />
                     </div>
                     <div className="beneficios-predefinidos">
-                        {beneficiosPreDefinidos.map((b) => (
-                            <button type="button" key={b} className="btn-beneficio-pre fade-in" onClick={() => handleAddBeneficio(b)}>{b}</button>
-                        ))}
+                        {beneficiosPreDefinidos.map((b) => (<button type="button" key={b} className="btn-beneficio-pre fade-in" onClick={() => handleAddBeneficio(b)}>{b}</button>))}
                     </div>
                 </div>
             )}
-
             <label htmlFor="salario">Salário</label>
             <input id="salario" type="number" name="salario" placeholder="Ex: 3500.00" step="0.01" value={formVaga.salario} onChange={handleVagaChange} required />
-            
             <label htmlFor="escala">Escala de trabalho</label>
             <input id="escala" type="text" name="escala" placeholder="Ex: 6x1, 5x2, 12x36..." value={formVaga.escala} onChange={handleVagaChange} required />
-            
             <div className="form-row">
-                <div>
-                    <label htmlFor="dataInicial">Data de Abertura</label>
-                    <input id="dataInicial" type="date" name="dataInicial" value={formVaga.dataInicial} onChange={handleVagaChange} required />
-                </div>
-                <div>
-                    <label htmlFor="dataLimite">Data de Fechamento</label>
-                    <input id="dataLimite" type="date" name="dataLimite" value={formVaga.dataLimite} onChange={handleVagaChange} required />
-                </div>
+                <div><label htmlFor="dataInicial">Data de Abertura</label><input id="dataInicial" type="date" name="dataInicial" value={formVaga.dataInicial} onChange={handleVagaChange} required /></div>
+                <div><label htmlFor="dataLimite">Data de Fechamento</label><input id="dataLimite" type="date" name="dataLimite" value={formVaga.dataLimite} onChange={handleVagaChange} required /></div>
             </div>
-            
             <label htmlFor="descricao">Descrição da vaga</label>
             <textarea id="descricao" name="descricao" placeholder="Descreva as responsabilidades, requisitos e diferenciais..." value={formVaga.descricao} onChange={handleVagaChange} rows="5" required />
-
             <div className="form-actions">
-                <Button type="submit" className="btn-cadastroVaga" disabled={isLoading}>
-                    {isLoading ? "Salvando..." : "Salvar e ir para Teste"}
-                </Button>
-                <Button style={{backgroundColor:"#cc4040ff"}} type="button" onClick={handleCancel} className="btn-cancel">
-                    Cancelar
-                </Button>
+                <Button onClick={handleNextStep} className="btn-cadastroVaga">Próximo</Button>
+                <Button style={{backgroundColor:"#cc4040ff"}} type="button" onClick={() => navigate(-1)} className="btn-cancel">Cancelar</Button>
             </div>
-        </form>
+        </div>
     );
 
     const renderTesteForm = () => (
          <div className="form-vaga">
             <h2>Etapa 2: Detalhes do Teste para "{formVaga.nome}"</h2>
-            <form onSubmit={handleTesteSubmit}>
-                <label htmlFor="titulo-teste">Título do Teste</label>
-                <input id="titulo-teste" type="text" name="titulo" placeholder="Ex: Teste de Lógica e JavaScript" value={testeData.titulo} onChange={handleTesteChange} required />
-                
-                <label htmlFor="descricao-teste">Descrição/Instruções do Teste</label>
-                <textarea id="descricao-teste" name="descricao" placeholder="Instruções para o candidato" value={testeData.descricao} onChange={handleTesteChange} rows="5" />
-                
-                <div className="form-actions">
-                    <Button type="submit" className="btn-cadastroVaga" disabled={isLoading}>
-                        {isLoading ? "Salvando..." : "Salvar e Adicionar Questões"}
-                    </Button>
-                     <Button style={{backgroundColor:"#cc4040ff"}} type="button" onClick={handleCancel} className="btn-cancel">
-                        Voltar
-                    </Button>
-                </div>
-            </form>
+            <label htmlFor="titulo-teste">Título do Teste</label>
+            <input id="titulo-teste" type="text" name="titulo" placeholder="Ex: Teste de Lógica e JavaScript" value={testeData.titulo} onChange={handleTesteChange} required />
+            <label htmlFor="descricao-teste">Descrição/Instruções do Teste</label>
+            <textarea id="descricao-teste" name="descricao" placeholder="Instruções para o candidato" value={testeData.descricao} onChange={handleTesteChange} rows="5" />
+            <div className="form-actions">
+                <Button onClick={handleNextStep} className="btn-cadastroVaga">Próximo</Button>
+                <Button style={{backgroundColor:"#6c757d"}} type="button" onClick={handlePrevStep} className="btn-cancel">Voltar</Button>
+            </div>
         </div>
     );
     
     const renderQuestaoManager = () => (
         <div className="questao-manager">
             <h2>Etapa 3: Montagem do Teste "{testeData.titulo}"</h2>
-            <div className="colunas-questoes">
-                <div className="coluna">
-                    <h3>Banco de Questões</h3>
-                    {isLoading ? <p>Carregando questões...</p> : (
-                        <ul className="lista-questoes">
-                            {questoesBanco.filter(q => !questoesDoTeste.some(qt => qt.id === q.id)).map(q => (
-                                <li key={q.id}>
-                                    <span>{q.enunciado} <strong>({q.area_conhecimento})</strong></span>
-                                    <button onClick={() => handleAddQuestao(q)} title="Adicionar ao teste">+</button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-                <div className="coluna">
-                    <h3>Questões no Teste ({questoesDoTeste.length})</h3>
-                     <ul className="lista-questoes">
-                         {questoesDoTeste.map(q => (
-                            <li key={q.id}>
+            <div className="questoes-adicionadas">
+                <h3>Questões Adicionadas ({questoesDoTeste.length})</h3>
+                {questoesDoTeste.length === 0 ? (
+                    <p className="nenhuma-questao">Nenhuma questão adicionada ainda. Clique abaixo para criar a primeira.</p>
+                ) : (
+                    <ul className="lista-questoes-teste">
+                        {questoesDoTeste.map((q, index) => (
+                            <li key={index}>
                                 <span>{q.enunciado}</span>
-                                <button className="remover" onClick={() => handleRemoveQuestao(q.id)} title="Remover do teste">−</button>
+                                <button className="remover" onClick={() => handleRemoveQuestao(index)} title="Remover Questão">✕</button>
                             </li>
                         ))}
                     </ul>
-                </div>
+                )}
             </div>
-             <div className="form-actions">
-                <Button onClick={handleFinalizar} className="btn-cadastroVaga">
-                    Finalizar Cadastro
-                </Button>
-                <Button style={{backgroundColor:"#cc4040ff"}} type="button" onClick={handleCancel} className="btn-cancel">
-                    Voltar
-                </Button>
+            <div className="acoes-questoes">
+                <Button onClick={() => setShowModal(true)} className="btn-full-width">+ Criar e Adicionar Nova Questão</Button>
+            </div>
+            <div className="form-actions">
+                <Button onClick={handleFinalSubmit} className="btn-cadastroVaga" disabled={isLoading}>{isLoading ? "Salvando Tudo..." : "Finalizar e Salvar Vaga"}</Button>
+                <Button style={{backgroundColor:"#6c757d"}} type="button" onClick={handlePrevStep} className="btn-cancel">Voltar</Button>
             </div>
         </div>
     );
 
     return (
         <div className="cadastro-vaga-container">
+            {showModal && <NovaQuestaoModal onQuestaoCriada={handleQuestaoCriada} onClose={() => setShowModal(false)} />}
             {step === 1 && <h2>Cadastro da Vaga</h2>}
             {error && <div className="mensagem-erro">{error}</div>}
             

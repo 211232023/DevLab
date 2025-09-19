@@ -30,4 +30,7 @@ router.get('/', protect, authorize('ADMIN', 'RH'), vagaController.getAllVagas);
 // Rota para buscar vagas por usuário (pode ser mantida se necessário)
 router.get('/usuario/:usuario_id', protect, vagaController.listarVagasPorUsuario);
 
+// Rota para criar uma vaga completa (vaga + teste + questões)
+router.post('/completa', vagaController.createVagaCompleta);
+
 module.exports = router;
