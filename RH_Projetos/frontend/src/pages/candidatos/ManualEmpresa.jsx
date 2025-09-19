@@ -1,7 +1,14 @@
 import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import "./ManualEmpresa.css";
 
 const ManualEmpresa = () => {
+    const navigate = useNavigate();
+    const { candidaturaId } = useParams();
+
+    const handleEtapa = () => {
+        navigate(`/etapas/${candidaturaId}`);
+    };
     return (
         <div className="manual-container">
             <h2>Manuais da empresa</h2>
@@ -28,11 +35,10 @@ const ManualEmpresa = () => {
             </label>
 
             <div className="button-group">
-                <button>Concluir etapa</button>
-                <button>Voltar</button>
+                <button onClick={handleEtapa} >Voltar para as etapas </button>
             </div>
 
-        </div>
+        </div >
     );
 };
 

@@ -5,15 +5,15 @@
   border-radius: 40px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   padding: 40px;
-  transition: max-width 0.3s, padding 0.3s;
 }
 .intro-text {
     font-size: 15px;
 }
 .checkbox-label {
+    display: inline-flex;
     align-items: center;
-    margin-top: 20px;
     text-align: left;
+    margin-top: 20px;
     justify-content: left;
 }
 .button-group {
@@ -28,7 +28,6 @@ button {
     padding: 8px 16px;
     border-radius: 8px;
     border: none;
-    font-style: italic;
     color: white;
     cursor: pointer;
     background-color: rgb(7, 161, 138);
