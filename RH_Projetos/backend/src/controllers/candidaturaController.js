@@ -114,7 +114,7 @@ exports.listarCandidatosPorVaga = async (req, res) => {
       `SELECT
           c.id, c.candidato_id, c.status, c.endereco,
           u.nome as nome_candidato, u.email as email_candidato,
-          u.telefone, -- <-- ADICIONE ESTA LINHA PARA BUSCAR O TELEFONE
+          u.telefone,
           c.curriculo
         FROM candidaturas c
         JOIN usuarios u ON c.candidato_id = u.id
@@ -130,5 +130,51 @@ exports.listarCandidatosPorVaga = async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar candidatos da vaga:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos da vaga.' });
+  }
+};
+
+// Atualizar o status de uma candidatura
+exports.updateStatusCandidatura = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  // Validação para garantir que o status enviado é válido
+  const statusPermitidos = ['Aguardando Teste', 'Teste Disponível', 'Manual', 'Envio de Documentos', 'Entrevista', 'Finalizado'];
+  if (!status || !statusPermitidos.includes(status)) {
+    return res.status(400).json({ message: 'Status inválido fornecido.' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'UPDATE candidaturas SET status = ? WHERE id = ?',
+      [status, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Candidatura não encontrada.' });
+    }
+
+    res.status(200).json({ message: 'Status da candidatura atualizado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao atualizar status da candidatura:', error);
+    res.status(500).json({ message: 'Erro no servidor ao tentar atualizar o status.' });
+  }
+};
+
+// Deletar uma candidatura (pelo RH/Admin)
+exports.deleteCandidatura = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Candidatura não encontrada.' });
+    }
+
+    res.status(200).json({ message: 'Candidatura eliminada com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao deletar candidatura:', error);
+    res.status(500).json({ message: 'Erro no servidor ao tentar eliminar a candidatura.' });
   }
 };

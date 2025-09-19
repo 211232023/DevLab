@@ -10,14 +10,86 @@ const GestaoVaga = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Ordem das etapas do processo seletivo
+  const statusOrdem = [
+    'Aguardando Teste',
+    'Teste Disponível',
+    'Manual',
+    'Envio de Documentos',
+    'Entrevista',
+    'Finalizado'
+  ];
+
+  // Função para pegar a próxima etapa
+  const getNextStatus = (statusAtual) => {
+    const currentIndex = statusOrdem.indexOf(statusAtual);
+    if (currentIndex >= 0 && currentIndex < statusOrdem.length - 1) {
+      return statusOrdem[currentIndex + 1];
+    }
+    return statusAtual; // Retorna o mesmo se for a última etapa
+  };
+
+  // Função para avançar a etapa do candidato
+  const handleAvancarEtapa = async (candidaturaId, statusAtual, vagaId) => {
+    const novoStatus = getNextStatus(statusAtual);
+    if (novoStatus === statusAtual) {
+      alert('O candidato já está na etapa final do processo.');
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:3001/api/candidaturas/${candidaturaId}/status`, { status: novoStatus });
+      
+      // Atualiza o estado local para refletir a mudança imediatamente
+      setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => {
+        if (vaga.id === vagaId) {
+          return {
+            ...vaga,
+            candidatos: vaga.candidatos.map(c => 
+              c.id === candidaturaId ? { ...c, status: novoStatus } : c
+            )
+          };
+        }
+        return vaga;
+      }));
+
+    } catch (err) {
+      console.error('Erro ao avançar etapa:', err);
+      alert('Não foi possível avançar a etapa do candidato.');
+    }
+  };
+
+  // Função para eliminar a candidatura
+  const handleEliminarCandidatura = async (candidaturaId, vagaId) => {
+    if (window.confirm('Tem certeza que deseja eliminar esta candidatura do processo seletivo?')) {
+      try {
+        await axios.delete(`http://localhost:3001/api/candidaturas/${candidaturaId}`);
+
+        // Atualiza o estado local para remover o candidato da lista
+        setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => {
+          if (vaga.id === vagaId) {
+            return {
+              ...vaga,
+              candidatos: vaga.candidatos.filter(c => c.id !== candidaturaId)
+            };
+          }
+          return vaga;
+        }));
+
+      } catch (err) {
+        console.error('Erro ao eliminar candidatura:', err);
+        alert('Não foi possível eliminar a candidatura.');
+      }
+    }
+  };
+
+  // O restante do seu componente (useEffect, etc.) permanece o mesmo...
   useEffect(() => {
     const carregarTodasAsVagas = async () => {
-      // Apenas executa se o usuário for ADMIN ou RH
       if (user && (user.tipo === 'ADMIN' || user.tipo === 'RH')) {
         setLoading(true);
         setError('');
         try {
-          // 1. Busca todas as vagas, sem filtrar por usuário
           const vagasResponse = await axios.get('http://localhost:3001/api/vagas');
           const vagasData = vagasResponse.data;
 
@@ -25,8 +97,6 @@ const GestaoVaga = () => {
             setVagasComCandidatos([]);
             return;
           }
-
-          // 2. Para cada vaga, busca os candidatos associados
           const vagasCompletas = await Promise.all(
             vagasData.map(async (vaga) => {
               try {
@@ -34,12 +104,10 @@ const GestaoVaga = () => {
                 return { ...vaga, candidatos: candidatosResponse.data };
               } catch (err) {
                 console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
-                // Retorna a vaga mesmo se a busca por candidatos falhar
                 return { ...vaga, candidatos: [] };
               }
             })
           );
-
           setVagasComCandidatos(vagasCompletas);
         } catch (err) {
           console.error('Erro ao carregar vagas:', err);
@@ -48,33 +116,21 @@ const GestaoVaga = () => {
           setLoading(false);
         }
       } else {
-        // Se não for ADMIN ou RH, ou não estiver logado, para o carregamento
         setLoading(false);
       }
     };
-
     carregarTodasAsVagas();
-  }, [user]); // A dependência continua sendo o 'user' para reavaliar quando ele mudar
+  }, [user]);
 
-  // Renderização condicional
-  if (loading) {
-    return <div className="loading-container">Carregando...</div>;
-  }
-
-  // Se o usuário não estiver logado ou não tiver a permissão necessária
-  if (!user || (user.tipo !== 'ADMIN' && user.tipo !== 'RH')) {
-    return (
-      <div className="gestao-vaga-container" style={{ textAlign: 'center' }}>
-        <h1>Acesso Negado</h1>
-        <p>Você não tem permissão para visualizar esta página.</p>
-        <Link to="/login" className="btn-cadastrar-vaga">Ir para o Login</Link>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="error-container">{error}</div>;
-  }
+  if (loading) return <div className="loading-container">Carregando...</div>;
+  if (!user || (user.tipo !== 'ADMIN' && user.tipo !== 'RH')) return (
+    <div className="gestao-vaga-container" style={{ textAlign: 'center' }}>
+      <h1>Acesso Negado</h1>
+      <p>Você não tem permissão para visualizar esta página.</p>
+      <Link to="/login" className="btn-cadastrar-vaga">Ir para o Login</Link>
+    </div>
+  );
+  if (error) return <div className="error-container">{error}</div>;
 
   return (
     <div className="gestao-vaga-container">
@@ -99,12 +155,12 @@ const GestaoVaga = () => {
                       <th>Telefone</th>
                       <th>Currículo</th>
                       <th>Status</th>
-                      <th>Ações</th>
+                      <th>Ações</th> {/* Coluna adicionada */}
                     </tr>
                   </thead>
                   <tbody>
                     {vaga.candidatos.map((candidato) => (
-                      <tr key={candidato.candidatura_id}>
+                      <tr key={candidato.id}>
                         <td>{candidato.nome_candidato}</td>
                         <td>{candidato.email_candidato}</td>
                         <td>{candidato.telefone || 'Não informado'}</td>
@@ -123,8 +179,21 @@ const GestaoVaga = () => {
                           )}
                         </td>
                         <td>{candidato.status}</td>
-                        <td>
-                          {/* Adicione ações futuras aqui, como aprovar/reprovar */}
+                        {/* --- CÉLULA COM OS NOVOS BOTÕES --- */}
+                        <td className="coluna-acoes">
+                          <button
+                            className="btn-acao avancar"
+                            onClick={() => handleAvancarEtapa(candidato.id, candidato.status, vaga.id)}
+                            disabled={candidato.status === 'Finalizado'}
+                          >
+                            Avançar
+                          </button>
+                          <button
+                            className="btn-acao eliminar"
+                            onClick={() => handleEliminarCandidatura(candidato.id, vaga.id)}
+                          >
+                            Eliminar
+                          </button>
                         </td>
                       </tr>
                     ))}

@@ -141,3 +141,49 @@
 .link-curriculo:hover {
   text-decoration: underline;
 }
+.coluna-acoes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* Espaço entre os botões */
+}
+
+/* Estilo base comum para os botões */
+.btn-acao {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+/* Efeito de hover para dar feedback ao usuário */
+.btn-acao:hover {
+  opacity: 0.85;
+  transform: translateY(-2px); /* Efeito de elevação */
+}
+
+/* Estilo específico para o botão de avançar (verde) */
+.btn-acao.avancar {
+  background-color: #28a745; /* Verde sucesso */
+  border-radius: 40px;
+}
+
+/* Estilo específico para o botão de eliminar (vermelho) */
+.btn-acao.eliminar {
+  background-color: #dc3545; /* Vermelho perigo */
+  border-radius: 40px;
+}
+
+/* Estilo para quando o botão estiver desabilitado */
+.btn-acao:disabled {
+  background-color: #6c757d; /* Cinza */
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none; /* Remove o efeito de elevação */
+  box-shadow: none;
+}

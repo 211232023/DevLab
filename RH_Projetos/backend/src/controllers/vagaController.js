@@ -125,8 +125,12 @@ exports.listarCandidatosPorVaga = async (req, res) => {
   try {
     const [candidatos] = await db.query(
       `SELECT 
-         u.nome, u.email, u.telefone,
-         c.id as candidatura_id, c.status, u.curriculo_path as curriculo 
+         u.nome as nome_candidato, -- Adicionando alias para clareza
+         u.email as email_candidato, -- Adicionando alias
+         u.telefone,
+         c.id as candidatura_id, 
+         c.status, 
+         c.curriculo -- <--- CORREÇÃO AQUI
        FROM candidaturas c
        JOIN usuarios u ON c.candidato_id = u.id
        WHERE c.vaga_id = ?`,
@@ -134,7 +138,6 @@ exports.listarCandidatosPorVaga = async (req, res) => {
     );
 
     if (candidatos.length === 0) {
-      // É normal uma vaga não ter candidatos ainda, então retornamos um array vazio.
       return res.status(200).json([]);
     }
 
@@ -172,7 +175,7 @@ exports.listarVagasComCandidatos = async (req, res) => {
       const [candidatos] = await connection.query(
         `SELECT
            u.nome, u.email, u.telefone,
-           c.id as candidatura_id, c.status, u.curriculo_path as curriculo
+           c.id as candidatura_id, c.status, c.curriculo as curriculo
          FROM candidaturas c
          JOIN usuarios u ON c.candidato_id = u.id
          WHERE c.vaga_id = ?`,
