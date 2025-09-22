@@ -78,37 +78,30 @@ const GestaoVaga = () => {
         const carregarTodasAsVagas = async () => {
             if (user && (user.tipo === 'ADMIN' || user.tipo === 'RH')) {
                 setLoading(true);
-                setError('');
                 try {
                     const vagasResponse = await api.get('/vagas');
                     const vagasData = vagasResponse.data;
 
-                    if (vagasData.length === 0) {
-                        setVagasComCandidatos([]);
-                        setLoading(false);
-                        return;
+                    if (vagasData.length > 0) {
+                        const vagasCompletas = await Promise.all(
+                            vagasData.map(async (vaga) => {
+                                try {
+                                    const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
+                                    return { ...vaga, candidatos: candidatosResponse.data };
+                                } catch (err) {
+                                    console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
+                                    return { ...vaga, candidatos: [] };
+                                }
+                            })
+                        );
+                        setVagasComCandidatos(vagasCompletas);
                     }
-
-                    const vagasCompletas = await Promise.all(
-                        vagasData.map(async (vaga) => {
-                            try {
-                                const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
-                                return { ...vaga, candidatos: candidatosResponse.data };
-                            } catch (err) {
-                                console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
-                                return { ...vaga, candidatos: [] };
-                            }
-                        })
-                    );
-                    setVagasComCandidatos(vagasCompletas);
                 } catch (err) {
                     console.error('Erro ao carregar vagas:', err);
                     setError('Não foi possível carregar as informações.');
                 } finally {
                     setLoading(false);
                 }
-            } else {
-                setLoading(false);
             }
         };
         carregarTodasAsVagas();
@@ -120,71 +113,78 @@ const GestaoVaga = () => {
     return (
         <div className="gestao-vaga-container">
             <h1>Gestão de Vagas</h1>
-            {vagasComCandidatos.map((vaga) => (
-                <div key={vaga.id} className="vaga-card">
-                    <h2>{vaga.titulo}</h2>
-                    <div className="candidatos-table-container">
-                        <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
-                        {vaga.candidatos.length > 0 ? (
-                            <table className="candidatos-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nome do Candidato</th>
-                                        <th>Email</th>
-                                        <th>Currículo</th>
-                                        <th>Nota do Teste</th>
-                                        <th>Status Atual</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {vaga.candidatos.map((candidato) => (
-                                        <tr key={candidato.candidatura_id}>
-                                            <td>{candidato.nome}</td>
-                                            <td>{candidato.email}</td>
-                                            <td>
-                                                {candidato.curriculo_path ? (
-                                                    <a
-                                                        href={`http://localhost:3001${candidato.curriculo_path}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="link-curriculo"
-                                                    >
-                                                        Ver Currículo
-                                                    </a>
-                                                ) : ('Não enviado')}
-                                            </td>
-                                            <td>
-                                                {candidato.pontuacao_teste !== null
-                                                    ? `${parseFloat(candidato.pontuacao_teste).toFixed(2)}%`
-                                                    : 'Não realizado'}
-                                            </td>
-                                            <td>{candidato.status}</td>
-                                            <td className="coluna-acoes">
-                                                <button
-                                                    className="btn-acao avancar"
-                                                    onClick={() => handleAvancarEtapa(candidato.candidatura_id, candidato.status, vaga.id)}
-                                                    disabled={candidato.status === 'Finalizado'}
-                                                >
-                                                    Avançar
-                                                </button>
-                                                <button
-                                                    className="btn-acao eliminar"
-                                                    onClick={() => handleEliminarCandidatura(candidato.candidatura_id, vaga.id)}
-                                                >
-                                                    Eliminar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p>Nenhum candidato inscrito para esta vaga ainda.</p>
-                        )}
-                    </div>
+            {vagasComCandidatos.length === 0 ? (
+                <div className="nenhuma-vaga">
+                    <p>Nenhuma vaga cadastrada ou nenhuma vaga com candidatos.</p>
+                    <Link to="/rh/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
                 </div>
-            ))}
+            ) : (
+                vagasComCandidatos.map((vaga) => (
+                    <div key={vaga.id} className="vaga-card">
+                        <h2>{vaga.titulo}</h2>
+                        <div className="candidatos-table-container">
+                            <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
+                            {vaga.candidatos.length > 0 ? (
+                                <table className="candidatos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome do Candidato</th>
+                                            <th>Email</th>
+                                            <th>Currículo</th>
+                                            <th>Nota do Teste</th>
+                                            <th>Status Atual</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {vaga.candidatos.map((candidato) => (
+                                            <tr key={candidato.candidatura_id}>
+                                                <td>{candidato.nome}</td>
+                                                <td>{candidato.email}</td>
+                                                <td>
+                                                    {candidato.curriculo_path ? (
+                                                        <a
+                                                            href={`http://localhost:3001${candidato.curriculo_path}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="link-curriculo"
+                                                        >
+                                                            Ver Currículo
+                                                        </a>
+                                                    ) : ('Não enviado')}
+                                                </td>
+                                                <td>
+                                                    {candidato.pontuacao_teste !== null
+                                                        ? `${parseFloat(candidato.pontuacao_teste).toFixed(2)}%`
+                                                        : 'Não realizado'}
+                                                </td>
+                                                <td>{candidato.status}</td>
+                                                <td className="coluna-acoes">
+                                                    <button
+                                                        className="btn-acao avancar"
+                                                        onClick={() => handleAvancarEtapa(candidato.candidatura_id, candidato.status, vaga.id)}
+                                                        disabled={candidato.status === 'Finalizado'}
+                                                    >
+                                                        Avançar
+                                                    </button>
+                                                    <button
+                                                        className="btn-acao eliminar"
+                                                        onClick={() => handleEliminarCandidatura(candidato.candidatura_id, vaga.id)}
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>Nenhum candidato inscrito para esta vaga ainda.</p>
+                            )}
+                        </div>
+                    </div>
+                ))
+            )}
         </div>
     );
 };

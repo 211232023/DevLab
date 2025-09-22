@@ -81,63 +81,71 @@ exports.desistirDeVaga = async (req, res) => {
 };
 
 // Listar todos os candidatos de uma vaga específica
-exports.listarCandidatosPorVaga = async (req, res) => {
-  const { vaga_id } = req.params;
-
-  if (!vaga_id) {
-    return res.status(400).json({ message: 'O ID da vaga é obrigatório.' });
-  }
-
-  try {
-    const [candidatos] = await db.query(
-      `SELECT
-          c.id, c.candidato_id, c.status, c.endereco,
-          u.nome as nome_candidato, u.email as email_candidato,
-          u.telefone,
-          c.curriculo
-        FROM candidaturas c
-        JOIN usuarios u ON c.candidato_id = u.id
-        WHERE c.vaga_id = ?`,
-      [vaga_id]
-    );
-
-    if (candidatos.length === 0) {
-      return res.status(200).json([]);
+exports.getCandidatosPorVaga = async (req, res) => {
+    const { vagaId } = req.params;
+    try {
+        // --- Query SQL com a correção final no JOIN ---
+        // Alteramos 'c.usuario_id' para 'c.candidato_id'
+        const query = `
+            SELECT 
+                c.id AS candidatura_id, 
+                c.status, 
+                c.pontuacao_teste,
+                c.curriculo AS curriculo_path,
+                u.nome, 
+                u.email
+            FROM candidaturas c
+            JOIN usuarios u ON c.candidato_id = u.id
+            WHERE c.vaga_id = ?;
+        `;
+        
+        const [candidatos] = await db.query(query, [vagaId]);
+        res.status(200).json(candidatos);
+    } catch (error) {
+        console.error('Erro ao buscar candidatos por vaga:', error);
+        res.status(500).json({ message: 'Erro no servidor ao buscar candidatos.' });
     }
-
-    res.status(200).json(candidatos);
-  } catch (error) {
-    console.error('Erro ao buscar candidatos da vaga:', error);
-    res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos da vaga.' });
-  }
 };
 
 // Atualizar o status de uma candidatura
 exports.updateStatusCandidatura = async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+    const { id } = req.params;
+    const { status } = req.body;
 
-  // Validação para garantir que o status enviado é válido
-  const statusPermitidos = ['Aguardando Teste', 'Teste Disponível', 'Manual', 'Envio de Documentos', 'Entrevista', 'Finalizado'];
-  if (!status || !statusPermitidos.includes(status)) {
-    return res.status(400).json({ message: 'Status inválido fornecido.' });
-  }
+    // 1. Lista de todos os status permitidos (deve ser IGUAL ao seu ENUM no banco)
+    const statusPermitidos = [
+        'Aguardando Teste', 
+        'Teste Disponível', 
+        'Entrevista com RH', 
+        'Entrevista com Gestor', 
+        'Manual', 
+        'Envio de Documentos', 
+        'Finalizado'
+    ];
 
-  try {
-    const [result] = await db.query(
-      'UPDATE candidaturas SET status = ? WHERE id = ?',
-      [status, id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Candidatura não encontrada.' });
+    // 2. Validação explícita do status
+    if (!status) {
+        return res.status(400).json({ message: 'O novo status é obrigatório.' });
     }
 
-    res.status(200).json({ message: 'Status da candidatura atualizado com sucesso.' });
-  } catch (error) {
-    console.error('Erro ao atualizar status da candidatura:', error);
-    res.status(500).json({ message: 'Erro no servidor ao tentar atualizar o status.' });
-  }
+    if (!statusPermitidos.includes(status)) {
+        return res.status(400).json({ message: `O status "${status}" é inválido.` });
+    }
+
+    // 3. Se a validação passar, atualiza o banco
+    try {
+        const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
+        const [result] = await db.query(query, [status, id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Candidatura não encontrada.' });
+        }
+
+        res.status(200).json({ message: 'Status da candidatura atualizado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao atualizar status da candidatura:', error);
+        res.status(500).json({ message: 'Erro no servidor ao atualizar o status.' });
+    }
 };
 
 // Deletar uma candidatura (pelo RH/Admin)

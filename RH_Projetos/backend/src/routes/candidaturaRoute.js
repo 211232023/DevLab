@@ -14,8 +14,8 @@ router.get('/usuario/:candidato_id', candidaturaController.listarCandidaturasPor
 
 router.delete('/:candidatura_id', candidaturaController.desistirDeVaga);
 
-// Rota para listar todos os candidatos de uma vaga (ex: GET /api/candidaturas/vagas/12/candidatos)
-router.get('/vagas/:vaga_id/candidatos', candidaturaController.listarCandidatosPorVaga);
+// Rota para buscar os candidatos de uma vaga específica
+router.get('/vagas/:vagaId/candidatos', candidaturaController.getCandidatosPorVaga);
 
 // Rota para ATUALIZAR o status de uma candidatura
 router.put('/:id/status', candidaturaController.updateStatusCandidatura);

@@ -72,17 +72,17 @@ const Etapas = () => {
         { 
             nome: 'Manual da Empresa', 
             statusEnum: 'Manual', 
-            path: '/manual-empresa',
+            path: '/manuais',
             icon: <FaBook />,
             descricao: 'Conheça mais sobre nossa cultura e valores.'
         },
         { 
-            nome: 'Envio de Documentos', 
-            statusEnum: 'Envio de Documentos', 
-            path: '/documentos',
-            icon: <FaFolderOpen />,
-            descricao: 'Envie os documentos necessários para a próxima fase.'
-        },
+            nome: 'Envio de Documentos', 
+            statusEnum: 'Envio de Documentos', 
+            path: '/documentos/${candidaturaId}',
+            icon: <FaFolderOpen />,
+            descricao: 'Envie os documentos necessários para a próxima fase.'
+        },
         { 
             nome: 'Processo Finalizado', 
             statusEnum: 'Finalizado', 
@@ -102,10 +102,12 @@ const Etapas = () => {
     };
 
     const handleEtapaClick = (etapa, index) => {
-        // Permite o clique apenas na etapa atual e se houver um caminho definido
-        if (getStatusClass(index) === 'current' && etapa.path) {
-            navigate(etapa.path);
-        }
+    // Permite o clique apenas na etapa atual e se houver um caminho definido
+    if (getStatusClass(index) === 'current' && etapa.path) {
+        // Substitui o placeholder :candidaturaId pelo ID real
+        const pathFinal = etapa.path.replace(':candidaturaId', candidaturaId);
+        navigate(pathFinal);
+    }
     };
 
     if (loading) return <div className="loading-container">Carregando etapas...</div>;
