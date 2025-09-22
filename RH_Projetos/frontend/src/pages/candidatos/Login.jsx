@@ -3,6 +3,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
+import api from "../../api"; // Use a instância do api para o login
 import "./Login.css";
 
 const Login = () => {
@@ -19,19 +20,13 @@ const Login = () => {
     }
 
     try {
-      // Endpoint da API CORRIGIDO
-      const response = await fetch("http://localhost:3001/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, senha }),
-      });
+      // Use a instância do `api`
+      const response = await api.post("/auth/login", { email, senha });
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (response.ok) {
-        login(data.user); // Armazena os dados do usuário no contexto
+      if (response.status === 200) {
+        // Passe o usuário E o token para a função de login
+        login(data.user, data.token); 
         
         // Redireciona com base no tipo de usuário
         if (data.user.tipo === 'Candidato') {
@@ -39,16 +34,15 @@ const Login = () => {
         } else if (data.user.tipo === 'RH') {
           navigate("/dashboard-rh"); 
         } else {
-          navigate("/"); // Fallback para a página inicial
+          navigate("/");
         }
-
       } else {
         alert(data.error || "Erro ao fazer login.");
       }
     } catch (error) {
-      console.error("Erro na requisição:", error);
+      console.error("Erro na requisição de login:", error);
       alert(
-        "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
+        error.response?.data?.error || "Não foi possível conectar ao servidor."
       );
     }
   };
