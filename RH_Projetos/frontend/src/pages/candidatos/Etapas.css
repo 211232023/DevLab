@@ -1,88 +1,149 @@
-.etapas-container {
-  max-width: 600px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 32px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 32px;
+.etapas-page-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
 }
 
-.etapas-container h2 {
-  text-align: center;
-  color: #000000;
-  margin-bottom: 28px;
+.etapas-timeline {
+    position: relative;
+    width: 100%;
+    margin: 50px 0;
+    padding: 20px 0;
 }
 
-.etapas-lista {
-  list-style: none;
-  padding: 0;
+/* A linha central da timeline */
+.etapas-timeline::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background-color: #e0e0e0;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2px;
 }
 
-.etapa-box {
-  background: #f5f7fa;
-  border-radius: 18px;
-  margin-bottom: 18px;
-  padding: 18px 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid #a5a4a4; 
+/* Container para cada item da timeline */
+.timeline-item-container {
+    padding: 10px 40px;
+    position: relative;
+    background-color: inherit;
+    width: 50%;
 }
 
-.etapa-box .etapa-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Posiciona os containers da esquerda */
+.timeline-item-container.left {
+    left: 0;
 }
 
-.etapa-nome {
-  font-weight: 600;
-  color: #000000;
-  font-size: 1.1rem;
+/* Posiciona os containers da direita */
+.timeline-item-container.right {
+    left: 50%;
 }
 
-.etapa-desc {
-  color: #555;
-  font-size: 1rem;
+/* O círculo na linha do tempo */
+.timeline-item-content .timeline-item-circle {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: -10px;
+    background-color: white;
+    border: 4px solid #ccc;
+    top: 25px;
+    border-radius: 50%;
+    z-index: 1;
 }
 
-.etapa-status {
-  font-size: 0.98rem;
-  font-weight: 500;
-  color: #127067;
+.right .timeline-item-content .timeline-item-circle {
+    left: -10px;
 }
 
-.etapa-concluída .etapa-status {
-  color: #2e7d32;
+/* O card de conteúdo */
+.timeline-item-content {
+    padding: 20px 30px;
+    background-color: #f9f9f9;
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+    transition: all 0.3s ease;
 }
 
-.etapa-pendente .etapa-status {
-  color: #bdbdbd;
+/* Ícone da etapa */
+.timeline-icon {
+    position: absolute;
+    z-index: 2;
+    top: 28px;
+    font-size: 24px;
+    color: #ccc;
 }
 
-.etapa-seta {
-  color: #127067;
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.2s;
-  margin-left: 16px;
-  display: flex;
-  align-items: center;
-  font-size: 1.7em; /* Aumente aqui o tamanho da seta */
+.left .timeline-icon {
+    right: 28px;
 }
 
-.etapa-seta:hover {
-  color: #2e7d32;
+.right .timeline-icon {
+    left: 28px;
 }
 
-@media (max-width: 700px) {
-  .etapas-container {
-    padding: 16px;
-    border-radius: 16px;
-  }
-  .etapa-box {
-    padding: 12px 10px;
-    border-radius: 10px;
-  }
+.timeline-item-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.timeline-item-desc {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0;
+}
+
+
+/* --- Estilos de Status --- */
+
+/* Etapa Pendente (futura) */
+.timeline-item-container.pending .timeline-item-content {
+    border-color: #e0e0e0;
+    opacity: 0.6;
+}
+.timeline-item-container.pending .timeline-item-title {
+    color: #888;
+}
+
+/* Etapa Concluída */
+.timeline-item-container.completed .timeline-item-circle {
+    border-color: #28a745; /* Verde */
+    background-color: #28a745;
+}
+.timeline-item-container.completed .timeline-icon {
+    color: #28a745;
+}
+.timeline-item-container.completed .timeline-item-content {
+    border-color: #d4edda;
+}
+
+/* Etapa Atual */
+.timeline-item-container.current .timeline-item-circle {
+    border-color: #007bff; /* Azul */
+    background-color: #007bff;
+}
+.timeline-item-container.current .timeline-icon {
+    color: #007bff;
+}
+.timeline-item-container.current .timeline-item-content {
+    border: 2px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* Efeito de clique apenas na etapa atual */
+.timeline-item-container.clickable {
+    cursor: pointer;
+}
+.timeline-item-container.clickable:hover .timeline-item-content {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
 }

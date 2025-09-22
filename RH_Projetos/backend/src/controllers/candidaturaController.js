@@ -5,7 +5,7 @@ exports.inscreverCandidato = async (req, res) => {
   try {
     const { vaga_id } = req.params;
     const candidato_id = req.user.id;
-    const { endereco } = req.body; // Adicione esta linha
+    const { endereco } = req.body;
 
     if (!req.files || !req.files.curriculo) {
       return res.status(400).json({ error: 'O anexo do currículo é obrigatório.' });
@@ -18,9 +18,10 @@ exports.inscreverCandidato = async (req, res) => {
 
     await curriculoFile.mv(curriculoPath);
 
+    // ALTERAÇÃO AQUI: Mudamos 'Enviado' para 'Aguardando Teste'
     const [result] = await db.query(
-      'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status, endereco) VALUES (?, ?, ?, ?, ?)', // Modifique esta linha
-      [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Enviado', endereco] // Modifique esta linha
+      'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status, endereco) VALUES (?, ?, ?, ?, ?)',
+      [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Aguardando Teste', endereco]
     );
 
     res.status(201).json({ id: result.insertId, message: 'Inscrição realizada com sucesso!' });
@@ -190,11 +191,10 @@ exports.listarMinhasCandidaturas = async (req, res) => {
         FROM candidaturas c
         JOIN vagas v ON c.vaga_id = v.id
         WHERE c.candidato_id = ?
-        ORDER BY c.data_inscricao DESC`, // Ordenar pelas mais recentes
+        ORDER BY c.data_inscricao DESC`,
       [candidato_id]
     );
-
-    // É melhor retornar um array vazio se não houver candidaturas
+    
     res.status(200).json(candidaturas);
 
   } catch (error) {

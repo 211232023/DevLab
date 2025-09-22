@@ -1,134 +1,133 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./Etapas.css";
-import { Link, useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../api';
+import './Etapas.css';
+// Importando os ícones que vamos usar
+import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle } from 'react-icons/fa';
 
 const Etapas = () => {
     const { vagaId, candidaturaId } = useParams();
-    const [etapasProcesso, setEtapasProcesso] = useState([]);
+    const navigate = useNavigate();
+    
+    const [candidatura, setCandidatura] = useState(null);
+    const [teste, setTeste] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const fetchStatusCandidatura = async () => {
-            if (!candidaturaId) return;
-
+        const fetchData = async () => {
             try {
-                // Busca o status atual da candidatura
-                const response = await axios.get(`http://localhost:3001/api/candidaturas/${candidaturaId}`);
-                const statusAtual = response.data.status;
-
-                // Define a ordem e o status de cada etapa com base na resposta da API
-                const todasEtapas = [
-                    {
-                        nome: "Informações do Candidato",
-                        descricao: "Dados preenchidos na inscrição da vaga.",
-                        status: "concluída", // A inscrição é sempre a primeira etapa concluída
-                        rota: "/perfil"
-                    },
-                    {
-                        nome: "Teste",
-                        descricao: "Realize o teste online para esta vaga.",
-                        status: "pendente", // Status padrão
-                        // Rota dinâmica usando os IDs da URL
-                        rota: `/teste/${vagaId}/${candidaturaId}` 
-                    },
-                    {
-                        nome: "Triagem",
-                        descricao: "Aguardando análise do RH.",
-                        status: "pendente",
-                        rota: "#" // Rota desabilitada por enquanto
-                    },
-                    {
-                        nome: "Manuais da Empresa",
-                        descricao: "Leia os manuais e políticas internas.",
-                        status: "pendente",
-                        rota: "#" // Rota desabilitada por enquanto
-                    },
-                    {
-                        nome: "Envio de Documentos",
-                        descricao: "Envie os documentos solicitados.",
-                        status: "pendente",
-                        rota: "#" // Rota desabilitada por enquanto
-                    }
-                ];
-
-                // Lógica para definir o status de cada etapa
-                const ordemStatus = ['Aguardando Teste', 'Teste Disponível', 'Manual', 'Envio de Documentos', 'Entrevista', 'Finalizado'];
-                const indiceStatusAtual = ordemStatus.indexOf(statusAtual);
-                
-                // Atualiza o status de cada etapa
-                const etapasAtualizadas = todasEtapas.map((etapa, index) => {
-                    const indiceEtapa = ordemStatus.indexOf(etapa.nome.replace('Teste Disponível', 'Teste'));
-                    if (indiceEtapa < indiceStatusAtual) {
-                        return { ...etapa, status: 'concluída' };
-                    }
-                    return etapa;
-                });
-                
-                setEtapasProcesso(etapasAtualizadas);
-
+                setLoading(true);
+                const [candidaturaRes, testeRes] = await Promise.all([
+                    api.get(`/candidaturas/${candidaturaId}`),
+                    api.get(`/testes/vaga/${vagaId}`).catch(err => {
+                        if (err.response && err.response.status === 404) return { data: null };
+                        throw err;
+                    })
+                ]);
+                setCandidatura(candidaturaRes.data);
+                setTeste(testeRes.data);
             } catch (err) {
-                console.error("Erro ao buscar status da candidatura:", err);
-                setError("Não foi possível carregar as etapas do processo seletivo.");
+                console.error("Erro ao buscar dados das etapas:", err);
+                setError('Não foi possível carregar os detalhes da sua candidatura.');
             } finally {
                 setLoading(false);
             }
         };
-
-        fetchStatusCandidatura();
+        fetchData();
     }, [candidaturaId, vagaId]);
 
-    if (loading) {
-        return <div className="etapas-container"><h2>Carregando etapas...</h2></div>;
-    }
+    // Configuração completa das etapas com ícones e descrições
+    const etapasConfig = [
+        { 
+            nome: 'Inscrição Realizada', 
+            statusEnum: 'Aguardando Teste', 
+            path: null,
+            icon: <FaFileAlt />,
+            descricao: 'Sua inscrição foi recebida com sucesso!'
+        },
+        { 
+            nome: 'Teste Online', 
+            statusEnum: 'Teste Disponível', 
+            path: teste ? `/teste/${teste.id}/${candidaturaId}` : null,
+            icon: <FaPencilAlt />,
+            descricao: 'Realize o teste técnico para esta vaga.'
+        },
+        { 
+            nome: 'Manual da Empresa', 
+            statusEnum: 'Manual', 
+            path: '/manual-empresa',
+            icon: <FaBook />,
+            descricao: 'Conheça mais sobre nossa cultura e valores.'
+        },
+        { 
+            nome: 'Envio de Documentos', 
+            statusEnum: 'Envio de Documentos', 
+            path: '/documentos',
+            icon: <FaFolderOpen />,
+            descricao: 'Envie os documentos necessários para a próxima fase.'
+        },
+        { 
+            nome: 'Entrevista', 
+            statusEnum: 'Entrevista', 
+            path: null, // Sem link, apenas informativo
+            icon: <FaUsers />,
+            descricao: 'Aguarde o contato do RH para agendar a entrevista.'
+        },
+        { 
+            nome: 'Processo Finalizado', 
+            statusEnum: 'Finalizado', 
+            path: null,
+            icon: <FaCheckCircle />,
+            descricao: 'O processo seletivo para esta vaga foi concluído.'
+        },
+    ];
 
-    if (error) {
-        return <div className="etapas-container"><h2 style={{ color: 'red' }}>{error}</h2></div>;
-    }
-    
-    // Calcula se a etapa está desbloqueada (todas anteriores concluídas)
-    let desbloqueada = true;
+    const currentStatusIndex = etapasConfig.findIndex(etapa => etapa.statusEnum === candidatura?.status);
+
+    const getStatusClass = (index) => {
+        if (currentStatusIndex === -1 && index === 0) return 'current'; // Caso inicial
+        if (index < currentStatusIndex) return 'completed';
+        if (index === currentStatusIndex) return 'current';
+        return 'pending';
+    };
+
+    const handleEtapaClick = (etapa, index) => {
+        // Permite o clique apenas na etapa atual e se houver um caminho
+        if (getStatusClass(index) === 'current' && etapa.path) {
+            navigate(etapa.path);
+        }
+    };
+
+    if (loading) return <div className="loading-container">Carregando etapas...</div>;
+    if (error) return <div className="error-container">{error}</div>;
+
     return (
-        <div className="etapas-container">
-            <h2>Etapas do Processo Seletivo</h2>
-            <ul className="etapas-lista">
-                {etapasProcesso.map((etapa, idx) => {
-                    // Se etapa anterior não concluída, bloqueia esta
-                    if (idx > 0 && etapasProcesso[idx - 1].status !== "concluída") {
-                        desbloqueada = false;
-                    } else {
-                        desbloqueada = true;
-                    }
-                    const isClickable = etapa.status === "pendente" && desbloqueada && etapa.rota !== "#";
-                    
+        <div className="etapas-page-container">
+            <h1>Progresso da Candidatura</h1>
+            <p>Acompanhe aqui as etapas do seu processo seletivo.</p>
+            <div className="etapas-timeline">
+                {etapasConfig.map((etapa, index) => {
+                    const statusClass = getStatusClass(index);
+                    const positionClass = index % 2 === 0 ? 'left' : 'right';
+                    const isClickable = statusClass === 'current' && etapa.path;
+
                     return (
-                        <li key={etapa.nome} className={`etapa-box etapa-${etapa.status}`}>
-                            <div className="etapa-info">
-                                <div>
-                                    <div className="etapa-nome">{idx + 1}. {etapa.nome}</div>
-                                    <div className="etapa-desc">{etapa.descricao}</div>
-                                    <div className="etapa-status">
-                                        {etapa.status === "concluída"
-                                            ? "✔️ Concluída"
-                                            : desbloqueada
-                                                ? "⏳ Pendente"
-                                                : <span style={{color: "#bdbdbd"}}>🔒 Bloqueada</span>
-                                        }
-                                    </div>
-                                </div>
-                                {isClickable ? (
-                                    <Link to={etapa.rota} className="etapa-seta" title={`Ir para ${etapa.nome}`}>
-                                        <span style={{fontSize: "1.5em"}}>→</span>
-                                    </Link>
-                                ) : (
-                                     etapa.status !== "concluída" && <span className="etapa-seta" style={{fontSize: "1.5em", color: "#bdbdbd"}}>🔒</span>
-                                )}
+                        <div 
+                            key={etapa.nome}
+                            className={`timeline-item-container ${positionClass} ${statusClass} ${isClickable ? 'clickable' : ''}`}
+                            onClick={() => handleEtapaClick(etapa, index)}
+                        >
+                            <div className="timeline-icon">{etapa.icon}</div>
+                            <div className="timeline-item-content">
+                                <span className="timeline-item-title">{etapa.nome}</span>
+                                <p className="timeline-item-desc">{etapa.descricao}</p>
+                                <span className="timeline-item-circle"></span>
                             </div>
-                        </li>
+                        </div>
                     );
                 })}
-            </ul>
+            </div>
         </div>
     );
 };

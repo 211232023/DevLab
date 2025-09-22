@@ -48,7 +48,41 @@
   color: #fff;
   font-size: 0.9rem;
 }
-/* Cores de exemplo para o status */
+
+/* Cor para o status inicial */
+.status-aguardando-teste {
+    background-color: #f0ad4e; /* Laranja */
+}
+
+/* Cor para a etapa do teste */
+.status-teste-disponível {
+    background-color: #337ab7; /* Azul */
+}
+
+/* Cor para a etapa de manuais */
+.status-manual {
+    background-color: #5bc0de; /* Azul claro */
+}
+
+/* Cor para a etapa de documentos */
+.status-envio-de-documentos {
+    background-color: #6a5acd; /* Roxo ardósia */
+}
+
+/* Cor para a etapa de entrevista */
+.status-entrevista {
+    background-color: #d9534f; /* Vermelho */
+}
+
+/* Cor para o processo finalizado */
+.status-finalizado {
+    background-color: #5cb85c; /* Verde */
+}
+
+/* Cor padrão caso algum status inesperado apareça */
+.status-default {
+    background-color: #777; /* Cinza */
+}
 .status-aguardando-teste {
     background-color: #ffc107; /* Amarelo */
 }

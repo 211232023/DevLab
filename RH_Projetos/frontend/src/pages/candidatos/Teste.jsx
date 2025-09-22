@@ -1,173 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../api'; // 1. Usar a instância 'api'
+import Button from '../../components/Button';
 import './Teste.css';
 
 const Teste = () => {
-    const { vagaId, candidaturaId } = useParams();
+    const { testeId, candidaturaId } = useParams();
     const navigate = useNavigate();
 
     const [teste, setTeste] = useState(null);
     const [respostas, setRespostas] = useState({});
-    const [questaoAtual, setQuestaoAtual] = useState(0);
-    const [tempoRestante, setTempoRestante] = useState(1800); // 30 minutos em segundos
-    const [testeFinalizado, setTesteFinalizado] = useState(false);
-    const [pontuacao, setPontuacao] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchTeste = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/api/testes/vaga/${vagaId}`);
+                setLoading(true);
+                // 2. Corrigido para buscar o teste pelo ID correto da URL
+                const response = await api.get(`/testes/${testeId}`);
                 setTeste(response.data);
-                setLoading(false);
+                setError('');
             } catch (err) {
                 console.error("Erro ao buscar o teste:", err);
-                setError('Não foi possível carregar o teste. Tente novamente mais tarde.');
+                setError("Não foi possível carregar o teste. Tente novamente mais tarde.");
+            } finally {
                 setLoading(false);
             }
         };
 
         fetchTeste();
-    }, [vagaId]);
+    }, [testeId]);
 
-    useEffect(() => {
-        if (!loading && teste && !testeFinalizado) {
-            const timer = setInterval(() => {
-                setTempoRestante(prev => {
-                    if (prev <= 1) {
-                        clearInterval(timer);
-                        handleSubmit();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [loading, teste, testeFinalizado]);
-
-    const handleSelectResposta = (questaoId, alternativaId) => {
-        setRespostas({
-            ...respostas,
-            [questaoId]: alternativaId,
-        });
+    const handleRespostaChange = (questaoId, valor) => {
+        setRespostas(prev => ({
+            ...prev,
+            [questaoId]: valor,
+        }));
     };
 
-    const handleNext = () => {
-        if (questaoAtual < teste.questoes.length - 1) {
-            setQuestaoAtual(questaoAtual + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (questaoAtual > 0) {
-            setQuestaoAtual(questaoAtual - 1);
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!window.confirm('Tem certeza que deseja finalizar o teste?')) return;
-
-        let score = 0;
-        teste.questoes.forEach(questao => {
-            const respostaCandidato = respostas[questao.id];
-            const alternativaCorreta = questao.alternativas.find(alt => alt.correta);
-            if (alternativaCorreta && respostaCandidato === alternativaCorreta.id) {
-                score++;
-            }
-        });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         
-        const pontuacaoFinal = (score / teste.questoes.length) * 100;
-        setPontuacao(pontuacaoFinal);
-        setTesteFinalizado(true);
+        // Validação simples para garantir que todas as perguntas foram respondidas
+        if (Object.keys(respostas).length !== teste.questoes.length) {
+            alert("Por favor, responda todas as perguntas antes de enviar.");
+            return;
+        }
 
-        try {
-            // **IMPORTANTE**: Aqui você faria a chamada para o backend para salvar o resultado
-            // Ex: await axios.post(`/api/candidaturas/${candidaturaId}/resultado`, { pontuacao: pontuacaoFinal });
-            console.log(`Teste finalizado para a candidatura ${candidaturaId} com pontuação de ${pontuacaoFinal.toFixed(2)}%`);
-            // E também poderia atualizar o status da candidatura
-        } catch (err) {
-            console.error("Erro ao salvar o resultado do teste:", err);
-            alert("Houve um erro ao salvar seu resultado. Por favor, entre em contato com o suporte.");
+        if (window.confirm("Tem certeza de que deseja enviar suas respostas? Você não poderá alterá-las depois.")) {
+            setSubmitting(true);
+            try {
+                // 3. Usar a rota correta para submeter o teste
+                await api.post(`/testes/${testeId}/candidatura/${candidaturaId}/submeter`, { respostas });
+                alert("Teste enviado com sucesso!");
+                navigate('/minhas-candidaturas'); // Redireciona o usuário após o envio
+            } catch (err) {
+                console.error("Erro ao submeter o teste:", err);
+                alert("Ocorreu um erro ao enviar suas respostas. Tente novamente.");
+            } finally {
+                setSubmitting(false);
+            }
         }
     };
 
-    if (loading) {
-        return <div className="teste-container"><div className="loading">Carregando Teste...</div></div>;
-    }
-
-    if (error) {
-        return <div className="teste-container"><div className="error">{error}</div></div>;
-    }
-
-    if (!teste || !teste.questoes) {
-        return (
-            <div className="teste-container">
-                <div className="error">Esta vaga não possui um teste associado.</div>
-                 <button onClick={() => navigate('/minhas-candidaturas')} className="btn-finalizar">Voltar</button>
-            </div>
-        )
-    }
-
-    const formatarTempo = (segundos) => {
-        const minutos = Math.floor(segundos / 60);
-        const secs = segundos % 60;
-        return `${minutos.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    if (testeFinalizado) {
-        return (
-            <div className="teste-container">
-                <div className="finalizado-card">
-                    <h2>Teste Finalizado!</h2>
-                    <p>Obrigado por completar o teste para a vaga de {teste.titulo}.</p>
-                    <div className="resultado-pontuacao">
-                        Sua pontuação foi: <strong>{pontuacao.toFixed(2)}%</strong>
-                    </div>
-                    <p>O RH entrará em contato para as próximas etapas. Boa sorte!</p>
-                    <button onClick={() => navigate('/minhas-candidaturas')} className="btn-finalizar">Voltar para Minhas Candidaturas</button>
-                </div>
-            </div>
-        );
-    }
-
-    const questao = teste.questoes[questaoAtual];
+    if (loading) return <div className="loading-container">Carregando teste...</div>;
+    if (error) return <div className="error-container">{error}</div>;
+    if (!teste) return <div className="loading-container">Nenhum teste encontrado.</div>;
 
     return (
         <div className="teste-container">
-            <div className="teste-header">
-                <h1>{teste.titulo}</h1>
-                <div className="timer">{formatarTempo(tempoRestante)}</div>
-            </div>
-            <div className="teste-card">
-                <div className="progresso-questoes">
-                    Questão {questaoAtual + 1} de {teste.questoes.length}
-                </div>
-                <h2 className="enunciado-questao">{questao.enunciado}</h2>
-                <div className="alternativas">
-                    {questao.alternativas.map((alt) => (
-                        <button
-                            key={alt.id}
-                            className={`alternativa ${respostas[questao.id] === alt.id ? 'selecionada' : ''}`}
-                            onClick={() => handleSelectResposta(questao.id, alt.id)}
-                        >
-                            {alt.texto}
-                        </button>
-                    ))}
-                </div>
-            </div>
-            <div className="teste-navegacao">
-                <button onClick={handlePrev} disabled={questaoAtual === 0}>
-                    Anterior
-                </button>
-                {questaoAtual < teste.questoes.length - 1 ? (
-                    <button onClick={handleNext}>Próxima</button>
-                ) : (
-                    <button onClick={handleSubmit} className="btn-finalizar">Finalizar Teste</button>
-                )}
-            </div>
+            <h1>{teste.titulo}</h1>
+            <p>{teste.descricao}</p>
+            <form onSubmit={handleSubmit} className="teste-form">
+                {teste.questoes.map((questao, index) => (
+                    <div key={questao.id} className="questao-card">
+                        <h3>{index + 1}. {questao.enunciado}</h3>
+                        <div className="alternativas-container">
+                            {questao.alternativas.map(alt => (
+                                <label key={alt.id} className="alternativa-label">
+                                    <input
+                                        type="radio"
+                                        name={`questao-${questao.id}`}
+                                        value={alt.id}
+                                        onChange={() => handleRespostaChange(questao.id, alt.id)}
+                                        required
+                                    />
+                                    {alt.texto}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+                <Button type="submit" disabled={submitting}>
+                    {submitting ? 'Enviando...' : 'Finalizar e Enviar Teste'}
+                </Button>
+            </form>
         </div>
     );
 };

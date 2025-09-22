@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
-// 1. Mude a importação de 'axios' para a nossa instância 'api'
 import api from '../../api';
 import './MinhasCandidaturas.css';
 import Button from '../../components/Button';
@@ -11,24 +10,19 @@ const MinhasCandidaturas = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // A verificação do usuário continua sendo uma boa prática
         if (user) {
             const fetchCandidaturas = async () => {
                 try {
                     setLoading(true);
-                    // 2. A chamada de API agora é mais simples e segura
                     const response = await api.get('/candidaturas/minhas');
                     setCandidaturas(response.data);
                     setError('');
                 } catch (err) {
-                    if (err.response && err.response.status === 404) {
-                        setCandidaturas([]); // Mantém o comportamento de limpar se não encontrar
-                    } else {
-                        setError('Erro ao buscar suas candidaturas.');
-                        console.error('Erro detalhado:', err);
-                    }
+                    setError('Erro ao buscar suas candidaturas.');
+                    console.error('Erro detalhado:', err);
                 } finally {
                     setLoading(false);
                 }
@@ -43,9 +37,7 @@ const MinhasCandidaturas = () => {
     const handleDesistir = async (candidaturaId) => {
         if (window.confirm('Tem certeza de que deseja desistir desta vaga?')) {
             try {
-                // 3. Usar 'api.delete' para a requisição
                 await api.delete(`/candidaturas/${candidaturaId}`);
-                // 4. Correção na lógica do filtro para remover a candidatura da tela
                 setCandidaturas(candidaturas.filter(c => c.id !== candidaturaId));
             } catch (err) {
                 alert('Erro ao tentar desistir da vaga.');
@@ -73,7 +65,6 @@ const MinhasCandidaturas = () => {
             {candidaturas.length > 0 ? (
                 <div className="lista-candidaturas">
                     {candidaturas.map((candidatura) => (
-                        // 5. Corrigido o 'key' para usar o ID correto (candidatura.id)
                         <div key={candidatura.id} className="candidatura-card">
                             <h2>{candidatura.nome_vaga}</h2>
                             <p><strong>Área:</strong> {candidatura.area}</p>
@@ -85,16 +76,17 @@ const MinhasCandidaturas = () => {
                             <div className="candidatura-actions">
                                 <Button
                                     style={{ backgroundColor: "#cc4040ff" }}
-                                    onClick={() => handleDesistir(candidatura.id)} // Passando o ID correto
+                                    onClick={() => handleDesistir(candidatura.id)}
                                     className="btn-desistir"
                                 >
                                     Desistir
                                 </Button>
-                                <Link to={`/etapas/${candidatura.vaga_id}/${candidatura.id}`}>
-                                    <Button className="btn-progresso">
-                                        Ver Progresso
-                                    </Button>
-                                </Link>
+                                <Button
+                                    className="btn-progresso"
+                                    onClick={() => navigate(`/etapas/${candidatura.vaga_id}/${candidatura.id}`)}
+                                >
+                                    Ver Progresso
+                                </Button>        
                             </div>
                         </div>
                     ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// 1. Importar a instância 'api' no lugar do 'axios'
+import api from '../../api'; 
 import { useAuth } from '../../AuthContext';
 import { Link } from 'react-router-dom';
 import './GestaoVaga.css';
@@ -38,7 +39,8 @@ const GestaoVaga = () => {
     }
 
     try {
-      await axios.put(`http://localhost:3001/api/candidaturas/${candidaturaId}/status`, { status: novoStatus });
+      // 2. Usar 'api.put' para a requisição já autenticada
+      await api.put(`/candidaturas/${candidaturaId}/status`, { status: novoStatus });
       
       // Atualiza o estado local para refletir a mudança imediatamente
       setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => {
@@ -63,7 +65,8 @@ const GestaoVaga = () => {
   const handleEliminarCandidatura = async (candidaturaId, vagaId) => {
     if (window.confirm('Tem certeza que deseja eliminar esta candidatura do processo seletivo?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/candidaturas/${candidaturaId}`);
+        // 3. Usar 'api.delete' para a requisição já autenticada
+        await api.delete(`/candidaturas/${candidaturaId}`);
 
         // Atualiza o estado local para remover o candidato da lista
         setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => {
@@ -83,28 +86,32 @@ const GestaoVaga = () => {
     }
   };
 
-  // O restante do seu componente (useEffect, etc.) permanece o mesmo...
   useEffect(() => {
     const carregarTodasAsVagas = async () => {
       if (user && (user.tipo === 'ADMIN' || user.tipo === 'RH')) {
         setLoading(true);
         setError('');
         try {
-          const vagasResponse = await axios.get('http://localhost:3001/api/vagas');
+          // 4. Usar 'api.get' para buscar as vagas
+          const vagasResponse = await api.get('/vagas');
           const vagasData = vagasResponse.data;
 
           if (vagasData.length === 0) {
             setVagasComCandidatos([]);
+            setLoading(false); // Adicionado para parar o loading
             return;
           }
+
           const vagasCompletas = await Promise.all(
             vagasData.map(async (vaga) => {
               try {
-                const candidatosResponse = await axios.get(`http://localhost:3001/api/candidaturas/vagas/${vaga.id}/candidatos`);
+                // 5. Usar 'api.get' para buscar os candidatos de cada vaga
+                const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
                 return { ...vaga, candidatos: candidatosResponse.data };
               } catch (err) {
                 console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
-                return { ...vaga, candidatos: [] };
+                // Retorna a vaga mesmo que os candidatos falhem, para não quebrar a UI
+                return { ...vaga, candidatos: [] }; 
               }
             })
           );
@@ -138,7 +145,7 @@ const GestaoVaga = () => {
       {vagasComCandidatos.length === 0 ? (
         <div className="nenhuma-vaga">
           <p>Nenhuma vaga cadastrada no sistema.</p>
-          <Link to="/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
+          <Link to="/rh/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
         </div>
       ) : (
         vagasComCandidatos.map((vaga) => (
@@ -155,7 +162,7 @@ const GestaoVaga = () => {
                       <th>Telefone</th>
                       <th>Currículo</th>
                       <th>Status</th>
-                      <th>Ações</th> {/* Coluna adicionada */}
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -167,7 +174,7 @@ const GestaoVaga = () => {
                         <td>
                           {candidato.curriculo ? (
                             <a
-                              href={`http://localhost:3001/${candidato.curriculo}`}
+                              href={`http://localhost:3001${candidato.curriculo}`} // Adicionado http://localhost:3001
                               target="_blank"
                               rel="noopener noreferrer"
                               className="link-curriculo"
@@ -179,7 +186,6 @@ const GestaoVaga = () => {
                           )}
                         </td>
                         <td>{candidato.status}</td>
-                        {/* --- CÉLULA COM OS NOVOS BOTÕES --- */}
                         <td className="coluna-acoes">
                           <button
                             className="btn-acao avancar"
