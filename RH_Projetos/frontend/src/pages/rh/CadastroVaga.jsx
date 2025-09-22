@@ -77,7 +77,7 @@ const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
     );
 };
 
-// --- Componente Principal (Com as atualizações de diagnóstico) ---
+// --- Componente Principal (Com as atualizações de diagnóstico e validação) ---
 export default function CadastroVaga() {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -130,24 +130,28 @@ export default function CadastroVaga() {
         setQuestoesDoTeste(prev => prev.filter((_, i) => i !== index));
     };
 
-    // --- FUNÇÃO DE SUBMISSÃO ATUALIZADA COM DIAGNÓSTICO ---
+        // --- FUNÇÃO DE SUBMISSÃO FINAL ---
     const handleFinalSubmit = async () => {
+        if (questoesDoTeste.length === 0) {
+            setError('É necessário adicionar pelo menos uma questão ao teste.');
+            return;
+        }
+        
         setIsLoading(true);
         setError('');
-    
-        // --- PONTO DE INVESTIGAÇÃO 1: Verificar se o usuário está logado ---
+
         console.log("Verificando usuário do contexto:", user);
         if (!user || !user.id) {
             setError("Erro: Usuário não identificado. Por favor, faça login novamente.");
             setIsLoading(false);
             return; 
         }
-    
+
         const vagaPayload = {
             rh_id: user.id,
             titulo: formVaga.nome,
             area: formVaga.area,
-            salario: parseFloat(formVaga.salario) || 0, // Previne erro com salário vazio
+            salario: parseFloat(formVaga.salario) || 0,
             descricao: formVaga.descricao,
             data_Abertura: formVaga.dataInicial,
             data_fechamento: formVaga.dataLimite,
@@ -160,49 +164,44 @@ export default function CadastroVaga() {
             testeData: testeData,
             questoes: questoesDoTeste
         };
-    
-        // --- PONTO DE INVESTIGAÇÃO 2: Verificar os dados antes de enviar ---
-        console.log("Payload final que será enviado para a API:", JSON.stringify(finalPayload, null, 2));
-    
+
         const token = localStorage.getItem('token');
         if (!token) {
             setError('Acesso negado. Seu token de login não foi encontrado.');
             setIsLoading(false);
-            navigate('/rh/login'); // Ajuste se a rota de login for outra
+            navigate('/inicio'); // Corrected navigation link
             return;
         }
-    
+
+        console.log("Payload final que será enviado para a API:", JSON.stringify(finalPayload, null, 2));
+        console.log("Token que será enviado:", token);
+        console.log("Iniciando a chamada da API com axios.post para /api/vagas/completa...");
+
         try {
             const response = await axios.post(
-                "http://localhost:3001/api/vagas/completa", 
+                "/api/vagas/completa", // <-- Use the relative URL for the proxy
                 finalPayload, 
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}` // Garante que o token está sendo enviado
+                        'Authorization': `Bearer ${token}`
                     }
                 }
             );
-    
-            // --- PONTO DE INVESTIGAÇÃO 3: Sucesso! Ver o que o servidor respondeu ---
-            console.log("Sucesso! Resposta do servidor:", response);
-    
+
+            console.log("Sucesso! A API respondeu:", response);
             alert('Vaga e teste cadastrados com sucesso!');
             navigate('/gestao-vagas');
-    
+
         } catch (error) {
-            // --- PONTO DE INVESTIGAÇÃO 4: Erro! Ver detalhes do erro ---
-            console.error("ERRO COMPLETO AO CADASTRAR:", error);
+            console.error("ERRO na chamada da API:", error);
             if (error.response) {
-                // O servidor respondeu com um erro (4xx ou 5xx)
                 console.error("Dados do erro (response.data):", error.response.data);
                 console.error("Status do erro (response.status):", error.response.status);
                 setError(error.response.data.error || `Erro ${error.response.status} do servidor.`);
             } else if (error.request) {
-                // A requisição foi feita, mas não houve resposta
                 console.error("Requisição enviada, mas sem resposta do servidor:", error.request);
                 setError('O servidor não respondeu. Verifique se ele está rodando.');
             } else {
-                // Um erro ocorreu na configuração da requisição
                 console.error('Erro ao configurar a requisição:', error.message);
                 setError('Ocorreu um erro ao preparar os dados para envio.');
             }
@@ -211,8 +210,28 @@ export default function CadastroVaga() {
         }
     };
 
-    const handleNextStep = () => setStep(step + 1);
-    const handlePrevStep = () => setStep(step - 1);
+    // --- ALTERAÇÃO: Funções de navegação com validação ---
+    const handleNextStep = () => {
+        setError(''); // Limpa erros antigos
+        if (step === 1) {
+            if (!formVaga.nome || !formVaga.area || !formVaga.salario || !formVaga.escala || !formVaga.dataInicial || !formVaga.dataLimite || !formVaga.descricao) {
+                setError("Por favor, preencha todos os campos obrigatórios da vaga.");
+                return;
+            }
+        }
+        if (step === 2) {
+            if (!testeData.titulo.trim()) {
+                setError("O título do teste é obrigatório.");
+                return;
+            }
+        }
+        setStep(step + 1);
+    };
+
+    const handlePrevStep = () => {
+        setError(''); // Limpa erros ao voltar
+        setStep(step - 1);
+    };
     
     // Funções de Renderização (Mantidas como está)
     const renderVagaForm = () => (
@@ -308,7 +327,12 @@ export default function CadastroVaga() {
     return (
         <div className="cadastro-vaga-container">
             {showModal && <NovaQuestaoModal onQuestaoCriada={handleQuestaoCriada} onClose={() => setShowModal(false)} />}
-            {step === 1 && <h2>Cadastro da Vaga</h2>}
+            
+            {/* --- ALTERAÇÃO: Título dinâmico para cada etapa --- */}
+            {step === 1 && <h2>Etapa 1: Cadastro da Vaga</h2>}
+            {step === 2 && <h2>Etapa 2: Detalhes do Teste</h2>}
+            {step === 3 && <h2>Etapa 3: Montagem do Teste</h2>}
+
             {error && <div className="mensagem-erro">{error}</div>}
             
             {step === 1 && renderVagaForm()}

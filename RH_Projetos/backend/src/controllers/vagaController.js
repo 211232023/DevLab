@@ -23,7 +23,7 @@ exports.createVaga = async (req, res) => {
 };
 
 
-// --- FUNÇÃO DE CRIAR VAGA COMPLETA COM LOGS DE DIAGNÓSTICO ---
+
 exports.createVagaCompleta = async (req, res) => {
     console.log('--- INICIANDO CRIAÇÃO DE VAGA COMPLETA ---');
     const { vagaData, testeData, questoes } = req.body;
@@ -31,10 +31,23 @@ exports.createVagaCompleta = async (req, res) => {
     // --- PONTO DE INVESTIGAÇÃO 1: Verificar dados recebidos ---
     console.log('Dados recebidos no corpo da requisição:', JSON.stringify(req.body, null, 2));
 
-    if (!vagaData || !testeData || !questoes || questoes.length === 0) {
+    // Validação de dados de entrada
+    if (!vagaData || !testeData || !questoes) {
         console.error('ERRO: Dados de entrada ausentes ou inválidos.');
-        return res.status(400).json({ error: 'Dados da vaga, teste e pelo menos uma questão são obrigatórios.' });
+        return res.status(400).json({ error: 'Dados da vaga, teste e questões são obrigatórios.' });
     }
+
+    // --- ALTERAÇÃO: Adicionada validação para o título do teste ---
+    if (!testeData.titulo || testeData.titulo.trim() === '') {
+        console.error('ERRO: O título do teste é obrigatório.');
+        return res.status(400).json({ error: 'O título do teste é obrigatório.' });
+    }
+    
+    if (questoes.length === 0) {
+        console.error('ERRO: Pelo menos uma questão é necessária.');
+        return res.status(400).json({ error: 'O teste deve ter pelo menos uma questão.' });
+    }
+
 
     let connection; // Declarar a conexão aqui para que seja acessível no finally
     try {

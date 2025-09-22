@@ -1,35 +1,49 @@
-// src/server.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fileUpload = require('express-fileupload');
+require('dotenv').config();
 
-// Importe as rotas
-const authRoutes = require('./routes/authRoutes');
+// Importação das rotas
 const vagaRoutes = require('./routes/vagaRoutes');
-const candidaturaRoutes = require('./routes/candidaturaRoute');
 const usuarioRoutes = require('./routes/usuarioRoutes');
-const questaoRoutes = require('./routes/questaoRoutes');
+const candidaturaRoutes = require('./routes/candidaturaRoute');
+const authRoutes = require('./routes/authRoutes');
 const testeRoutes = require('./routes/testeRoutes');
+const questaoRoutes = require('./routes/questaoRoutes');
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-// Middlewares
+// --- CONFIGURAÇÃO DE MIDDLEWARES ---
+
+// 1. CORS: Deve vir primeiro para lidar com requisições de origens diferentes.
 app.use(cors());
-app.use(express.json());
-app.use(fileUpload());
-app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Use as rotas
+// 2. Body Parser: Essencial para que o Express entenda o corpo da requisição em JSON.
+// Esta linha é crucial e deve vir antes das rotas.
+app.use(express.json());
+
+// 3. Servir arquivos estáticos (como currículos)
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
+// --- LOG DE DIAGNÓSTICO ---
+// Adicione este middleware para ver TODAS as requisições que chegam.
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] Nova requisição: ${req.method} ${req.url}`);
+  next(); // Continua para a próxima rota
+});
+
+
+// --- ROTAS DA APLICAÇÃO ---
 app.use('/api/auth', authRoutes);
 app.use('/api/vagas', vagaRoutes);
-app.use('/api/candidaturas', candidaturaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/questoes', questaoRoutes);
+app.use('/api/candidaturas', candidaturaRoutes);
 app.use('/api/testes', testeRoutes);
+app.use('/api/questoes', questaoRoutes);
 
 
-const PORT = process.env.PORT || 3001;
+// --- INICIALIZAÇÃO DO SERVIDOR ---
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando com sucesso na porta ${PORT}`);
 });

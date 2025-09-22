@@ -102,7 +102,8 @@ exports.getTesteByVagaId = async (req, res) => {
             questoesMap.get(row.id).alternativas.push({
                 id: row.alternativa_id,
                 texto: row.texto,
-                correta: row.correta
+                // --- ALTERAÇÃO: Converte 1/0 para true/false ---
+                correta: !!row.correta 
             });
         });
 
