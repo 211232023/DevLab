@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom'; // Importar Link para o botão
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
+// 1. Mude a importação de 'axios' para a nossa instância 'api'
+import api from '../../api';
 import './MinhasCandidaturas.css';
 import Button from '../../components/Button';
 
@@ -12,19 +13,21 @@ const MinhasCandidaturas = () => {
     const { user } = useAuth();
 
     useEffect(() => {
-        if (user && user.id) {
+        // A verificação do usuário continua sendo uma boa prática
+        if (user) {
             const fetchCandidaturas = async () => {
                 try {
                     setLoading(true);
-                    const response = await axios.get(`http://localhost:3001/api/candidaturas/usuario/${user.id}`);
+                    // 2. A chamada de API agora é mais simples e segura
+                    const response = await api.get('/candidaturas/minhas');
                     setCandidaturas(response.data);
                     setError('');
                 } catch (err) {
                     if (err.response && err.response.status === 404) {
-                        setCandidaturas([]);
+                        setCandidaturas([]); // Mantém o comportamento de limpar se não encontrar
                     } else {
                         setError('Erro ao buscar suas candidaturas.');
-                        console.error(err);
+                        console.error('Erro detalhado:', err);
                     }
                 } finally {
                     setLoading(false);
@@ -40,19 +43,19 @@ const MinhasCandidaturas = () => {
     const handleDesistir = async (candidaturaId) => {
         if (window.confirm('Tem certeza de que deseja desistir desta vaga?')) {
             try {
-                await axios.delete(`http://localhost:3001/api/candidaturas/${candidaturaId}`);
-                setCandidaturas(candidaturas.filter(c => c.candidatura_id !== candidaturaId));
+                // 3. Usar 'api.delete' para a requisição
+                await api.delete(`/candidaturas/${candidaturaId}`);
+                // 4. Correção na lógica do filtro para remover a candidatura da tela
+                setCandidaturas(candidaturas.filter(c => c.id !== candidaturaId));
             } catch (err) {
                 alert('Erro ao tentar desistir da vaga.');
                 console.error(err);
             }
         }
     };
-    
-    // Função para gerar uma classe CSS segura para o status
+
     const getStatusClass = (status) => {
         if (!status) return 'default';
-        // Converte "Aguardando Teste" para "aguardando-teste"
         return status.toLowerCase().replace(/\s+/g, '-');
     };
 
@@ -70,24 +73,24 @@ const MinhasCandidaturas = () => {
             {candidaturas.length > 0 ? (
                 <div className="lista-candidaturas">
                     {candidaturas.map((candidatura) => (
-                        <div key={candidatura.candidatura_id} className="candidatura-card">
+                        // 5. Corrigido o 'key' para usar o ID correto (candidatura.id)
+                        <div key={candidatura.id} className="candidatura-card">
                             <h2>{candidatura.nome_vaga}</h2>
                             <p><strong>Área:</strong> {candidatura.area}</p>
-                            <p><strong>Status:</strong> 
+                            <p><strong>Status:</strong>
                                 <span className={`status status-${getStatusClass(candidatura.status)}`}>
-                                    {candidatura.status}
+                                    {candidatura.status || 'Não definido'}
                                 </span>
                             </p>
                             <div className="candidatura-actions">
-                                <Button 
-                                    style={{backgroundColor:"#cc4040ff"}} 
-                                    onClick={() => handleDesistir(candidatura.candidatura_id)} 
+                                <Button
+                                    style={{ backgroundColor: "#cc4040ff" }}
+                                    onClick={() => handleDesistir(candidatura.id)} // Passando o ID correto
                                     className="btn-desistir"
                                 >
                                     Desistir
                                 </Button>
-                                {/* CORREÇÃO: O botão agora é um Link que passa os dois IDs */}
-                                <Link to={`/etapas/${candidatura.vaga_id}/${candidatura.candidatura_id}`}>
+                                <Link to={`/etapas/${candidatura.vaga_id}/${candidatura.id}`}>
                                     <Button className="btn-progresso">
                                         Ver Progresso
                                     </Button>

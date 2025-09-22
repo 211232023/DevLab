@@ -3,27 +3,24 @@ const path = require('path');
 
 exports.inscreverCandidato = async (req, res) => {
   try {
-    // 1. Obter dados dos locais corretos
-    const { vaga_id } = req.params;       // ID da vaga vem da URL
-    const candidato_id = req.user.id;   // ID do candidato vem do usuário autenticado (pelo middleware 'protect')
-    
-    // 2. Validações
+    const { vaga_id } = req.params;
+    const candidato_id = req.user.id;
+    const { endereco } = req.body; // Adicione esta linha
+
     if (!req.files || !req.files.curriculo) {
       return res.status(400).json({ error: 'O anexo do currículo é obrigatório.' });
     }
     const curriculoFile = req.files.curriculo;
 
-    // Lógica para salvar o arquivo
     const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
     const curriculoNome = `${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
     const curriculoPath = path.join(uploadPath, curriculoNome);
 
     await curriculoFile.mv(curriculoPath);
 
-    // Inserção no banco de dados
     const [result] = await db.query(
-      'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status) VALUES (?, ?, ?, ?)',
-      [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Enviado']
+      'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status, endereco) VALUES (?, ?, ?, ?, ?)', // Modifique esta linha
+      [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Enviado', endereco] // Modifique esta linha
     );
 
     res.status(201).json({ id: result.insertId, message: 'Inscrição realizada com sucesso!' });
@@ -178,5 +175,30 @@ exports.getCandidaturaById = async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar candidatura:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar os dados da candidatura.' });
+  }
+};
+
+exports.listarMinhasCandidaturas = async (req, res) => {
+  // O ID do candidato vem do token JWT, injetado pelo middleware 'protect'
+  const candidato_id = req.user.id;
+
+  try {
+    const [candidaturas] = await db.query(
+      `SELECT
+          c.id, c.vaga_id, c.data_inscricao, c.status,
+          v.titulo as nome_vaga, v.area, v.descricao
+        FROM candidaturas c
+        JOIN vagas v ON c.vaga_id = v.id
+        WHERE c.candidato_id = ?
+        ORDER BY c.data_inscricao DESC`, // Ordenar pelas mais recentes
+      [candidato_id]
+    );
+
+    // É melhor retornar um array vazio se não houver candidaturas
+    res.status(200).json(candidaturas);
+
+  } catch (error) {
+    console.error('Erro ao buscar as minhas candidaturas:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar as candidaturas.' });
   }
 };
