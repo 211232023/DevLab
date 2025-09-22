@@ -134,19 +134,34 @@ exports.createVagaCompleta = async (req, res) => {
 // --- DEMAIS FUNÇÕES DO CONTROLLER ---
 
 exports.getAllVagas = async (req, res) => {
-    const query = 'SELECT * FROM vagas';
-    let connection;
-    try {
-        connection = await db.getConnection();
-        const [results] = await connection.query(query);
-        res.json(results);
-    } catch (err) {
-        console.error('Erro ao obter vagas:', err);
-        res.status(500).send('Erro ao obter vagas');
-    } finally {
-        if (connection) connection.release();
-    }
+    // Consulta explícita com alias para garantir os nomes corretos
+    const query = `
+        SELECT 
+            id,
+            titulo,
+            area,
+            salario,
+            descricao,
+            data_Abertura,
+            data_fechamento,
+            escala_trabalho,
+            beneficios,
+            rh_id 
+        FROM vagas
+    `;
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [results] = await connection.query(query);
+        res.json(results);
+    } catch (err) {
+        console.error('Erro ao obter vagas:', err);
+        res.status(500).send('Erro ao obter vagas');
+    } finally {
+        if (connection) connection.release();
+    }
 };
+
 
 exports.getVagaById = async (req, res) => {
     const { id } = req.params;

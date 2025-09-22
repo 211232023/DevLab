@@ -1,55 +1,36 @@
 const db = require('../config/db');
 const path = require('path');
 
-// Inscrever um candidato em uma vaga
 exports.inscreverCandidato = async (req, res) => {
-  const { vaga_id } = req.params;
-  const { candidato_id, endereco } = req.body;
-
-  if (!candidato_id || !vaga_id || !endereco || !req.files || !req.files.curriculo) {
-    return res.status(400).json({ message: 'Todos os campos, incluindo o currículo, são obrigatórios.' });
-  }
-
   try {
-    // 1. Verifica se o candidato já está inscrito
-    const [jaInscrito] = await db.query(
-      'SELECT * FROM candidaturas WHERE candidato_id = ? AND vaga_id = ?',
-      [candidato_id, vaga_id]
+    // 1. Obter dados dos locais corretos
+    const { vaga_id } = req.params;       // ID da vaga vem da URL
+    const candidato_id = req.user.id;   // ID do candidato vem do usuário autenticado (pelo middleware 'protect')
+    
+    // 2. Validações
+    if (!req.files || !req.files.curriculo) {
+      return res.status(400).json({ error: 'O anexo do currículo é obrigatório.' });
+    }
+    const curriculoFile = req.files.curriculo;
+
+    // Lógica para salvar o arquivo
+    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
+    const curriculoNome = `${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
+    const curriculoPath = path.join(uploadPath, curriculoNome);
+
+    await curriculoFile.mv(curriculoPath);
+
+    // Inserção no banco de dados
+    const [result] = await db.query(
+      'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status) VALUES (?, ?, ?, ?)',
+      [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Enviado']
     );
 
-    if (jaInscrito.length > 0) {
-      return res.status(409).json({ message: 'Você já se candidatou para esta vaga.' });
-    }
-
-    // 2. Prepara para salvar o arquivo
-    const curriculoFile = req.files.curriculo;
-    // Cria um nome de arquivo único para evitar conflitos
-    const curriculo_path = `uploads/${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
-
-    // Define o caminho completo onde o arquivo será salvo
-    const uploadPath = path.join(__dirname, '..', '..', 'public', curriculo_path);
-
-    // 3. Move o arquivo para a pasta de uploads
-    await curriculoFile.mv(uploadPath);
-
-    // 4. Cria o objeto para inserir no banco de dados com o CAMINHO do arquivo
-    const novaCandidatura = {
-      candidato_id,
-      vaga_id,
-      data_inscricao: new Date(),
-      status: 'Aguardando Teste',
-      curriculo: curriculo_path, // <-- Salva o caminho, não o buffer
-      endereco,
-    };
-
-    // 5. Insere no banco de dados
-    const [result] = await db.query('INSERT INTO candidaturas SET ?', novaCandidatura);
-
-    res.status(201).json({ id: result.insertId, ...novaCandidatura });
+    res.status(201).json({ id: result.insertId, message: 'Inscrição realizada com sucesso!' });
 
   } catch (error) {
-    console.error('Erro ao se inscrever na vaga:', error);
-    res.status(500).json({ message: 'Erro no servidor ao tentar realizar a inscrição.' });
+    console.error('Erro ao inscrever candidato:', error);
+    res.status(500).json({ error: 'Erro no servidor ao realizar inscrição.', details: error.message });
   }
 };
 

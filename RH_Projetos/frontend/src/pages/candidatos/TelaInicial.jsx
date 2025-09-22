@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TelaInicial.css";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import Button from "../../components/Button";
 
 const candidatarVaga = (vaga) => {
@@ -22,7 +22,7 @@ const TelaInicial = () => {
   useEffect(() => {
     const fetchVagas = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/vagas");
+        const response = await api.get("/vagas");
         setVagas(response.data);
       } catch (error) {
         console.error("Erro ao buscar vagas:", error);
@@ -78,11 +78,13 @@ const TelaInicial = () => {
               <div className="datas">
                 <p>
                   <strong>Abertura:</strong>{" "}
-                  {new Date(vaga.data_Abertura).toLocaleDateString()}
+                  {/* --- ALTERAÇÃO AQUI --- */}
+                  {vaga.data_Abertura ? new Date(vaga.data_Abertura.replace(' ', 'T')).toLocaleDateString() : 'N/A'}
                 </p>
                 <p>
                   <strong>Fechamento:</strong>{" "}
-                  {new Date(vaga.data_fechamento).toLocaleDateString()}
+                  {/* --- ALTERAÇÃO AQUI --- */}
+                  {vaga.data_fechamento ? new Date(vaga.data_fechamento.replace(' ', 'T')).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             </div>
