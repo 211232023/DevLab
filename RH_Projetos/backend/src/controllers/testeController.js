@@ -118,3 +118,98 @@ exports.getTesteByVagaId = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor ao buscar o teste.' });
     }
 };
+
+exports.getTesteById = async (req, res) => {
+    const { id } = req.params; // Pega o ID da URL
+    try {
+        // 1. Busca os dados básicos do teste
+        const [testes] = await db.query('SELECT * FROM testes WHERE id = ?', [id]);
+        if (testes.length === 0) {
+            return res.status(404).json({ message: 'Nenhum teste encontrado com este ID.' });
+        }
+        const teste = testes[0];
+
+        // 2. Busca as questões e alternativas associadas ao teste
+        const questoesQuery = `
+            SELECT q.*, a.id as alternativa_id, a.texto, a.correta
+            FROM testes_questoes tq
+            JOIN questoes q ON tq.questao_id = q.id
+            JOIN alternativas a ON a.questao_id = q.id
+            WHERE tq.teste_id = ?
+            ORDER BY q.id, a.id;
+        `;
+        const [questoesComAlternativas] = await db.query(questoesQuery, [teste.id]);
+
+        // 3. Organiza os dados para o formato esperado pelo frontend
+        const questoesMap = new Map();
+        questoesComAlternativas.forEach(row => {
+            if (!questoesMap.has(row.id)) {
+                questoesMap.set(row.id, {
+                    id: row.id,
+                    enunciado: row.enunciado,
+                    area_conhecimento: row.area_conhecimento,
+                    alternativas: []
+                });
+            }
+            questoesMap.get(row.id).alternativas.push({
+                id: row.alternativa_id,
+                texto: row.texto,
+                correta: !!row.correta
+            });
+        });
+
+        const resultadoFinal = {
+            ...teste,
+            questoes: Array.from(questoesMap.values())
+        };
+
+        res.status(200).json(resultadoFinal);
+    } catch (error) {
+        console.error('Erro ao buscar teste por ID:', error);
+        res.status(500).json({ message: 'Erro no servidor ao buscar o teste.' });
+    }
+};
+
+exports.submeterTeste = async (req, res) => {
+    const { candidatura_id, teste_id } = req.params;
+    const { respostas } = req.body;
+
+    if (!respostas || Object.keys(respostas).length === 0) {
+        return res.status(400).json({ message: 'Nenhuma resposta foi enviada.' });
+    }
+
+    try {
+        // 1. Buscar o gabarito do teste
+        const gabaritoQuery = `
+            SELECT q.id AS questao_id, a.id AS alternativa_correta_id
+            FROM testes_questoes tq
+            JOIN questoes q ON tq.questao_id = q.id
+            JOIN alternativas a ON a.questao_id = q.id
+            WHERE tq.teste_id = ? AND a.correta = 1;
+        `;
+        const [gabarito] = await db.query(gabaritoQuery, [teste_id]);
+
+        if (gabarito.length === 0) {
+            return res.status(404).json({ message: 'Gabarito para este teste não encontrado.' });
+        }
+
+        // 2. Calcular a pontuação
+        let acertos = 0;
+        gabarito.forEach(item => {
+            if (respostas[item.questao_id] == item.alternativa_correta_id) { // Usando == por segurança
+                acertos++;
+            }
+        });
+        const pontuacao = (acertos / gabarito.length) * 100;
+
+        // 3. Salvar a pontuação na tabela 'candidaturas'
+        const updateQuery = 'UPDATE candidaturas SET pontuacao_teste = ? WHERE id = ?';
+        await db.query(updateQuery, [pontuacao, candidatura_id]);
+
+        res.status(200).json({ message: 'Teste enviado e pontuação registrada com sucesso!', pontuacao: pontuacao });
+
+    } catch (error) {
+        console.error('Erro ao submeter teste:', error);
+        res.status(500).json({ message: 'Erro no servidor ao submeter o teste.' });
+    }
+};

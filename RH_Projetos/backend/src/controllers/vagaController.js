@@ -227,30 +227,26 @@ exports.deleteVaga = async (req, res) => {
     }
 };
 
-exports.listarCandidatosPorVaga = async (req, res) => {
-  const { vaga_id } = req.params;
-
-  try {
-    const [candidatos] = await db.query(
-      `SELECT 
-         u.nome as nome_candidato,
-         u.email as email_candidato,
-         u.telefone,
-         c.id as candidatura_id, 
-         c.status, 
-         c.curriculo
-       FROM candidaturas c
-       JOIN usuarios u ON c.candidato_id = u.id
-       WHERE c.vaga_id = ?`,
-      [vaga_id]
-    );
-
-    if (candidatos.length === 0) {
-      return res.status(200).json([]);
-    }
-
-    res.status(200).json(candidatos);
-  } catch (error) {
+exports.getCandidatosPorVaga = async (req, res) => {
+    try {
+        const { vagaId } = req.params;
+        // Adicione c.pontuacao_teste na linha SELECT
+        const query = `
+            SELECT 
+                u.id, 
+                u.nome, 
+                u.email, 
+                c.id as candidatura_id, 
+                c.status, 
+                c.curriculo_path,
+                c.pontuacao_teste 
+            FROM usuarios u
+            JOIN candidaturas c ON u.id = c.usuario_id
+            WHERE c.vaga_id = ?
+        `;
+        const [candidatos] = await db.query(query, [vagaId]);
+        res.status(200).json(candidatos);
+    } catch (error) {
     console.error('Erro ao buscar candidatos da vaga:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos.' });
   }

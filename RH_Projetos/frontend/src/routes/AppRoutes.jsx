@@ -38,7 +38,7 @@ export default function AppRoutes() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/documentos" element={<Documentos />} />
                 <Route path="/etapas/:vagaId/:candidaturaId" element={<Etapas />} />
-                <Route path="/teste/:vagaId/:candidaturaId" element={<Teste />} />
+                <Route path="/teste/:testeId/:candidaturaId" element={<Teste />} />
 
                 {/* RH */}
                 <Route path="/cadastro-vaga" element={<CadastroVaga />} />

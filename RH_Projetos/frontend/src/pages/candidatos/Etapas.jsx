@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api';
 import './Etapas.css';
 // Importando os ícones que vamos usar
-import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle } from 'react-icons/fa';
+import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle, FaUserTie } from 'react-icons/fa';
 
 const Etapas = () => {
     const { vagaId, candidaturaId } = useParams();
@@ -37,14 +37,14 @@ const Etapas = () => {
         fetchData();
     }, [candidaturaId, vagaId]);
 
-    // Configuração completa das etapas com ícones e descrições
+    // --- CONFIGURAÇÃO DAS ETAPAS ATUALIZADA ---
     const etapasConfig = [
         { 
             nome: 'Inscrição Realizada', 
             statusEnum: 'Aguardando Teste', 
             path: null,
             icon: <FaFileAlt />,
-            descricao: 'Sua inscrição foi recebida com sucesso!'
+            descricao: 'Sua inscrição foi recebida com sucesso e está em análise.'
         },
         { 
             nome: 'Teste Online', 
@@ -53,6 +53,22 @@ const Etapas = () => {
             icon: <FaPencilAlt />,
             descricao: 'Realize o teste técnico para esta vaga.'
         },
+        // --- NOVAS ETAPAS ADICIONADAS ---
+        { 
+            nome: 'Entrevista com RH', 
+            statusEnum: 'Entrevista com RH', 
+            path: null, // Sem link, apenas informativo
+            icon: <FaUsers />,
+            descricao: 'O recrutador entrará em contato através do seu e-mail ou telefone para agendar.'
+        },
+        { 
+            nome: 'Entrevista com Gestor', 
+            statusEnum: 'Entrevista com Gestor', 
+            path: null, // Sem link, apenas informativo
+            icon: <FaUserTie />, // Ícone diferente para o gestor
+            descricao: 'O gestor da área entrará em contato através do seu e-mail ou telefone para agendar.'
+        },
+        // --- RESTANTE DAS ETAPAS ---
         { 
             nome: 'Manual da Empresa', 
             statusEnum: 'Manual', 
@@ -68,18 +84,11 @@ const Etapas = () => {
             descricao: 'Envie os documentos necessários para a próxima fase.'
         },
         { 
-            nome: 'Entrevista', 
-            statusEnum: 'Entrevista', 
-            path: null, // Sem link, apenas informativo
-            icon: <FaUsers />,
-            descricao: 'Aguarde o contato do RH para agendar a entrevista.'
-        },
-        { 
             nome: 'Processo Finalizado', 
             statusEnum: 'Finalizado', 
             path: null,
             icon: <FaCheckCircle />,
-            descricao: 'O processo seletivo para esta vaga foi concluído.'
+            descricao: 'O processo seletivo para esta vaga foi concluído. Agradecemos sua participação!'
         },
     ];
 
@@ -93,7 +102,7 @@ const Etapas = () => {
     };
 
     const handleEtapaClick = (etapa, index) => {
-        // Permite o clique apenas na etapa atual e se houver um caminho
+        // Permite o clique apenas na etapa atual e se houver um caminho definido
         if (getStatusClass(index) === 'current' && etapa.path) {
             navigate(etapa.path);
         }

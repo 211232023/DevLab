@@ -1,188 +1,153 @@
-body {
-  background-color: #e6ebf2;
-  font-family: Arial, sans-serif;
-}
-
 .teste-container {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-.pergunta-topo {
-  margin-bottom: 15px;
-  font-weight: bold;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.pergunta {
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+.teste-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 0.5rem;
 }
 
-.pergunta.portugues {
-  background-color: #e6f2ff;
-  border: 2px solid #4da6ff;
+.teste-container p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
 }
 
-.pergunta.matematica {
-  background-color: #e6f2ff;
-  border: 2px solid #4da6ff;
+/* Tela de Início */
+.teste-inicio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.opcoes-radio {
-  list-style: none;
-  padding: 0;
-  margin-top: 10px;
+.teste-inicio p {
+    max-width: 600px;
+    line-height: 1.6;
 }
 
-.opcoes-radio li {
-  margin: 10px 0;
+/* Formulário do Teste */
+.teste-form {
+    display: flex;
+    flex-direction: column;
 }
 
-.opcoes-radio label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: background 0.2s;
+.questao-card {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.opcoes-radio label.selecionado {
-  background-color: #d1e7dd;
+.questao-card h3 {
+    margin-top: 0;
+    color: #444;
 }
 
-.opcoes-radio input[type="radio"] {
-  display: none;
+.alternativas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* círculo externo */
-.radio-btn {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #333;
-  margin-right: 10px;
-  flex-shrink: 0;
-  position: relative;
-  display: inline-block;
+.alternativa-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    background-color: #fff;
+    border: 1px solid #ddd;
 }
 
-/* bolinha preta de dentro */
-.radio-btn::after {
-  content: "";
-  width: 10px; /* pode ajustar o tamanho */
-  height: 10px;
-  background: #333;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.2s ease-in-out;
+.alternativa-label:hover {
+    background-color: #f0f4f8;
 }
 
-/* quando o radio está selecionado */
-input[type="radio"]:checked + .radio-btn::after {
-  transform: translate(-50%, -50%) scale(1);
+.alternativa-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
 }
 
-.navegacao {
-  display: flex;
-  justify-content: space-between;
+/* Navegação do Teste */
+.teste-navegacao {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
 }
 
-.navegacao button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  background-color: #127067;
-  color: white;
-  cursor: pointer;
+/* Tela de Resultado */
+.teste-resultado h2 {
+    text-align: center;
+    color: #0056b3;
+    margin-bottom: 2rem;
 }
 
-.navegacao button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.feedback-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.gabarito {
-  list-style: none;
-  padding: 0;
+.feedback-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 5px solid;
 }
 
-.gabarito li {
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
+.feedback-card h3 {
+    margin-top: 0;
 }
 
-.gabarito li.portugues {
-  background-color: #e6f2ff;
-  border: 1px solid #4da6ff;
+.feedback-card.correto {
+    background-color: #e9f7ef;
+    border-color: #28a745;
 }
 
-.gabarito li.matematica {
-  background-color: #e6f2ff;
-  border: 1px solid #4da6ff;
-}
-.opcoes-radio input[type="radio"] {
-  display: none;
+.feedback-card.incorreto {
+    background-color: #fdecea;
+    border-color: #dc3545;
 }
 
-.radio-btn {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #333;
-  margin-right: 10px;
-  flex-shrink: 0;
-  position: relative;
-  display: inline-block;
+.feedback-alternativas p {
+    margin: 0.5rem 0;
+    text-align: left;
+    padding: 0.5rem;
+    border-radius: 4px;
 }
 
-/* bolinha preta centralizada */
-.opcoes-radio input[type="radio"]:checked + .radio-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background-color: #333;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+.alternativa-correta {
+    background-color: #c3e6cb;
 }
 
-.barra-questoes {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 18px;
+.alternativa-incorreta {
+    background-color: #f5c6cb;
+    text-decoration: line-through;
 }
 
-.barra-questoes button {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: #99cafeff;
-  color: #00397a;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  transition: border 0.2s, background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.barra-questoes button.selecionado {
-  border: 3px solid #00397aff;
-  background: #4da6ff;
-  color: #fff;
+.feedback-alternativas strong {
+    font-weight: 600;
 }
