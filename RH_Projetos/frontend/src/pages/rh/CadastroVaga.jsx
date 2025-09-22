@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../api"; // IMPORTANTE: Alterado para usar a instância customizada do Axios
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from 'react-router-dom';
 import "./CadastroVaga.css";
@@ -140,7 +140,6 @@ export default function CadastroVaga() {
         setIsLoading(true);
         setError('');
 
-        console.log("Verificando usuário do contexto:", user);
         if (!user || !user.id) {
             setError("Erro: Usuário não identificado. Por favor, faça login novamente.");
             setIsLoading(false);
@@ -164,29 +163,12 @@ export default function CadastroVaga() {
             testeData: testeData,
             questoes: questoesDoTeste
         };
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('Acesso negado. Seu token de login não foi encontrado.');
-            setIsLoading(false);
-            navigate('/inicio'); // Corrected navigation link
-            return;
-        }
-
-        console.log("Payload final que será enviado para a API:", JSON.stringify(finalPayload, null, 2));
-        console.log("Token que será enviado:", token);
-        console.log("Iniciando a chamada da API com axios.post para /api/vagas/completa...");
+        
+        // O token é adicionado automaticamente pelo interceptor do Axios em `api.js`
 
         try {
-            const response = await axios.post(
-                "/api/vagas/completa", // <-- Use the relative URL for the proxy
-                finalPayload, 
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
+            // A URL agora é relativa à baseURL configurada em `api.js`
+            const response = await api.post("/vagas/completa", finalPayload);
 
             console.log("Sucesso! A API respondeu:", response);
             alert('Vaga e teste cadastrados com sucesso!');
