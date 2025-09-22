@@ -23,62 +23,98 @@ exports.createVaga = async (req, res) => {
 };
 
 
-// --- FUNÇÃO DE CRIAR VAGA COMPLETA (VAGA + TESTE + QUESTÕES) ---
+// --- FUNÇÃO DE CRIAR VAGA COMPLETA COM LOGS DE DIAGNÓSTICO ---
 exports.createVagaCompleta = async (req, res) => {
+    console.log('--- INICIANDO CRIAÇÃO DE VAGA COMPLETA ---');
     const { vagaData, testeData, questoes } = req.body;
 
+    // --- PONTO DE INVESTIGAÇÃO 1: Verificar dados recebidos ---
+    console.log('Dados recebidos no corpo da requisição:', JSON.stringify(req.body, null, 2));
+
     if (!vagaData || !testeData || !questoes || questoes.length === 0) {
+        console.error('ERRO: Dados de entrada ausentes ou inválidos.');
         return res.status(400).json({ error: 'Dados da vaga, teste e pelo menos uma questão são obrigatórios.' });
     }
 
-    const connection = await db.getConnection();
+    let connection; // Declarar a conexão aqui para que seja acessível no finally
     try {
+        console.log('Tentando obter conexão com o banco de dados...');
+        connection = await db.getConnection();
+        console.log('Conexão com o banco de dados obtida com sucesso.');
+
+        console.log('Iniciando transação...');
         await connection.beginTransaction();
+        console.log('Transação iniciada.');
 
         // 1. Criar a Vaga
+        console.log('1. Inserindo vaga na tabela "vagas"...');
         const [vagaResult] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
         const vagaId = vagaResult.insertId;
+        console.log(`Vaga inserida com sucesso! ID da Vaga: ${vagaId}`);
 
         // 2. Criar o Teste
+        console.log('2. Inserindo teste na tabela "testes"...');
         const testeParaSalvar = { ...testeData, vaga_id: vagaId };
         const [testeResult] = await connection.query('INSERT INTO testes SET ?', [testeParaSalvar]);
         const testeId = testeResult.insertId;
+        console.log(`Teste inserido com sucesso! ID do Teste: ${testeId}`);
 
-        // 3. Criar as Questões, Alternativas e associar ao teste
-        for (const questao of questoes) {
+        // 3. Criar as Questões e Alternativas
+        console.log('3. Iniciando loop para inserir questões e alternativas...');
+        for (const [index, questao] of questoes.entries()) {
             const { enunciado, area_conhecimento, alternativas } = questao;
+            console.log(`  - Processando Questão #${index + 1}: "${enunciado}"`);
             
             const [questaoResult] = await connection.query(
                 'INSERT INTO questoes (enunciado, area_conhecimento) VALUES (?, ?)',
                 [enunciado, area_conhecimento]
             );
             const questaoId = questaoResult.insertId;
+            console.log(`    - Questão inserida com sucesso! ID da Questão: ${questaoId}`);
 
-            // Associa a questão criada ao teste
+            console.log(`    - Associando questão ${questaoId} ao teste ${testeId}...`);
             await connection.query(
                 'INSERT INTO testes_questoes (teste_id, questao_id) VALUES (?, ?)',
                 [testeId, questaoId]
             );
+            console.log(`    - Associação com o teste criada.`);
 
-            // Insere as alternativas da questão
             if (alternativas && alternativas.length > 0) {
-                const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta]);
+                console.log(`    - Inserindo ${alternativas.length} alternativas para a questão ${questaoId}...`);
+                const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta ? 1 : 0]); // Garante que booleano vire 0 ou 1
                 await connection.query(
                     'INSERT INTO alternativas (questao_id, texto, correta) VALUES ?',
                     [alternativasValues]
                 );
+                console.log(`    - Alternativas inseridas com sucesso.`);
             }
         }
+        console.log('Loop de questões finalizado.');
 
+        console.log('Fazendo commit da transação...');
         await connection.commit();
+        console.log('Commit realizado com sucesso!');
+
         res.status(201).json({ message: 'Vaga e teste criados com sucesso!', vagaId: vagaId });
+        console.log('--- FINALIZADO COM SUCESSO ---');
 
     } catch (err) {
-        await connection.rollback();
-        console.error('Erro ao criar vaga completa:', err);
-        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
+        console.error('!!! ERRO DURANTE A TRANSAÇÃO !!!');
+        console.error('O erro foi:', err);
+
+        if (connection) {
+            console.log('Fazendo rollback da transação...');
+            await connection.rollback();
+            console.log('Rollback realizado.');
+        }
+        
+        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.', details: err.message });
+        console.log('--- FINALIZADO COM ERRO ---');
     } finally {
-        connection.release();
+        if (connection) {
+            console.log('Liberando a conexão com o banco de dados.');
+            connection.release();
+        }
     }
 };
 

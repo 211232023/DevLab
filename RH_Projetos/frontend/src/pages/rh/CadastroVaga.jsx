@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import "./CadastroVaga.css";
 import Button from "../../components/Button";
 
-// --- Componente do Modal para Nova Questão (Corrigido) ---
+// --- Componente do Modal para Nova Questão (Mantido como está) ---
 const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
     const [enunciado, setEnunciado] = useState('');
     const [area, setArea] = useState('');
@@ -77,13 +77,13 @@ const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
     );
 };
 
-// --- Componente Principal ---
+// --- Componente Principal (Com as atualizações de diagnóstico) ---
 export default function CadastroVaga() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
-    
+
     // Estados para guardar TODOS os dados antes de enviar
     const [formVaga, setFormVaga] = useState({
         nome: "", area: "", beneficios: [], salario: "",
@@ -100,17 +100,17 @@ export default function CadastroVaga() {
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    // Lógica de Benefícios
+    // Lógica de Benefícios (Mantida como está)
     const todosBeneficiosPreDefinidos = ["Vale-refeição", "Vale-transporte", "Plano de saúde", "Seguro de vida", "Home office", "Auxílio creche", "Bônus anual", "Participação nos lucros", "Estacionamento", "Assistência odontológica"];
     const beneficiosPreDefinidos = todosBeneficiosPreDefinidos.filter(b => !formVaga.beneficios.includes(b));
-    
+
     const handleAddBeneficio = (b) => {
         if (b && !formVaga.beneficios.includes(b)) {
             setFormVaga({ ...formVaga, beneficios: [...formVaga.beneficios, b] });
             setNovoBeneficio("");
         }
     };
-    
+
     const handleRemoveBeneficio = (b) => {
         setRemovendo(prev => [...prev, b]);
         setTimeout(() => {
@@ -121,8 +121,8 @@ export default function CadastroVaga() {
 
     const handleVagaChange = (e) => setFormVaga({ ...formVaga, [e.target.name]: e.target.value });
     const handleTesteChange = (e) => setTesteData({ ...testeData, [e.target.name]: e.target.value });
-    
-    // Funções de Questões
+
+    // Funções de Questões (Mantidas como está)
     const handleQuestaoCriada = (novaQuestao) => {
         setQuestoesDoTeste(prev => [...prev, novaQuestao]);
     };
@@ -130,16 +130,24 @@ export default function CadastroVaga() {
         setQuestoesDoTeste(prev => prev.filter((_, i) => i !== index));
     };
 
-    // Submissão Final
+    // --- FUNÇÃO DE SUBMISSÃO ATUALIZADA COM DIAGNÓSTICO ---
     const handleFinalSubmit = async () => {
         setIsLoading(true);
         setError('');
-
+    
+        // --- PONTO DE INVESTIGAÇÃO 1: Verificar se o usuário está logado ---
+        console.log("Verificando usuário do contexto:", user);
+        if (!user || !user.id) {
+            setError("Erro: Usuário não identificado. Por favor, faça login novamente.");
+            setIsLoading(false);
+            return; 
+        }
+    
         const vagaPayload = {
             rh_id: user.id,
             titulo: formVaga.nome,
             area: formVaga.area,
-            salario: parseFloat(formVaga.salario),
+            salario: parseFloat(formVaga.salario) || 0, // Previne erro com salário vazio
             descricao: formVaga.descricao,
             data_Abertura: formVaga.dataInicial,
             data_fechamento: formVaga.dataLimite,
@@ -147,16 +155,57 @@ export default function CadastroVaga() {
             beneficios: formVaga.beneficios.join(', '),
         };
         
+        const finalPayload = {
+            vagaData: vagaPayload,
+            testeData: testeData,
+            questoes: questoesDoTeste
+        };
+    
+        // --- PONTO DE INVESTIGAÇÃO 2: Verificar os dados antes de enviar ---
+        console.log("Payload final que será enviado para a API:", JSON.stringify(finalPayload, null, 2));
+    
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('Acesso negado. Seu token de login não foi encontrado.');
+            setIsLoading(false);
+            navigate('/rh/login'); // Ajuste se a rota de login for outra
+            return;
+        }
+    
         try {
-            await axios.post("http://localhost:3001/api/vagas/completa", {
-                vagaData: vagaPayload,
-                testeData: testeData,
-                questoes: questoesDoTeste
-            });
+            const response = await axios.post(
+                "http://localhost:3001/api/vagas/completa", 
+                finalPayload, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Garante que o token está sendo enviado
+                    }
+                }
+            );
+    
+            // --- PONTO DE INVESTIGAÇÃO 3: Sucesso! Ver o que o servidor respondeu ---
+            console.log("Sucesso! Resposta do servidor:", response);
+    
             alert('Vaga e teste cadastrados com sucesso!');
             navigate('/gestao-vagas');
+    
         } catch (error) {
-            setError(error.response?.data?.error || "Erro ao salvar a vaga. Verifique todos os campos.");
+            // --- PONTO DE INVESTIGAÇÃO 4: Erro! Ver detalhes do erro ---
+            console.error("ERRO COMPLETO AO CADASTRAR:", error);
+            if (error.response) {
+                // O servidor respondeu com um erro (4xx ou 5xx)
+                console.error("Dados do erro (response.data):", error.response.data);
+                console.error("Status do erro (response.status):", error.response.status);
+                setError(error.response.data.error || `Erro ${error.response.status} do servidor.`);
+            } else if (error.request) {
+                // A requisição foi feita, mas não houve resposta
+                console.error("Requisição enviada, mas sem resposta do servidor:", error.request);
+                setError('O servidor não respondeu. Verifique se ele está rodando.');
+            } else {
+                // Um erro ocorreu na configuração da requisição
+                console.error('Erro ao configurar a requisição:', error.message);
+                setError('Ocorreu um erro ao preparar os dados para envio.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -165,7 +214,7 @@ export default function CadastroVaga() {
     const handleNextStep = () => setStep(step + 1);
     const handlePrevStep = () => setStep(step - 1);
     
-    // Funções de Renderização
+    // Funções de Renderização (Mantidas como está)
     const renderVagaForm = () => (
         <div className="form-vaga">
             <label htmlFor="nome">Nome da vaga</label>
