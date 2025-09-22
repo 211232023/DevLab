@@ -1,8 +1,29 @@
 const db = require('../config/db');
 
-// --- FUNÇÃO DE CRIAR VAGA ATUALIZADA ---
-// Em src/controllers/vagaController.js
+// --- FUNÇÃO PARA CRIAR APENAS A VAGA ---
+exports.createVaga = async (req, res) => {
+    const { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, rh_id } = req.body;
+    const vagaData = { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, rh_id };
 
+    if (!titulo || !descricao || !rh_id) {
+        return res.status(400).json({ error: 'Título, descrição e rh_id são obrigatórios.' });
+    }
+
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const [result] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
+        res.status(201).json({ message: 'Vaga criada com sucesso!', vagaId: result.insertId });
+    } catch (err) {
+        console.error('Erro ao criar vaga:', err);
+        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
+    } finally {
+        if (connection) connection.release();
+    }
+};
+
+
+// --- FUNÇÃO DE CRIAR VAGA COMPLETA (VAGA + TESTE + QUESTÕES) ---
 exports.createVagaCompleta = async (req, res) => {
     const { vagaData, testeData, questoes } = req.body;
 
@@ -33,7 +54,7 @@ exports.createVagaCompleta = async (req, res) => {
             );
             const questaoId = questaoResult.insertId;
 
-            // --- LINHA ADICIONADA: Associa a questão criada ao teste ---
+            // Associa a questão criada ao teste
             await connection.query(
                 'INSERT INTO testes_questoes (teste_id, questao_id) VALUES (?, ?)',
                 [testeId, questaoId]
@@ -61,7 +82,7 @@ exports.createVagaCompleta = async (req, res) => {
     }
 };
 
-// --- DEMAIS FUNÇÕES ATUALIZADAS PARA USAR ASYNC/AWAIT ---
+// --- DEMAIS FUNÇÕES DO CONTROLLER ---
 
 exports.getAllVagas = async (req, res) => {
     const query = 'SELECT * FROM vagas';
@@ -148,12 +169,12 @@ exports.listarCandidatosPorVaga = async (req, res) => {
   try {
     const [candidatos] = await db.query(
       `SELECT 
-         u.nome as nome_candidato, -- Adicionando alias para clareza
-         u.email as email_candidato, -- Adicionando alias
+         u.nome as nome_candidato,
+         u.email as email_candidato,
          u.telefone,
          c.id as candidatura_id, 
          c.status, 
-         c.curriculo -- <--- CORREÇÃO AQUI
+         c.curriculo
        FROM candidaturas c
        JOIN usuarios u ON c.candidato_id = u.id
        WHERE c.vaga_id = ?`,
@@ -171,7 +192,6 @@ exports.listarCandidatosPorVaga = async (req, res) => {
   }
 };
 
-// Listar todas as vagas de um recrutador com seus respectivos candidatos
 exports.listarVagasComCandidatos = async (req, res) => {
   const { recrutador_id } = req.params;
 
@@ -181,18 +201,14 @@ exports.listarVagasComCandidatos = async (req, res) => {
 
   let connection;
   try {
-    // Pega uma conexão do pool
     connection = await db.getConnection();
 
-    // 1. Pega todas as vagas do recrutador
     const [vagas] = await connection.query('SELECT * FROM vagas WHERE rh_id = ?', [recrutador_id]);
 
     if (vagas.length === 0) {
-      // Se não houver vagas, retorna um array vazio.
       return res.status(200).json([]);
     }
 
-    // 2. Para cada vaga, busca os candidatos de forma sequencial
     const vagasComCandidatos = [];
     for (const vaga of vagas) {
       const [candidatos] = await connection.query(
@@ -212,7 +228,6 @@ exports.listarVagasComCandidatos = async (req, res) => {
     console.error('Erro ao buscar vagas com candidatos:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar os dados de gestão.' });
   } finally {
-    // Libera a conexão de volta para o pool
     if (connection) connection.release();
   }
 };
@@ -255,57 +270,5 @@ exports.listarVagasPorUsuario = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor ao buscar as vagas.' });
     } finally {
         if (connection) connection.release();
-    }
-};
-
-exports.createVagaCompleta = async (req, res) => {
-    const { vagaData, testeData, questoes } = req.body;
-
-    // Validação básica
-    if (!vagaData || !testeData || !questoes || questoes.length === 0) {
-        return res.status(400).json({ error: 'Dados da vaga, teste e pelo menos uma questão são obrigatórios.' });
-    }
-
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
-
-        // 1. Criar a Vaga
-        const [vagaResult] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
-        const vagaId = vagaResult.insertId;
-
-        // 2. Criar o Teste
-        const testeParaSalvar = { ...testeData, vaga_id: vagaId };
-        const [testeResult] = await connection.query('INSERT INTO testes SET ?', [testeParaSalvar]);
-        const testeId = testeResult.insertId;
-
-        // 3. Criar as Questões e Alternativas
-        for (const questao of questoes) {
-            const { enunciado, area_conhecimento, alternativas } = questao;
-            
-            const [questaoResult] = await connection.query(
-                'INSERT INTO questoes (enunciado, area_conhecimento) VALUES (?, ?)',
-                [enunciado, area_conhecimento]
-            );
-            const questaoId = questaoResult.insertId;
-
-            const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta]);
-            await connection.query(
-                'INSERT INTO alternativas (questao_id, texto, correta) VALUES ?',
-                [alternativasValues]
-            );
-        }
-
-        // Se tudo deu certo, confirma as operações
-        await connection.commit();
-        res.status(201).json({ message: 'Vaga e teste criados com sucesso!', vagaId: vagaId });
-
-    } catch (err) {
-        // Se algo deu errado, desfaz tudo
-        await connection.rollback();
-        console.error('Erro ao criar vaga completa:', err);
-        res.status(500).json({ error: 'Erro interno do servidor ao criar a vaga.' });
-    } finally {
-        connection.release();
     }
 };
