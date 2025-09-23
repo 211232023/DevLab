@@ -210,3 +210,47 @@ exports.listarMinhasCandidaturas = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor ao buscar as candidaturas.' });
   }
 };
+
+exports.uploadDocumento = async (req, res) => {
+  try {
+    // Pega o ID da candidatura a partir dos parâmetros da URL
+    const { id: candidatura_id } = req.params;
+    // Pega o tipo de documento do corpo da requisição
+    const { tipo } = req.body;
+
+    // Verifica se algum arquivo foi enviado
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ message: 'Nenhum arquivo foi enviado.' });
+    }
+
+    const arquivo = req.files.documento;
+
+    // Validação básica para garantir que o tipo e o arquivo existem
+    if (!tipo || !arquivo) {
+        return res.status(400).json({ message: 'Tipo de documento ou arquivo ausente.' });
+    }
+
+    // Cria um nome de arquivo único para evitar conflitos
+    const nomeArquivo = `${candidatura_id}-${tipo}-${Date.now()}-${arquivo.name}`;
+    
+    // Define o caminho completo onde o arquivo será salvo
+    const uploadPath = path.join(__dirname, '..', 'public', 'uploads', nomeArquivo);
+
+    // Move o arquivo para a pasta de uploads
+    await arquivo.mv(uploadPath);
+
+    const caminhoFinal = `/uploads/${nomeArquivo}`;
+
+    // Insere o registro do documento no banco de dados
+    await db.query(
+      'INSERT INTO documentos (candidatura_id, tipo, caminho) VALUES (?, ?, ?)',
+      [candidatura_id, tipo, caminhoFinal]
+    );
+
+    res.status(201).json({ message: `Documento '${tipo}' enviado com sucesso!` });
+
+  } catch (error) {
+    console.error('Erro ao fazer upload do documento:', error);
+    res.status(500).json({ message: 'Erro no servidor ao processar o documento.' });
+  }
+};

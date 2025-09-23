@@ -1,117 +1,109 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../api';
-import { useAuth } from '../../AuthContext'; // Corrigido para usar o hook
-import Button from '../../components/Button';
+import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../../api'; // Verifique se o caminho para sua instância do axios está correto
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import './Documentos.css';
 
-const Documentos = () => {
-    const { candidaturaId } = useParams();
-    const navigate = useNavigate();
-    const { usuario } = useAuth(); // Pega o usuário logado do contexto
+function Documentos() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { candidaturaId } = location.state || {}; // Pega o ID da candidatura
 
-    // Estado para armazenar os arquivos selecionados
-    const [documentos, setDocumentos] = useState({
-        'RG_CPF': null,
-        'CERTIDAO_NASCIMENTO': null,
-        'COMPROVANTE_RESIDENCIA': null,
-        'RESERVISTA': null,
-    });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [rg, setRg] = useState(null);
+  const [cpf, setCpf] = useState(null);
+  const [comprovanteResidencia, setComprovanteResidencia] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-    // Define a lista base de documentos obrigatórios
-    const documentosObrigatorios = [
-        { id: 'RG_CPF', nome: 'RG / CPF' },
-        { id: 'CERTIDAO_NASCIMENTO', nome: 'Certidão de Nascimento' },
-        { id: 'COMPROVANTE_RESIDENCIA', nome: 'Comprovante de Residência' },
+  // Redireciona se não houver um ID de candidatura
+  if (!candidaturaId) {
+    navigate('/candidato/home'); 
+    return null;
+  }
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    const filesToUpload = [
+      { tipo: 'RG', file: rg, nome: 'RG' },
+      { tipo: 'CPF', file: cpf, nome: 'CPF' },
+      { tipo: 'ComprovanteResidencia', file: comprovanteResidencia, nome: 'Comprovante de Residência' },
     ];
 
-    // Adiciona o documento de reservista condicionalmente se o usuário for do gênero Masculino
-    if (usuario && usuario.genero === 'Masculino') {
-        documentosObrigatorios.push({ id: 'RESERVISTA', nome: 'Certificado de Reservista' });
+    // Verifica se pelo menos um arquivo foi selecionado
+    if (filesToUpload.every(item => !item.file)) {
+        setError('Você precisa anexar pelo menos um documento.');
+        setLoading(false);
+        return;
     }
 
-    const handleFileChange = (e) => {
-        const { name, files } = e.target;
-        if (files.length > 0) {
-            setDocumentos(prevState => ({
-                ...prevState,
-                [name]: files[0]
-            }));
-        }
-    };
+    try {
+      const uploadPromises = filesToUpload
+        .filter(item => item.file) // Envia apenas os arquivos que foram selecionados
+        .map(item => {
+          const formData = new FormData();
+          formData.append('documento', item.file);
+          formData.append('tipo', item.tipo);
+          return api.post(`/candidaturas/${candidaturaId}/documentos`, formData);
+        });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+      // Executa todos os uploads em paralelo
+      await Promise.all(uploadPromises);
 
-        const formData = new FormData();
+      setSuccess('Documentos enviados com sucesso! Avançando...');
+      
+      // Navega para a próxima etapa após um breve atraso
+      setTimeout(() => {
+        navigate('/candidato/etapas', { state: { candidaturaId } });
+      }, 2000);
+
+    } catch (err) {
+      console.error("Erro no upload: ", err);
+      setError(err.response?.data?.message || 'Ocorreu um erro ao enviar os documentos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <div className="documentos-container">
+        <h2>Envio de Documentos</h2>
+        <p>Anexe os documentos solicitados abaixo para continuar com sua candidatura.</p>
         
-        // Verifica se todos os documentos obrigatórios foram anexados
-        for (const doc of documentosObrigatorios) {
-            if (!documentos[doc.id]) {
-                setError(`O documento "${doc.nome}" é obrigatório.`);
-                setLoading(false);
-                return;
-            }
-            // Anexa cada arquivo ao FormData
-            formData.append('documentos', documentos[doc.id], doc.id);
-        }
-        
-        try {
-            // Rota do backend para receber múltiplos arquivos
-            await api.post(`/candidaturas/${candidaturaId}/documentos`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+        <form onSubmit={handleSubmit} className="documentos-form">
+          <div className="form-group">
+            <label htmlFor="rg">RG (Registro Geral)</label>
+            <input type="file" id="rg" accept=".pdf" onChange={(e) => setRg(e.target.files[0])} />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="cpf">CPF</label>
+            <input type="file" id="cpf" accept=".pdf" onChange={(e) => setCpf(e.target.files[0])} />
+          </div>
 
-            // Atualiza o status da candidatura para a próxima fase (ex: 'Finalizado')
-            await api.put(`/candidaturas/${candidaturaId}/status`, { status: 'Finalizado' });
+          <div className="form-group">
+            <label htmlFor="comprovanteResidencia">Comprovante de Residência</label>
+            <input type="file" id="comprovanteResidencia" accept=".pdf" onChange={(e) => setComprovanteResidencia(e.target.files[0])} />
+          </div>
+          
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
-            alert('Documentos enviados com sucesso!');
-            // Navega de volta para a tela de etapas para ver o processo concluído
-            const candidatura = await api.get(`/candidaturas/${candidaturaId}`);
-            navigate(`/candidato/inscricao/etapas/${candidatura.data.vaga_id}/${candidaturaId}`);
-            
-        } catch (err) {
-            console.error('Erro ao enviar documentos:', err);
-            setError('Ocorreu um erro ao enviar os documentos. Tente novamente.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="documentos-container">
-            <h1>Envio de Documentos</h1>
-            <p>Por favor, anexe os documentos solicitados abaixo para finalizar sua candidatura.</p>
-
-            <form onSubmit={handleSubmit} className="documentos-form">
-                {documentosObrigatorios.map((doc) => (
-                    <div className="form-group" key={doc.id}>
-                        <label htmlFor={doc.id}>{doc.nome}</label>
-                        <input
-                            type="file"
-                            id={doc.id}
-                            name={doc.id}
-                            onChange={handleFileChange}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                        />
-                         {documentos[doc.id] && <span className="file-name">Arquivo selecionado: {documentos[doc.id].name}</span>}
-                    </div>
-                ))}
-                
-                {error && <div className="error-message">{error}</div>}
-
-                <Button type="submit" disabled={loading}>
-                    {loading ? 'Enviando...' : 'Enviar Documentos e Finalizar'}
-                </Button>
-            </form>
-        </div>
-    );
-};
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Enviando...' : 'Enviar Documentos e Avançar'}
+          </button>
+        </form>
+      </div>
+      <Footer />
+    </div>
+  );
+}
 
 export default Documentos;

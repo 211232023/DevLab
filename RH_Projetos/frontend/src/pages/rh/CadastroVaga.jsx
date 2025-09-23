@@ -172,7 +172,7 @@ export default function CadastroVaga() {
 
             console.log("Sucesso! A API respondeu:", response);
             alert('Vaga e teste cadastrados com sucesso!');
-            navigate('/gestao-vagas');
+            navigate('/inicio');
 
         } catch (error) {
             console.error("ERRO na chamada da API:", error);
