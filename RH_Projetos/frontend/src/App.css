@@ -1,4 +1,7 @@
 .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   text-align: center;
 }
 
@@ -28,9 +31,9 @@
   color: #61dafb;
 }
 
-body, #root {
+body,
+#root {
   min-height: 100vh;
-  height: 100vh;
   display: flex;
   flex-direction: column;
 }
