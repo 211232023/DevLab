@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api';
 import './Etapas.css';
-// Importando os ícones que vamos usar
 import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle, FaUserTie } from 'react-icons/fa';
 
 const Etapas = () => {

@@ -18,7 +18,6 @@ exports.inscreverCandidato = async (req, res) => {
 
     await curriculoFile.mv(curriculoPath);
 
-    // ALTERAÇÃO AQUI: Mudamos 'Enviado' para 'Aguardando Teste'
     const [result] = await db.query(
       'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status, endereco) VALUES (?, ?, ?, ?, ?)',
       [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Aguardando Teste', endereco]
@@ -32,10 +31,8 @@ exports.inscreverCandidato = async (req, res) => {
   }
 };
 
-// Listar todas as candidaturas de um candidato específico
 exports.listarCandidaturasPorCandidato = async (req, res) => {
   const { candidato_id } = req.params;
-
   try {
     const [candidaturas] = await db.query(
       `SELECT 
@@ -46,11 +43,9 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
        WHERE c.candidato_id = ?`,
       [candidato_id]
     );
-
     if (candidaturas.length === 0) {
-      return res.status(200).json([]); // Retorna array vazio em vez de 404
+      return res.status(200).json([]);
     }
-
     res.status(200).json(candidaturas);
   } catch (error) {
     console.error('Erro ao buscar candidaturas:', error);
@@ -58,21 +53,16 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
   }
 };
 
-// Desistir de uma candidatura
 exports.desistirDeVaga = async (req, res) => {
   const { candidatura_id } = req.params;
-
   if (!candidatura_id) {
     return res.status(400).json({ message: 'O ID da candidatura é obrigatório.' });
   }
-
   try {
     const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [candidatura_id]);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Candidatura não encontrada.' });
     }
-
     res.status(200).json({ message: 'Você desistiu da vaga com sucesso.' });
   } catch (error) {
     console.error('Erro ao desistir da vaga:', error);
@@ -84,8 +74,7 @@ exports.desistirDeVaga = async (req, res) => {
 exports.getCandidatosPorVaga = async (req, res) => {
     const { vagaId } = req.params;
     try {
-        // --- Query SQL com a correção final no JOIN ---
-        // Alteramos 'c.usuario_id' para 'c.candidato_id'
+        // --- CORREÇÃO AQUI: Adicionamos u.telefone na query ---
         const query = `
             SELECT 
                 c.id AS candidatura_id, 
@@ -93,7 +82,8 @@ exports.getCandidatosPorVaga = async (req, res) => {
                 c.pontuacao_teste,
                 c.curriculo AS curriculo_path,
                 u.nome, 
-                u.email
+                u.email,
+                u.telefone  -- Adicionado para buscar o telefone do usuário
             FROM candidaturas c
             JOIN usuarios u ON c.candidato_id = u.id
             WHERE c.vaga_id = ?;
@@ -107,40 +97,47 @@ exports.getCandidatosPorVaga = async (req, res) => {
     }
 };
 
-// Atualizar o status de uma candidatura
+// --- NOVA FUNÇÃO ADICIONADA: Buscar documentos por candidatura ---
+exports.getDocumentosPorCandidatura = async (req, res) => {
+  const { id } = req.params; // Aqui, 'id' é o candidatura_id
+  try {
+    const query = 'SELECT * FROM documentos WHERE candidatura_id = ?';
+    const [documentos] = await db.query(query, [id]);
+    
+    if (documentos.length === 0) {
+      return res.status(200).json([]); // É normal não ter documentos, então retorna array vazio
+    }
+
+    // Mapeia os resultados para garantir que os caminhos dos arquivos estão corretos
+    const documentosFormatados = documentos.map(doc => ({
+      ...doc,
+      caminho_arquivo: doc.caminho_arquivo.replace(/\\/g, '/').replace('public/', '')
+    }));
+
+    res.status(200).json(documentosFormatados);
+  } catch (error) {
+    console.error('Erro ao buscar documentos da candidatura:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar documentos.' });
+  }
+};
+
+
 exports.updateStatusCandidatura = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
-
-    // 1. Lista de todos os status permitidos (deve ser IGUAL ao seu ENUM no banco)
     const statusPermitidos = [
-        'Aguardando Teste', 
-        'Teste Disponível', 
-        'Entrevista com RH', 
-        'Entrevista com Gestor', 
-        'Manual', 
-        'Envio de Documentos', 
-        'Finalizado'
+        'Aguardando Teste', 'Teste Disponível', 'Entrevista com RH', 
+        'Entrevista com Gestor', 'Manual', 'Envio de Documentos', 'Finalizado'
     ];
-
-    // 2. Validação explícita do status
-    if (!status) {
-        return res.status(400).json({ message: 'O novo status é obrigatório.' });
+    if (!status || !statusPermitidos.includes(status)) {
+        return res.status(400).json({ message: `O status "${status}" é inválido ou não foi fornecido.` });
     }
-
-    if (!statusPermitidos.includes(status)) {
-        return res.status(400).json({ message: `O status "${status}" é inválido.` });
-    }
-
-    // 3. Se a validação passar, atualiza o banco
     try {
         const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
         const [result] = await db.query(query, [status, id]);
-
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Candidatura não encontrada.' });
         }
-
         res.status(200).json({ message: 'Status da candidatura atualizado com sucesso!' });
     } catch (error) {
         console.error('Erro ao atualizar status da candidatura:', error);
@@ -148,17 +145,13 @@ exports.updateStatusCandidatura = async (req, res) => {
     }
 };
 
-// Deletar uma candidatura (pelo RH/Admin)
 exports.deleteCandidatura = async (req, res) => {
   const { id } = req.params;
-
   try {
     const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [id]);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Candidatura não encontrada.' });
     }
-
     res.status(200).json({ message: 'Candidatura eliminada com sucesso.' });
   } catch (error) {
     console.error('Erro ao deletar candidatura:', error);
@@ -166,20 +159,13 @@ exports.deleteCandidatura = async (req, res) => {
   }
 };
 
-// Adicione esta função em src/controllers/candidaturaController.js
-
 exports.getCandidaturaById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [candidaturas] = await db.query(
-      'SELECT * FROM candidaturas WHERE id = ?', 
-      [id]
-    );
-
+    const [candidaturas] = await db.query('SELECT * FROM candidaturas WHERE id = ?', [id]);
     if (candidaturas.length === 0) {
       return res.status(404).json({ message: 'Candidatura não encontrada.' });
     }
-
     res.status(200).json(candidaturas[0]);
   } catch (error) {
     console.error('Erro ao buscar candidatura:', error);
@@ -188,9 +174,7 @@ exports.getCandidaturaById = async (req, res) => {
 };
 
 exports.listarMinhasCandidaturas = async (req, res) => {
-  // O ID do candidato vem do token JWT, injetado pelo middleware 'protect'
   const candidato_id = req.user.id;
-
   try {
     const [candidaturas] = await db.query(
       `SELECT
@@ -202,9 +186,7 @@ exports.listarMinhasCandidaturas = async (req, res) => {
         ORDER BY c.data_inscricao DESC`,
       [candidato_id]
     );
-    
     res.status(200).json(candidaturas);
-
   } catch (error) {
     console.error('Erro ao buscar as minhas candidaturas:', error);
     res.status(500).json({ message: 'Erro no servidor ao buscar as candidaturas.' });
