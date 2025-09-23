@@ -43,6 +43,7 @@ export default function AppRoutes() {
                 <Route path="/cadastro-vaga" element={<CadastroVaga />} />
                 <Route path="/vaga/:id" element={<DetalheVaga />} />
                 <Route path="/gestao-vaga" element={<GestaoVaga />} />
+                <Route path="/perfil" element={<Perfil />} />
             </Routes>
         </BrowserRouter>
     );
