@@ -1,32 +1,33 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api';
-import { AuthContext } from '../../AuthContext'; // Supondo que você tenha um AuthContext
+import { useAuth } from '../../AuthContext'; // Corrigido para usar o hook
 import Button from '../../components/Button';
 import './Documentos.css';
 
 const Documentos = () => {
     const { candidaturaId } = useParams();
     const navigate = useNavigate();
-    const { usuario } = useContext(AuthContext); // Pega o usuário logado do contexto
+    const { usuario } = useAuth(); // Pega o usuário logado do contexto
 
+    // Estado para armazenar os arquivos selecionados
     const [documentos, setDocumentos] = useState({
-        'RG_FRENTE': null,
-        'RG_VERSO': null,
+        'RG_CPF': null,
+        'CERTIDAO_NASCIMENTO': null,
         'COMPROVANTE_RESIDENCIA': null,
         'RESERVISTA': null,
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Define a lista de documentos obrigatórios
+    // Define a lista base de documentos obrigatórios
     const documentosObrigatorios = [
-        { id: 'RG_FRENTE', nome: 'RG (Frente)' },
-        { id: 'RG_VERSO', nome: 'RG (Verso)' },
+        { id: 'RG_CPF', nome: 'RG / CPF' },
+        { id: 'CERTIDAO_NASCIMENTO', nome: 'Certidão de Nascimento' },
         { id: 'COMPROVANTE_RESIDENCIA', nome: 'Comprovante de Residência' },
     ];
 
-    // Adiciona o documento de reservista condicionalmente
+    // Adiciona o documento de reservista condicionalmente se o usuário for do gênero Masculino
     if (usuario && usuario.genero === 'Masculino') {
         documentosObrigatorios.push({ id: 'RESERVISTA', nome: 'Certificado de Reservista' });
     }
@@ -48,30 +49,32 @@ const Documentos = () => {
 
         const formData = new FormData();
         
-        // Verifica se todos os documentos obrigatórios foram enviados
+        // Verifica se todos os documentos obrigatórios foram anexados
         for (const doc of documentosObrigatorios) {
             if (!documentos[doc.id]) {
                 setError(`O documento "${doc.nome}" é obrigatório.`);
                 setLoading(false);
                 return;
             }
+            // Anexa cada arquivo ao FormData
             formData.append('documentos', documentos[doc.id], doc.id);
         }
         
         try {
-            // A rota no backend deve ser capaz de receber múltiplos arquivos
+            // Rota do backend para receber múltiplos arquivos
             await api.post(`/candidaturas/${candidaturaId}/documentos`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
-            // Atualiza o status da candidatura para a próxima etapa
+            // Atualiza o status da candidatura para a próxima fase (ex: 'Finalizado')
             await api.put(`/candidaturas/${candidaturaId}/status`, { status: 'Finalizado' });
 
-            // Redireciona para a tela de etapas ou uma tela de sucesso
             alert('Documentos enviados com sucesso!');
-            // Exemplo: navigate(`/candidato/inscricao/etapas/...`);
+            // Navega de volta para a tela de etapas para ver o processo concluído
+            const candidatura = await api.get(`/candidaturas/${candidaturaId}`);
+            navigate(`/candidato/inscricao/etapas/${candidatura.data.vaga_id}/${candidaturaId}`);
             
         } catch (err) {
             console.error('Erro ao enviar documentos:', err);
@@ -84,7 +87,7 @@ const Documentos = () => {
     return (
         <div className="documentos-container">
             <h1>Envio de Documentos</h1>
-            <p>Por favor, anexe os documentos solicitados abaixo para continuar com o processo.</p>
+            <p>Por favor, anexe os documentos solicitados abaixo para finalizar sua candidatura.</p>
 
             <form onSubmit={handleSubmit} className="documentos-form">
                 {documentosObrigatorios.map((doc) => (
