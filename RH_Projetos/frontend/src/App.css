@@ -31,18 +31,17 @@
   color: #61dafb;
 }
 
-body,
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .app-content {
   flex: 1;
   min-height: 1px; 
   display: flex;
   flex-direction: column;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 @keyframes App-logo-spin {
