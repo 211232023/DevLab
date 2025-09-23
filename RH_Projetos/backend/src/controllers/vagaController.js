@@ -209,20 +209,42 @@ exports.updateVaga = async (req, res) => {
 };
 
 exports.deleteVaga = async (req, res) => {
-    const { id } = req.params;
-    const query = 'DELETE FROM vagas WHERE id = ?';
+    const { id } = req.params; // Este é o ID da vaga a ser deletada
+
     let connection;
     try {
         connection = await db.getConnection();
-        const [result] = await connection.query(query, [id]);
+        // Inicia uma transação para garantir que ambas as operações funcionem ou nenhuma delas
+        await connection.beginTransaction();
+
+        // ETAPA 1: Deletar todas as candidaturas associadas a esta vaga
+        console.log(`Iniciando exclusão de candidaturas para a vaga ID: ${id}`);
+        await connection.query('DELETE FROM candidaturas WHERE vaga_id = ?', [id]);
+        console.log(`Candidaturas da vaga ID: ${id} deletadas.`);
+
+        // ETAPA 2: Deletar a vaga
+        console.log(`Deletando a vaga ID: ${id}`);
+        const [result] = await connection.query('DELETE FROM vagas WHERE id = ?', [id]);
+
+        // Se nenhuma linha foi afetada na tabela de vagas, a vaga não existia.
         if (result.affectedRows === 0) {
+            await connection.rollback(); // Desfaz a transação
             return res.status(404).send('Vaga não encontrada para deletar');
         }
-        res.send('Vaga deletada com sucesso');
+
+        // Se tudo deu certo, confirma as alterações no banco
+        await connection.commit();
+        res.status(200).json({ message: 'Vaga e candidaturas associadas deletadas com sucesso.' });
+
     } catch (err) {
-        console.error('Erro ao deletar vaga:', err);
-        res.status(500).send('Erro ao deletar vaga');
+        // Se qualquer erro ocorrer, desfaz todas as alterações
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Erro ao deletar vaga e associações:', err);
+        res.status(500).send('Erro no servidor ao tentar deletar a vaga.');
     } finally {
+        // Libera a conexão com o banco de dados
         if (connection) connection.release();
     }
 };

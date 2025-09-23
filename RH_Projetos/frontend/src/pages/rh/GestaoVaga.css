@@ -2,6 +2,7 @@
   max-width: 1600px;
   margin: 2rem auto;
   padding: 2rem;
+  text-align: center;
 }
 
 .gestao-vaga-container h1 {
@@ -186,4 +187,33 @@
   opacity: 0.5;
   transform: none; /* Remove o efeito de elevação */
   box-shadow: none;
+}
+
+/* Em RH_Projetos/frontend/src/pages/rh/GestaoVaga.css */
+
+/* Adicione este novo bloco de estilos */
+.vaga-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Garante que o título não tenha margens extras */
+.vaga-card-header h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* Estilo específico para o botão de deletar vaga */
+.btn-acao.deletar-vaga {
+    background-color: #c82333; /* Um vermelho mais forte para indicar perigo */
+    border-radius: 40px;
+}
+
+.btn-acao.deletar-vaga:hover {
+    background-color: #a51c2a;
 }

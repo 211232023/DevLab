@@ -226,6 +226,9 @@ export default function CadastroVaga() {
                 <option value="Saúde">Saúde</option>
                 <option value="Tecnologia">Tecnologia</option>
                 <option value="Engenharia">Engenharia</option>
+                <option value="Ciências Humanas e Sociais">Ciências Humanas e Sociais</option>
+                <option value="Gestão e Negócios">Gestão e Negócios</option>
+                <option value="Artes e Design">Artes e Design</option>
             </select>
             <div className="form-group">
                 <button type="button" className="beneficios-toggle-btn" onClick={() => setMostrarBeneficios(!mostrarBeneficios)}>

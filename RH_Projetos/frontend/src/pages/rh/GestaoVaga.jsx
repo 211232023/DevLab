@@ -28,7 +28,14 @@ const GestaoVaga = () => {
         return statusAtual;
     };
 
-    const handleAvancarEtapa = async (candidaturaId, statusAtual, vagaId) => {
+    const handleAvancarEtapa = async (candidato, vagaId) => {
+        const { candidatura_id, status: statusAtual, pontuacao_teste } = candidato;
+
+        if (statusAtual === 'Teste Disponível' && (pontuacao_teste === null || pontuacao_teste === undefined)) {
+            alert('O candidato não pode avançar de etapa, pois ainda não realizou o teste.');
+            return;
+        }
+
         const novoStatus = getNextStatus(statusAtual);
         if (novoStatus === statusAtual) {
             alert('O candidato já está na etapa final do processo.');
@@ -36,13 +43,13 @@ const GestaoVaga = () => {
         }
 
         try {
-            await api.put(`/candidaturas/${candidaturaId}/status`, { status: novoStatus });
+            await api.put(`/candidaturas/${candidatura_id}/status`, { status: novoStatus });
             setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => {
                 if (vaga.id === vagaId) {
                     return {
                         ...vaga,
                         candidatos: vaga.candidatos.map(c =>
-                            c.candidatura_id === candidaturaId ? { ...c, status: novoStatus } : c
+                            c.candidatura_id === candidatura_id ? { ...c, status: novoStatus } : c
                         )
                     };
                 }
@@ -74,6 +81,29 @@ const GestaoVaga = () => {
         }
     };
 
+    // --- NOVA FUNÇÃO PARA DELETAR A VAGA E SUAS CANDIDATURAS ---
+    const handleDeletarVaga = async (vagaId) => {
+        const vagaParaDeletar = vagasComCandidatos.find(v => v.id === vagaId);
+        const numCandidatos = vagaParaDeletar ? vagaParaDeletar.candidatos.length : 0;
+
+        const confirmMessage = `Tem certeza que deseja deletar esta vaga? TODAS as ${numCandidatos} candidaturas associadas também serão permanentemente removidas. Esta ação não pode ser desfeita.`;
+
+        if (window.confirm(confirmMessage)) {
+            try {
+                // Chama a rota do backend que deleta a vaga e suas candidaturas
+                await api.delete(`/vagas/${vagaId}`);
+                
+                // Atualiza o estado do frontend para remover a vaga da lista
+                setVagasComCandidatos(vagasAtuais => vagasAtuais.filter(vaga => vaga.id !== vagaId));
+                alert('Vaga e candidaturas associadas foram deletadas com sucesso!');
+
+            } catch (err) {
+                console.error('Erro ao deletar vaga:', err);
+                alert('Não foi possível deletar a vaga. Tente novamente.');
+            }
+        }
+    };
+
     useEffect(() => {
         const carregarTodasAsVagas = async () => {
             if (user && (user.tipo === 'ADMIN' || user.tipo === 'RH')) {
@@ -86,7 +116,6 @@ const GestaoVaga = () => {
                         const vagasCompletas = await Promise.all(
                             vagasData.map(async (vaga) => {
                                 try {
-                                    // A rota foi ajustada para a que busca candidatos por vaga
                                     const candidatosResponse = await api.get(`/vagas/${vaga.id}/candidatos`);
                                     return { ...vaga, candidatos: candidatosResponse.data };
                                 } catch (err) {
@@ -117,12 +146,21 @@ const GestaoVaga = () => {
             {vagasComCandidatos.length === 0 ? (
                 <div className="nenhuma-vaga">
                     <p>Nenhuma vaga cadastrada ou nenhuma vaga com candidatos.</p>
-                    <Link to="/rh/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
+                    <Link to="/cadastro-vaga" className="btn-cadastrar-vaga">Cadastrar Nova Vaga</Link>
                 </div>
             ) : (
                 vagasComCandidatos.map((vaga) => (
                     <div key={vaga.id} className="vaga-card">
-                        <h2>{vaga.titulo}</h2>
+                        {/* --- CABEÇALHO DO CARD COM O NOVO BOTÃO --- */}
+                        <div className="vaga-card-header">
+                            <h2>{vaga.titulo}</h2>
+                            <button
+                                className="btn-acao deletar-vaga"
+                                onClick={() => handleDeletarVaga(vaga.id)}
+                            >
+                                Deletar Vaga
+                            </button>
+                        </div>
                         <div className="candidatos-table-container">
                             <h3>Candidatos Inscritos ({vaga.candidatos.length})</h3>
                             {vaga.candidatos.length > 0 ? (
@@ -131,10 +169,10 @@ const GestaoVaga = () => {
                                         <tr>
                                             <th>Nome do Candidato</th>
                                             <th>Email</th>
-                                            <th>Telefone</th> {/* <-- COLUNA ADICIONADA --> */}
+                                            <th>Telefone</th>
                                             <th>Currículo</th>
                                             <th>Nota do Teste</th>
-                                            <th>Documentos</th> {/* <-- COLUNA ADICIONADA --> */}
+                                            <th>Documentos</th>
                                             <th>Status Atual</th>
                                             <th>Ações</th>
                                         </tr>
@@ -144,7 +182,7 @@ const GestaoVaga = () => {
                                             <tr key={candidato.candidatura_id}>
                                                 <td>{candidato.nome}</td>
                                                 <td>{candidato.email}</td>
-                                                <td>{candidato.telefone || 'N/A'}</td> {/* <-- DADO ADICIONADO --> */}
+                                                <td>{candidato.telefone || 'N/A'}</td>
                                                 <td>
                                                     {candidato.curriculo_path ? (
                                                         <a
@@ -163,7 +201,6 @@ const GestaoVaga = () => {
                                                         : 'Não realizado'}
                                                 </td>
                                                 <td>
-                                                    {/* <-- LÓGICA PARA DOCUMENTOS --> */}
                                                     {candidato.documentos && candidato.documentos.length > 0 ? (
                                                         candidato.documentos.map((doc, index) => (
                                                             <a
@@ -184,7 +221,7 @@ const GestaoVaga = () => {
                                                 <td className="coluna-acoes">
                                                     <button
                                                         className="btn-acao avancar"
-                                                        onClick={() => handleAvancarEtapa(candidato.candidatura_id, candidato.status, vaga.id)}
+                                                        onClick={() => handleAvancarEtapa(candidato, vaga.id)}
                                                         disabled={candidato.status === 'Finalizado'}
                                                     >
                                                         Avançar
