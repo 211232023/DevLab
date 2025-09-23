@@ -86,7 +86,8 @@ const GestaoVaga = () => {
                         const vagasCompletas = await Promise.all(
                             vagasData.map(async (vaga) => {
                                 try {
-                                    const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
+                                    // A rota foi ajustada para a que busca candidatos por vaga
+                                    const candidatosResponse = await api.get(`/vagas/${vaga.id}/candidatos`);
                                     return { ...vaga, candidatos: candidatosResponse.data };
                                 } catch (err) {
                                     console.error(`Erro ao buscar candidatos para a vaga ${vaga.id}:`, err);
@@ -130,8 +131,10 @@ const GestaoVaga = () => {
                                         <tr>
                                             <th>Nome do Candidato</th>
                                             <th>Email</th>
+                                            <th>Telefone</th> {/* <-- COLUNA ADICIONADA --> */}
                                             <th>Currículo</th>
                                             <th>Nota do Teste</th>
+                                            <th>Documentos</th> {/* <-- COLUNA ADICIONADA --> */}
                                             <th>Status Atual</th>
                                             <th>Ações</th>
                                         </tr>
@@ -141,13 +144,14 @@ const GestaoVaga = () => {
                                             <tr key={candidato.candidatura_id}>
                                                 <td>{candidato.nome}</td>
                                                 <td>{candidato.email}</td>
+                                                <td>{candidato.telefone || 'N/A'}</td> {/* <-- DADO ADICIONADO --> */}
                                                 <td>
                                                     {candidato.curriculo_path ? (
                                                         <a
                                                             href={`http://localhost:3001${candidato.curriculo_path}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="link-curriculo"
+                                                            className="link-documento"
                                                         >
                                                             Ver Currículo
                                                         </a>
@@ -157,6 +161,24 @@ const GestaoVaga = () => {
                                                     {candidato.pontuacao_teste !== null
                                                         ? `${parseFloat(candidato.pontuacao_teste).toFixed(2)}%`
                                                         : 'Não realizado'}
+                                                </td>
+                                                <td>
+                                                    {/* <-- LÓGICA PARA DOCUMENTOS --> */}
+                                                    {candidato.documentos && candidato.documentos.length > 0 ? (
+                                                        candidato.documentos.map((doc, index) => (
+                                                            <a
+                                                                key={index}
+                                                                href={`http://localhost:3001/${doc}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="link-documento"
+                                                            >
+                                                                Doc. {index + 1}
+                                                            </a>
+                                                        ))
+                                                    ) : (
+                                                        'Nenhum'
+                                                    )}
                                                 </td>
                                                 <td>{candidato.status}</td>
                                                 <td className="coluna-acoes">

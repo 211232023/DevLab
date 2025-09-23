@@ -12,6 +12,9 @@ router.get('/', protect, authorize('ADMIN', 'RH', 'CANDIDATO'), vagaController.g
 // GET /vagas/:id -> Obter uma vaga específica
 router.get('/:id', vagaController.getVagaById);
 
+// GET /vagas/:vagaId/candidatos -> Obter todos os candidatos de uma vaga
+router.get('/:vagaId/candidatos', protect, authorize('ADMIN', 'RH'), vagaController.getCandidatosPorVaga);
+
 // PUT /vagas/:id -> Atualizar uma vaga
 router.put('/:id', protect, authorize('ADMIN', 'RH'), vagaController.updateVaga);
 

@@ -230,26 +230,35 @@ exports.deleteVaga = async (req, res) => {
 exports.getCandidatosPorVaga = async (req, res) => {
     try {
         const { vagaId } = req.params;
-        // Adicione c.pontuacao_teste na linha SELECT
+        // Query corrigida para usar c.usuario_id no JOIN
         const query = `
             SELECT 
                 u.id, 
                 u.nome, 
                 u.email, 
+                u.telefone,
                 c.id as candidatura_id, 
                 c.status, 
-                c.curriculo_path,
-                c.pontuacao_teste 
+                c.curriculo AS curriculo_path,
+                c.pontuacao_teste,
+                (SELECT GROUP_CONCAT(d.caminho) FROM documentos d WHERE d.candidatura_id = c.id) as documentos
             FROM usuarios u
-            JOIN candidaturas c ON u.id = c.usuario_id
+            JOIN candidaturas c ON u.id = c.candidato_id
             WHERE c.vaga_id = ?
         `;
+        
         const [candidatos] = await db.query(query, [vagaId]);
-        res.status(200).json(candidatos);
+
+        const candidatosComDocumentos = candidatos.map(candidato => ({
+            ...candidato,
+            documentos: candidato.documentos ? candidato.documentos.split(',') : []
+        }));
+
+        res.status(200).json(candidatosComDocumentos);
     } catch (error) {
-    console.error('Erro ao buscar candidatos da vaga:', error);
-    res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos.' });
-  }
+        console.error('Erro ao buscar candidatos da vaga:', error);
+        res.status(500).json({ message: 'Erro no servidor ao buscar os candidatos.' });
+    }
 };
 
 exports.listarVagasComCandidatos = async (req, res) => {
