@@ -72,14 +72,14 @@ const Etapas = () => {
         { 
             nome: 'Manual da Empresa', 
             statusEnum: 'Manual', 
-            path: '/manuais',
+            path:  `/candidato/manual/${candidaturaId}`,
             icon: <FaBook />,
             descricao: 'Conheça mais sobre nossa cultura e valores.'
         },
         { 
             nome: 'Envio de Documentos', 
             statusEnum: 'Envio de Documentos', 
-            path: '/documentos/${candidaturaId}',
+            path: `/candidato/documentos/${candidaturaId}`,
             icon: <FaFolderOpen />,
             descricao: 'Envie os documentos necessários para a próxima fase.'
         },

@@ -32,11 +32,10 @@ export default function AppRoutes() {
                 <Route path="/inicio" element={<TelaInicial />} />
                 <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
-                <Route path="/manuais" element={<ManualEmpresa />} />
-                <Route path="/manual/:candidaturaId" element={<ManualEmpresa />} />
+                <Route path="/candidato/manual/:candidaturaId" element={<ManualEmpresa />} />
+                <Route path="/candidato/documentos/:candidaturaId" element={<Documentos />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/documentos" element={<Documentos />} />
                 <Route path="/etapas/:vagaId/:candidaturaId" element={<Etapas />} />
                 <Route path="/teste/:testeId/:candidaturaId" element={<Teste />} />
 
