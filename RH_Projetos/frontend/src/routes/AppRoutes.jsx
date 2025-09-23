@@ -19,6 +19,7 @@ import Documentos from "../pages/candidatos/Documentos";
 import CadastroVaga from "../pages/rh/CadastroVaga";
 import DetalheVaga from "../pages/rh/DetalheVaga";
 import GestaoVaga from "../pages/rh/GestaoVaga";
+import GestaoCandidato from "../pages/rh/GestaoCandidato";
 
 export default function AppRoutes() {
     return (
@@ -45,6 +46,7 @@ export default function AppRoutes() {
                 <Route path="/gestao-vaga" element={<GestaoVaga />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/inicio" element={<TelaInicial />} />
+                <Route path="/gestao-candidato" element={<GestaoCandidato />} />
             </Routes>
         </BrowserRouter>
     );

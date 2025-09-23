@@ -56,6 +56,7 @@ const Navbar = () => {
           <Link to="/gestao-vaga" className="nav-link">Gerenciar Vagas</Link>
           <Link to="/perfil" className="nav-link">Perfil</Link>
           <Link to="/inicio" className="nav-link">Vagas</Link>
+          <Link to="/gestao-candidato" className="nav-link">Gestão dos candidatos</Link>
           <button onClick={handleLogout} className="nav-button">Sair</button>
         </>
       );
