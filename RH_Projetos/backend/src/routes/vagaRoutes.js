@@ -7,7 +7,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 router.post('/', protect, authorize('ADMIN', 'RH'), vagaController.createVaga);
 
 // GET /vagas -> Obter todas as vagas (protegida para ADMIN e RH)
-router.get('/', protect, authorize('ADMIN', 'RH'), vagaController.getAllVagas);
+router.get('/', protect, authorize('ADMIN', 'RH', 'CANDIDATO'), vagaController.getAllVagas);
 
 // GET /vagas/:id -> Obter uma vaga específica
 router.get('/:id', vagaController.getVagaById);

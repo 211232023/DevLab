@@ -84,7 +84,7 @@ const Teste = () => {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (Object.keys(respostas).length !== teste.questoes.length) {
             alert("Por favor, responda todas as perguntas antes de finalizar.");
             return;

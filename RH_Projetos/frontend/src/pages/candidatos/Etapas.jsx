@@ -8,7 +8,7 @@ import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle, F
 const Etapas = () => {
     const { vagaId, candidaturaId } = useParams();
     const navigate = useNavigate();
-    
+
     const [candidatura, setCandidatura] = useState(null);
     const [teste, setTeste] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -37,55 +37,64 @@ const Etapas = () => {
         fetchData();
     }, [candidaturaId, vagaId]);
 
+    // --- LÓGICA DE VERIFICAÇÃO DO TESTE ---
+    // Verifica se a candidatura tem uma pontuação. O nome do campo 'pontuacao_teste'
+    // pode precisar de ajuste para corresponder ao que seu backend retorna.
+    const testeRealizado = candidatura?.pontuacao_teste != null;
+
     // --- CONFIGURAÇÃO DAS ETAPAS ATUALIZADA ---
     const etapasConfig = [
-        { 
-            nome: 'Inscrição Realizada', 
-            statusEnum: 'Aguardando Teste', 
+        {
+            nome: 'Inscrição Realizada',
+            statusEnum: 'Aguardando Teste',
             path: null,
             icon: <FaFileAlt />,
             descricao: 'Sua inscrição foi recebida com sucesso e está em análise.'
         },
-        { 
-            nome: 'Teste Online', 
-            statusEnum: 'Teste Disponível', 
-            path: teste ? `/teste/${teste.id}/${candidaturaId}` : null,
+        {
+            nome: 'Teste Online',
+            statusEnum: 'Teste Disponível',
+            // O path se torna nulo se o teste já foi realizado, desabilitando o clique.
+            path: teste && !testeRealizado ? `/teste/${teste.id}/${candidaturaId}` : null,
             icon: <FaPencilAlt />,
-            descricao: 'Realize o teste técnico para esta vaga.'
+            // A descrição muda para informar o candidato que o teste foi concluído.
+            descricao: testeRealizado
+                ? 'Seu teste foi finalizado e está aguardando a avaliação do recrutador.'
+                : 'Realize o teste técnico para esta vaga.'
         },
         // --- NOVAS ETAPAS ADICIONADAS ---
-        { 
-            nome: 'Entrevista com RH', 
-            statusEnum: 'Entrevista com RH', 
+        {
+            nome: 'Entrevista com RH',
+            statusEnum: 'Entrevista com RH',
             path: null, // Sem link, apenas informativo
             icon: <FaUsers />,
             descricao: 'O recrutador entrará em contato através do seu e-mail ou telefone para agendar.'
         },
-        { 
-            nome: 'Entrevista com Gestor', 
-            statusEnum: 'Entrevista com Gestor', 
+        {
+            nome: 'Entrevista com Gestor',
+            statusEnum: 'Entrevista com Gestor',
             path: null, // Sem link, apenas informativo
             icon: <FaUserTie />, // Ícone diferente para o gestor
             descricao: 'O gestor da área entrará em contato através do seu e-mail ou telefone para agendar.'
         },
         // --- RESTANTE DAS ETAPAS ---
-        { 
-            nome: 'Manual da Empresa', 
-            statusEnum: 'Manual', 
+        {
+            nome: 'Manual da Empresa',
+            statusEnum: 'Manual',
             path:  `/candidato/manual/${candidaturaId}`,
             icon: <FaBook />,
             descricao: 'Conheça mais sobre nossa cultura e valores.'
         },
-        { 
-            nome: 'Envio de Documentos', 
-            statusEnum: 'Envio de Documentos', 
-            path: `/candidato/documentos/${candidaturaId}`,
-            icon: <FaFolderOpen />,
-            descricao: 'Envie os documentos necessários para a próxima fase.'
-        },
-        { 
-            nome: 'Processo Finalizado', 
-            statusEnum: 'Finalizado', 
+        {
+            nome: 'Envio de Documentos',
+            statusEnum: 'Envio de Documentos',
+            path: `/candidato/documentos/${candidaturaId}`,
+            icon: <FaFolderOpen />,
+            descricao: 'Envie os documentos necessários para a próxima fase.'
+        },
+        {
+            nome: 'Processo Finalizado',
+            statusEnum: 'Finalizado',
             path: null,
             icon: <FaCheckCircle />,
             descricao: 'O processo seletivo para esta vaga foi concluído. Agradecemos sua participação!'
@@ -102,12 +111,12 @@ const Etapas = () => {
     };
 
     const handleEtapaClick = (etapa, index) => {
-    // Permite o clique apenas na etapa atual e se houver um caminho definido
-    if (getStatusClass(index) === 'current' && etapa.path) {
-        // Substitui o placeholder :candidaturaId pelo ID real
-        const pathFinal = etapa.path.replace(':candidaturaId', candidaturaId);
-        navigate(pathFinal);
-    }
+        // Permite o clique apenas na etapa atual e se houver um caminho definido
+        if (getStatusClass(index) === 'current' && etapa.path) {
+            // Substitui o placeholder :candidaturaId pelo ID real
+            const pathFinal = etapa.path.replace(':candidaturaId', candidaturaId);
+            navigate(pathFinal);
+        }
     };
 
     if (loading) return <div className="loading-container">Carregando etapas...</div>;
@@ -124,7 +133,7 @@ const Etapas = () => {
                     const isClickable = statusClass === 'current' && etapa.path;
 
                     return (
-                        <div 
+                        <div
                             key={etapa.nome}
                             className={`timeline-item-container ${positionClass} ${statusClass} ${isClickable ? 'clickable' : ''}`}
                             onClick={() => handleEtapaClick(etapa, index)}
