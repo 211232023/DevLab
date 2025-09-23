@@ -1,65 +1,91 @@
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #e6ebf2; /* Cor de fundo para toda a página */
+/* src/pages/candidatos/Login.css */
+
+.login-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #e6ebf2;
+  min-height: calc(100vh - 180px);
+  box-sizing: border-box;
 }
 
 .login-container {
-    max-width: 400px;
-    margin: 0 auto;
-    margin-top: 50px;
-    margin-bottom: 50px;
-    padding: 40px;
-    border-radius: 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: white;
+  max-width: 420px;
+  width: 100%;
+  padding: 40px 30px;
+  background-color: white;
+  border-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
+.login-container h2 {
+  color: #004d40;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
-#linkCadastro {
-    text-decoration: none;
-    color: #127067;
-    margin: 0 20%;
-    font-size: medium;
+.login-container .form-group {
+  margin-bottom: 25px;
+  text-align: left;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.login-container .form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+.login-container input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
 }
 
-.senha-container {
-    display: flex;
-    align-items: center;
-    
-}
-
-.senha-container {
-    display: flex;
-    align-items: center;
-    position: relative;
+.login-container input:focus {
+  outline: none;
+  border-color: #127067;
+  box-shadow: 0 0 8px rgba(18, 112, 103, 0.3);
 }
 
 .login-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #127067;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #127067 0%, #179387 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 10px;
 }
 
 .login-btn:hover {
-    background-color: #179387;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.link-cadastro {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  color: #127067;
+  margin-top: 25px;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.link-cadastro:hover {
+  color: #179387;
+  text-decoration: underline;
 }

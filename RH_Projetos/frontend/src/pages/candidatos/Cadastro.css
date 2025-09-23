@@ -1,108 +1,117 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #e6ebf2; /* Cor de fundo para toda a página */
+/* src/pages/candidatos/Cadastro.css */
+
+.cadastro-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #e6ebf2;
+  min-height: calc(100vh - 180px); 
+  box-sizing: border-box;
 }
 
 .cadastro-container {
-  max-width: 400px;
-  margin: 0 auto;
-  margin-top: 50px;
+  max-width: 650px;
+  width: 100%;
   padding: 40px;
-  border-radius: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: white;
-  margin-bottom: 50px;
-}
-
-h2 {
+  border-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin-bottom: 20px;
 }
 
-#linkLogin {
-  text-decoration: none;
-  color: #127067;
-  margin: 0 20%;
-  font-size: medium;
+.cadastro-container h2 {
+  color: #004d40;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  flex: 1;
+  margin-bottom: 20px;
+  text-align: left;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
+.form-group label {
   font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
 }
 
-input {
+.cadastro-container input,
+.cadastro-container .input-select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
 }
 
-.senha-container {
-  display: flex;
-  align-items: center;
-  position: relative;
+.cadastro-container input:focus,
+.cadastro-container .input-select:focus {
+  outline: none;
+  border-color: #127067;
+  box-shadow: 0 0 8px rgba(18, 112, 103, 0.3);
 }
 
 .input-select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-  color: #555;
-  background-color: #fff;
-  cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   background-image: url('data:image/svg+xml;utf8,<svg fill="%234a4a4a" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat;
-  background-position: right 8px center;
+  background-position: right 15px center;
   background-size: 20px;
-}
-
-.input-select:hover {
-  border-color: #61dafb;
-}
-
-.input-select:focus {
-  outline: none;
-  border-color: #127067;
-  box-shadow: 0 0 0 2px #b5d5d3;
-}
-
-.icone-olho {
-  position: absolute;
-  right: 10px;
   cursor: pointer;
-  color: #127067;
-  font-size: 18px;
-}
-
-.icone-olho:hover {
-  color: #127067;
 }
 
 .cadastro-btn {
   width: 100%;
-  padding: 10px;
-  background-color: #127067;
+  padding: 14px;
+  background: linear-gradient(90deg, #127067 0%, #179387 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 10px;
 }
 
 .cadastro-btn:hover {
-  background-color: #179387;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.link-login {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  color: #127067;
+  margin-top: 25px;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.link-login:hover {
+  color: #179387;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
 }

@@ -1,59 +1,77 @@
+/* src/components/Footer.css */
+
 .footer-container {
   background: #127067;
-  padding: 32px 0 18px 0;
-  text-align: center;
-  border-top: 1px solid #e0e0e0;
+  color: #f0f0f0; /* Cor de texto mais suave */
+  padding-top: 2.5rem;
+  border-top: 4px solid #179387;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  gap: 1.5rem;
+}
+
+.footer-logo-img {
+  width: 150px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.footer-info p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
 }
 
 .footer-social {
   display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-bottom: 16px;
+  gap: 1rem;
 }
 
 .footer-btn {
-  background: #fff;
-  border: 1px solid #ccc;
+  background: white;
+  color: #127067;
+  border: 2px solid transparent;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s;
-  padding: 0;
+  font-size: 1.5rem; /* Tamanho do ícone */
+  transition: all 0.3s ease;
 }
 
 .footer-btn:hover {
-  background: #e6ebf2;
-  border-color: #127067;
+  background: #c8f5f1;
+  color: #0e5a52;
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.footer-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+.footer-bottom {
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
 }
 
-.footer-info {
-  color: #ffffff;
-  font-size: 1.05em;
-  margin-bottom: 18px;
+.footer-bottom p {
+  margin: 0;
 }
 
-.footer-logo-img {
-  width: 200px;
-  height: auto;
-  margin-top: 8px;
-}
-
-@media (max-width: 700px) {
-  .footer-container {
-    padding: 18px 0 10px 0;
-  }
-  .footer-logo-img {
-    width: 48px;
+/* Responsividade */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
   }
 }

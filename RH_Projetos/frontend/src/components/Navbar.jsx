@@ -1,79 +1,70 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; 
+import { NavLink, useNavigate } from 'react-router-dom'; // Importa NavLink
+import { useAuth } from '../AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
-  const renderLinks = () => {
-    // Se não houver usuário logado, mostra apenas o link de Login/Cadastro
-    if (!user) {
-      return (
-        <>
-          <Link to="/login" className="nav-link">Login/Cadastro</Link>
-        </>
-      );
-    }
+    const getLinks = () => {
+        if (!user) {
+            return <NavLink to="/login" className="nav-link">Login/Cadastro</NavLink>;
+        }
 
-  // Se o usuário for um Candidato
-    if (user.tipo === 'ADMIN') {
-      return (
-        <>
-          <Link to="/inicio" className="nav-link">Vagas</Link>
-          <Link to="/perfil" className="nav-link">Perfil</Link>
-          <Link to="/cadastro-vaga" className="nav-link">Cadastrar Vaga</Link>
-          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
-          <Link to="/gestao-vaga" className="nav-link">Gestão de Vaga</Link>
-          <button onClick={handleLogout} className="nav-button">Sair</button>
-        </>
-      );
-    }
+        const baseLinks = [
+            { to: "/inicio", text: "Vagas" },
+            { to: "/perfil", text: "Perfil" }
+        ];
 
-    // Se o usuário for um Candidato
-    if (user.tipo === 'CANDIDATO') {
-      return (
-        <>
-          <Link to="/inicio" className="nav-link">Vagas</Link>
-          <Link to="/minhas-candidaturas" className="nav-link">Minhas Candidaturas</Link>
-          <Link to="/perfil" className="nav-link">Perfil</Link>
-          <button onClick={handleLogout} className="nav-button">Sair</button>
-        </>
-      );
-    }
+        const roleLinks = {
+            ADMIN: [
+                ...baseLinks,
+                { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
+                { to: "/minhas-candidaturas", text: "Minhas Candidaturas" },
+                { to: "/gestao-vaga", text: "Gestão de Vaga" }
+            ],
+            CANDIDATO: [
+                ...baseLinks,
+                { to: "/minhas-candidaturas", text: "Minhas Candidaturas" }
+            ],
+            RH: [
+                ...baseLinks,
+                { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
+                { to: "/gestao-vaga", text: "Gerenciar Vagas" },
+                { to: "/gestao-candidato", text: "Gestão dos candidatos" }
+            ]
+        };
 
-    // Se o usuário for do RH
-    if (user.tipo === 'RH') {
-      return (
-        <>
-          <Link to="/cadastro-vaga" className="nav-link">Cadastrar Vaga</Link>
-          <Link to="/gestao-vaga" className="nav-link">Gerenciar Vagas</Link>
-          <Link to="/perfil" className="nav-link">Perfil</Link>
-          <Link to="/inicio" className="nav-link">Vagas</Link>
-          <Link to="/gestao-candidato" className="nav-link">Gestão dos candidatos</Link>
-          <button onClick={handleLogout} className="nav-button">Sair</button>
-        </>
-      );
-    }
+        const links = roleLinks[user.tipo] || [];
 
-    // Fallback caso o tipo de usuário não seja reconhecido
-    return null;
-  };
+        return (
+            <>
+                {links.map(link => (
+                    <NavLink key={link.to} to={link.to} className="nav-link">
+                        {link.text}
+                    </NavLink>
+                ))}
+                <button onClick={handleLogout} className="nav-button">Sair</button>
+            </>
+        );
+    };
 
-  return (
-    <nav className="navbar">
-      <Link to="/" className="navbar-logo"><img src="/logo2.png" className='logoNavbar'/></Link>
-      <div className="navbar-links">
-        {renderLinks()}
-      </div>
-    </nav>
-  );
+    return (
+        <nav className="navbar">
+            <NavLink to="/" className="navbar-logo">
+                <img src="/logo2.png" alt="Logo DevLab" className='logoNavbar'/>
+            </NavLink>
+            <div className="navbar-links">
+                {getLinks()}
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

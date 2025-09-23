@@ -3,6 +3,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import "./Cadastro.css";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../../api";
 
 const Cadastro = () => {
   const [form, setForm] = useState({
@@ -13,7 +14,7 @@ const Cadastro = () => {
     genero: "",
     senha: "",
     confirmarSenha: "",
-    tipo: "Candidato", // Valor padrão para o tipo de usuário
+    tipo: "Candidato",
   });
 
   const navigate = useNavigate();
@@ -26,7 +27,6 @@ const Cadastro = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validação para garantir que todos os campos foram preenchidos
     for (const key in form) {
       if (form[key] === "") {
         alert("Preencha todos os campos para se cadastrar!");
@@ -40,153 +40,95 @@ const Cadastro = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nome: form.nomeCompleto, // CORRIGIDO: de nomeCompleto para nome
-          cpf: form.cpf,
-          email: form.email,
-          telefone: form.telefone,
-          genero: form.genero,
-          senha: form.senha,
-          tipo: form.tipo,
-        }),
+      const response = await api.post("/auth/register", {
+        nome: form.nomeCompleto,
+        cpf: form.cpf,
+        email: form.email,
+        telefone: form.telefone,
+        genero: form.genero,
+        senha: form.senha,
+        tipo: form.tipo,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.message);
+      if (response.status === 201 || response.status === 200) {
+        alert(response.data.message || "Cadastro realizado com sucesso!");
         navigate("/login");
       } else {
-        alert(data.error || "Erro ao cadastrar usuário.");
+        alert(response.data.error || "Erro ao cadastrar usuário.");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
       alert(
-        "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
+        error.response?.data?.error || "Não foi possível conectar ao servidor."
       );
     }
   };
 
   return (
-    <div className="cadastro-container">
-      <h2>Cadastro</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="nomeCompleto">Nome Completo:</label>
-          <Input
-            type="text"
-            id="nomeCompleto"
-            name="nomeCompleto"
-            placeholder="Digite seu nome completo"
-            value={form.nomeCompleto}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cpf">CPF:</label>
-          <Input
-            type="text"
-            id="cpf"
-            name="cpf"
-            placeholder="Digite seu CPF"
-            value={form.cpf}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <Input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Digite seu email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="telefone">Telefone:</label>
-          <Input
-            type="text"
-            id="telefone"
-            name="telefone"
-            placeholder="Digite seu telefone"
-            value={form.telefone}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="genero">Gênero:</label>
-          <select
-            id="genero"
-            name="genero"
-            value={form.genero}
-            onChange={handleChange}
-            required
-            className="input-select"
-          >
-            <option value="">Selecione</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Feminino">Feminino</option>
-            <option value="Outro">Outro</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="tipo">Tipo de Usuário:</label>
-          <select
-            id="tipo"
-            name="tipo"
-            value={form.tipo}
-            onChange={handleChange}
-            required
-            className="input-select"
-          >
-            <option value="Candidato">Candidato</option>
-            <option value="RH">Recursos Humanos</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="senha">Senha:</label>
-          <Input
-            type="password"
-            id="senha"
-            name="senha"
-            placeholder="Digite sua senha"
-            value={form.senha}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="confirmarSenha">Confirmar Senha:</label>
-          <Input
-            type="password"
-            id="confirmarSenha"
-            name="confirmarSenha"
-            placeholder="Confirme sua senha"
-            value={form.confirmarSenha}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <Link to="/login" id="linkLogin">
-            Já tem uma conta? Clique aqui
+    <div className="cadastro-page-wrapper">
+      <div className="cadastro-container">
+        <h2>Crie sua Conta</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="nomeCompleto">Nome Completo</label>
+            <Input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" value={form.nomeCompleto} onChange={handleChange} required />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="cpf">CPF</label>
+              <Input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value={form.cpf} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="telefone">Telefone</label>
+              <Input type="text" id="telefone" name="telefone" placeholder="(99) 99999-9999" value={form.telefone} onChange={handleChange} required />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <Input type="email" id="email" name="email" placeholder="Digite seu email" value={form.email} onChange={handleChange} required />
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="genero">Gênero</label>
+              <select id="genero" name="genero" value={form.genero} onChange={handleChange} required className="input-select">
+                <option value="" disabled>Selecione</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="tipo">Tipo de Conta</label>
+              <select id="tipo" name="tipo" value={form.tipo} onChange={handleChange} required className="input-select">
+                <option value="Candidato">Candidato</option>
+                <option value="RH">Recursos Humanos</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="senha">Senha</label>
+              <Input type="password" id="senha" name="senha" placeholder="Crie uma senha" value={form.senha} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="confirmarSenha">Confirmar Senha</label>
+              <Input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirme sua senha" value={form.confirmarSenha} onChange={handleChange} required />
+            </div>
+          </div>
+
+          <Button type="submit" className="cadastro-btn">
+            Cadastrar
+          </Button>
+
+          <Link to="/login" className="link-login">
+            Já tem uma conta? Faça o login
           </Link>
-        </div>
-        <Button type="submit" className="cadastro-btn">
-          Cadastrar
-        </Button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

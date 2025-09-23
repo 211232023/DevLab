@@ -1,105 +1,173 @@
-.tela-inicial {
+/* src/pages/candidatos/TelaInicial.css */
+
+.vagas-page-wrapper {
+  background-color: #f7f9fa;
+  min-height: calc(100vh - 180px); /* Ajusta para descontar header/footer */
+}
+
+.vagas-header-simple {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.vagas-header-simple h1 {
+  font-size: 2.2rem;
+  color: #127067;
+  margin-bottom: 10px;
+}
+
+.vagas-header-simple p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.vagas-list {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 25px;
-  padding: 25px;
-  background-color: #f0f2f5;
+  padding: 40px 20px;
 }
 
-/* O contêiner principal da vaga agora usa flex-direction: column */
-.vaga-box {
-  display: flex;
-  flex-direction: column; /* Organiza os filhos (conteúdo, detalhes, botões) em coluna */
-  width: 80%;
-  max-width: 900px;
-  padding: 40px;
-  border: 1px solid #ddd;
-  border-radius: 40px;
+.vaga-card {
+  width: 100%;
+  max-width: 800px;
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Remova a altura e a transição daqui */
+  border-radius: 40px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
 }
 
-/* Container para o conteúdo sempre visível */
-.vaga-conteudo {
+.vaga-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.vaga-header {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  align-items: center;
+  padding: 25px;
+  cursor: pointer;
 }
 
-.vaga-esquerda {
-  width: 65%;
-  padding-right: 20px;
+.vaga-titulo {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 10px 0;
 }
 
-.vaga-direita {
-  width: 35%;
+.vaga-tags {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tag-area { color: #007bff; background-color: #e6f2ff; }
+.tag-salario { color: #28a745; background-color: #e9f6ec; }
+
+.btn-expand {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.expand-icon {
+  font-size: 1.5rem;
+  color: #aaa;
+  transition: transform 0.4s ease;
+}
+
+.vaga-card.expanded .expand-icon {
+  transform: rotate(180deg);
+  color: #127067;
+}
+
+.vaga-detalhes {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+}
+
+.vaga-card.expanded .vaga-detalhes {
+  max-height: 1000px; /* Altura suficiente para qualquer conteúdo */
+}
+
+.vaga-detalhes-content {
+  padding: 0 25px 25px 25px;
+  text-align: left;
+  border-top: 1px solid #eee;
+}
+
+.vaga-detalhes-content h4 {
+  font-size: 1.1rem;
+  color: #127067;
+  margin: 25px 0 8px 0;
+}
+
+.vaga-detalhes-content p {
+  color: #666;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0 0 20px 0;
+}
+
+.vaga-datas {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    color: #888;
+    font-size: 0.9rem;
+    background-color: #f7f9fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+.vaga-datas span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vaga-footer-expanded {
+  margin-top: 30px;
   text-align: right;
 }
 
-/* --- A MÁGICA ACONTECE AQUI --- */
-/* O container que irá expandir e recolher */
-.vaga-detalhes {
-  max-height: 0; /* Começa recolhido, com altura zero */
-  overflow: hidden; /* Esconde o conteúdo que transborda */
-  transition: max-height 0.5s ease-in-out; /* Anima a mudança de altura */
-  border-top: 1px solid transparent; /* Borda invisível para a transição */
-}
-
-/* Quando expandido, a altura aumenta e a borda aparece */
-.vaga-detalhes.expandido {
-  max-height: 500px; /* Altura máxima para caber o conteúdo. Ajuste se necessário. */
-  border-top: 1px solid #eee;
-  margin-top: 15px; /* Espaçamento entre o conteúdo fixo e o expansível */
-  padding-top: 15px;
-}
-
-/* Adicionado um padding interno para o conteúdo não ficar colado nas bordas durante a animação */
-.vaga-detalhes-conteudo {
-  padding-bottom: 10px;
-}
-/* --- FIM DA MÁGICA --- */
-
-
-.datas p {
-  margin: 4px 0;
-}
-
-/* Container dos botões, sempre no final */
-.vaga-botoes-container {
-  display: flex;
-  justify-content: flex-end; /* Alinha os botões à direita */
-  gap: 10px;
-  padding-top: 15px;
-  border-top: 1px solid #eee; /* Linha separadora acima dos botões */
-  margin-top: 15px;
-}
-
-.btn-ver-mais, .btn-candidatar {
-  padding: 10px 18px;
+.btn-candidatar {
+  background-color: #127067;
+  color: white;
   border: none;
-  border-radius: 5px;
+  padding: 12px 30px;
+  border-radius: 50px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.btn-ver-mais {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.btn-ver-mais:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-candidatar {
-  background-color: #007bff;
-  color: white;
+  font-size: 1rem;
+  transition: all 0.3s;
 }
 
 .btn-candidatar:hover {
-  background-color: #0056b3;
+  background-color: #179387;
+  transform: translateY(-2px);
+}
+
+.nenhuma-vaga {
+    color: #888;
+    font-size: 1.2rem;
+    padding: 50px;
 }

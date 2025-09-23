@@ -1,25 +1,32 @@
-import React from "react";
-import "./Footer.css";
+import React from 'react';
+import { FaFacebook, FaTwitter, FaInstagram } from 'react-icons/fa'; // Usando ícones
+import './Footer.css';
 
 const Footer = () => {
     return (
         <footer className="footer-container">
-            <div className="footer-social">
-                <button className="footer-btn" title="Facebook">
-                    <img src="/face.png" alt="Facebook" className="footer-icon" />
-                </button>
-                <button className="footer-btn" title="X">
-                    <img src="/x.png" alt="X" className="footer-icon" />
-                </button>
-                <button className="footer-btn" title="Instagram">
-                    <img src="/insta.png" alt="Instagram" className="footer-icon" />
-                </button>
+            <div className="footer-content">
+                <div className="footer-logo">
+                    <img src="/logo2.png" alt="DevLab Logo" className="footer-logo-img" />
+                </div>
+                <div className="footer-info">
+                    <p>Telefone: (99) 99999-9999</p>
+                    <p>Endereço: Rua Exemplo, 123 - Cidade, UF</p>
+                </div>
+                <div className="footer-social">
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer-btn" aria-label="Facebook">
+                        <FaFacebook />
+                    </a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="footer-btn" aria-label="Twitter">
+                        <FaTwitter />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="footer-btn" aria-label="Instagram">
+                        <FaInstagram />
+                    </a>
+                </div>
             </div>
-            <div className="footer-info">
-                Telefone: (99) 99999-9999 | Endereço: Rua Exemplo, 123 - Cidade, UF
-            </div>
-            <div className="footer-logo">
-                <img src="/logo2.png" alt="DevLab Logo" className="footer-logo-img" />
+            <div className="footer-bottom">
+                <p>&copy; {new Date().getFullYear()} DevLab. Todos os direitos reservados.</p>
             </div>
         </footer>
     );

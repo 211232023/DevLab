@@ -1,219 +1,185 @@
-.gestao-vaga-container {
-  max-width: 1600px;
-  margin: 2rem auto;
-  padding: 2rem;
+/* src/pages/rh/GestaoVaga.css */
+
+.gestao-page-wrapper {
+  background-color: #f7f9fa;
+  min-height: calc(100vh - 180px);
+}
+
+.gestao-header {
   text-align: center;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.gestao-vaga-container h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 2rem;
+.gestao-header h1 {
+  font-size: 2.2rem;
+  color: #127067;
+  margin-bottom: 10px;
 }
 
-.vaga-card-gestao {
+.gestao-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.vagas-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.vaga-item {
   background-color: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
 }
 
-.vaga-card-gestao h2 {
-  margin-top: 0;
-  color: #0056b3;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+.vaga-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  cursor: pointer;
 }
 
-.titulo-tabela {
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: #444;
-  font-size: 1.25rem;
-}
-
-.tabela-candidatos-wrapper {
-  overflow-x: auto;
-}
-
-.tabela-candidatos {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-}
-
-.tabela-candidatos th,
-.tabela-candidatos td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  white-space: nowrap;
-}
-
-.tabela-candidatos thead tr {
-  background-color: #f2f2f2;
+.vaga-info h2 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
   color: #333;
-  font-weight: bold;
 }
 
-.tabela-candidatos tbody tr:nth-of-type(even) {
-  background-color: #f9f9f9;
+.candidatos-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #127067;
+  font-weight: 600;
 }
 
-.tabela-candidatos tbody tr:hover {
-  background-color: #e9ecef;
+.vaga-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.link-curriculo {
-    color: #007bff;
-    text-decoration: none;
+.btn-delete-vaga {
+    background-color: transparent;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-delete-vaga:hover {
+    background-color: #e74c3c;
+    color: white;
 }
 
-.link-curriculo:hover {
-    text-decoration: underline;
+.expand-icon {
+  font-size: 1.5rem;
+  color: #aaa;
+  transition: transform 0.4s ease;
+}
+.vaga-item.expanded .expand-icon {
+  transform: rotate(180deg);
 }
 
-.status-candidato {
-  padding: 0.25rem 0.6rem;
-  border-radius: 12px;
-  font-weight: bold;
-  color: #fff;
-  font-size: 0.85rem;
-  text-transform: capitalize;
-}
-
-.status-aguardando-teste {
-  background-color: #ffc107; /* Amarelo */
-}
-
-.nenhum-candidato-inscrito,
-.nenhuma-vaga-cadastrada {
-    text-align: center;
-    padding: 2rem;
-    font-size: 1.1rem;
-    color: #666;
-}
-
-/* ... (estilos que já existem no arquivo) */
-
-/* Estilos para a nova tabela de candidatos */
 .candidatos-table-container {
-  margin-top: 20px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+}
+.vaga-item.expanded .candidatos-table-container {
+  max-height: 1500px; /* Altura suficiente para muitos candidatos */
+  padding: 0 20px 20px 20px;
+  overflow-x: auto;
 }
 
 .candidatos-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
 }
 
-.candidatos-table th,
-.candidatos-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
+.candidatos-table th, .candidatos-table td {
+  padding: 12px 15px;
   text-align: left;
-  vertical-align: middle;
+  border-bottom: 1px solid #ddd;
 }
-
 .candidatos-table th {
   background-color: #f8f9fa;
-  font-weight: 600;
-  color: #333;
+  font-size: 0.9rem;
 }
+.candidatos-table tbody tr:hover { background-color: #f0f2f5; }
 
-.candidatos-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.candidatos-table tbody tr:hover {
-  background-color: #e9ecef;
-}
-
-.link-curriculo {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.link-curriculo:hover {
-  text-decoration: underline;
-}
-.coluna-acoes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px; /* Espaço entre os botões */
-}
-
-/* Estilo base comum para os botões */
-.btn-acao {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-/* Efeito de hover para dar feedback ao usuário */
-.btn-acao:hover {
-  opacity: 0.85;
-  transform: translateY(-2px); /* Efeito de elevação */
-}
-
-/* Estilo específico para o botão de avançar (verde) */
-.btn-acao.avancar {
-  background-color: #28a745; /* Verde sucesso */
-  border-radius: 40px;
-}
-
-/* Estilo específico para o botão de eliminar (vermelho) */
-.btn-acao.eliminar {
-  background-color: #dc3545; /* Vermelho perigo */
-  border-radius: 40px;
-}
-
-/* Estilo para quando o botão estiver desabilitado */
-.btn-acao:disabled {
-  background-color: #6c757d; /* Cinza */
-  cursor: not-allowed;
-  opacity: 0.5;
-  transform: none; /* Remove o efeito de elevação */
-  box-shadow: none;
-}
-
-/* Em RH_Projetos/frontend/src/pages/rh/GestaoVaga.css */
-
-/* Adicione este novo bloco de estilos */
-.vaga-card-header {
+.link-doc {
+    color: #007bff;
+    text-decoration: none;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+    gap: 5px;
+    margin-bottom: 5px;
 }
+.link-doc:hover { text-decoration: underline; }
 
-/* Garante que o título não tenha margens extras */
-.vaga-card-header h2 {
-    margin: 0;
-    padding: 0;
+.nota-teste { font-weight: bold; }
+.nota-teste.pendente { color: #888; font-style: italic; }
+
+.coluna-acoes {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.btn-acao-gestao {
+    padding: 8px 12px;
+    border-radius: 50px;
     border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-acao-gestao.avancar { background-color: #28a745; color: white; }
+.btn-acao-gestao.avancar:hover { background-color: #218838; }
+.btn-acao-gestao.avancar:disabled { background-color: #6c757d; cursor: not-allowed; }
+.btn-acao-gestao.eliminar { background-color: #e74c3c; color: white; }
+.btn-acao-gestao.eliminar:hover { background-color: #c0392b; }
+.btn-acao-gestao.cadastrar { background-color: #127067; color: white; }
+
+
+.nenhuma-vaga-gestao, .nenhum-candidato {
+    text-align: center;
+    padding: 40px;
+    color: #666;
 }
 
-/* Estilo específico para o botão de deletar vaga */
-.btn-acao.deletar-vaga {
-    background-color: #c82333; /* Um vermelho mais forte para indicar perigo */
-    border-radius: 40px;
+/* --- Modal de Confirmação --- */
+.confirm-modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
-
-.btn-acao.deletar-vaga:hover {
-    background-color: #a51c2a;
+.confirm-modal-content {
+  background: white; padding: 30px; border-radius: 15px;
+  width: 90%; max-width: 400px; text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
+.confirm-modal-icon { font-size: 3rem; color: #dc3545; margin-bottom: 15px; }
+.confirm-modal-content h3 { margin-bottom: 10px; }
+.confirm-modal-content p { color: #555; margin-bottom: 25px; }
+.confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
+.btn-confirm-delete { background-color: #dc3545; color: white; }
+.btn-confirm-delete:hover { background-color: #c82333; }

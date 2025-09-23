@@ -1,46 +1,66 @@
+/* src/components/Navbar.css */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #127067;
   color: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem 2.5rem; /* Ajuste no padding */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra mais suave */
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
 }
 
 .logoNavbar {
-  width: 120px;
+  width: 130px; /* Um pouco maior */
+  transition: transform 0.3s ease;
+}
+
+.logoNavbar:hover {
+  transform: scale(1.05); /* Efeito de zoom sutil */
 }
 
 .navbar-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem; /* Aumenta o espaçamento */
   align-items: center;
 }
 
 .nav-link {
   color: white;
   text-decoration: none;
-  font-size: 1rem;
-  transition: color 0.3s ease;
+  font-size: 1.05rem; /* Aumenta um pouco a fonte */
+  font-weight: 500; /* Deixa a fonte mais encorpada */
+  padding-bottom: 5px; /* Espaço para a borda */
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
 }
 
-.nav-link:hover {
-  color: #d4d6d6;
+.nav-link:hover,
+.nav-link.active { /* Estilo para link ativo */
+  color: #c8f5f1;
+  border-bottom: 2px solid #c8f5f1;
 }
 
 .nav-button {
-  background-color: #cc4040ff;
+  background-color: #e63946; /* Cor um pouco mais vibrante */
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 40px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px; /* Totalmente arredondado */
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .nav-button:hover {
-  background-color: rgb(173, 50, 50);
+  background-color: #d62828;
+  transform: translateY(-2px); /* Efeito de levantar o botão */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }

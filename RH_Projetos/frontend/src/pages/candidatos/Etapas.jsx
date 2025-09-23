@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api';
 import './Etapas.css';
-// Importando os ícones que vamos usar
-import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle, FaUserTie } from 'react-icons/fa';
+import { FaFileAlt, FaPencilAlt, FaBook, FaFolderOpen, FaUsers, FaCheckCircle, FaUserTie, FaBuilding } from 'react-icons/fa';
 
 const Etapas = () => {
     const { vagaId, candidaturaId } = useParams();
@@ -11,6 +10,7 @@ const Etapas = () => {
 
     const [candidatura, setCandidatura] = useState(null);
     const [teste, setTeste] = useState(null);
+    const [vaga, setVaga] = useState(null); // Estado para guardar informações da vaga
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -18,15 +18,17 @@ const Etapas = () => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [candidaturaRes, testeRes] = await Promise.all([
+                const [candidaturaRes, testeRes, vagaRes] = await Promise.all([
                     api.get(`/candidaturas/${candidaturaId}`),
                     api.get(`/testes/vaga/${vagaId}`).catch(err => {
                         if (err.response && err.response.status === 404) return { data: null };
                         throw err;
-                    })
+                    }),
+                    api.get(`/vagas/${vagaId}`) // Busca os dados da vaga
                 ]);
                 setCandidatura(candidaturaRes.data);
                 setTeste(testeRes.data);
+                setVaga(vagaRes.data); // Armazena os dados da vaga
             } catch (err) {
                 console.error("Erro ao buscar dados das etapas:", err);
                 setError('Não foi possível carregar os detalhes da sua candidatura.');
@@ -37,85 +39,35 @@ const Etapas = () => {
         fetchData();
     }, [candidaturaId, vagaId]);
 
-    // --- LÓGICA DE VERIFICAÇÃO DO TESTE ---
-    // Verifica se a candidatura tem uma pontuação. O nome do campo 'pontuacao_teste'
-    // pode precisar de ajuste para corresponder ao que seu backend retorna.
     const testeRealizado = candidatura?.pontuacao_teste != null;
 
-    // --- CONFIGURAÇÃO DAS ETAPAS ATUALIZADA ---
     const etapasConfig = [
-        {
-            nome: 'Inscrição Realizada',
-            statusEnum: 'Aguardando Teste',
-            path: null,
-            icon: <FaFileAlt />,
-            descricao: 'Sua inscrição foi recebida com sucesso e está em análise.'
-        },
-        {
-            nome: 'Teste Online',
-            statusEnum: 'Teste Disponível',
-            // O path se torna nulo se o teste já foi realizado, desabilitando o clique.
+        { nome: 'Inscrição Realizada', statusEnum: 'Aguardando Teste', path: null, icon: <FaFileAlt />, descricao: 'Sua inscrição foi recebida com sucesso e está em análise.' },
+        { 
+            nome: 'Teste Online', statusEnum: 'Teste Disponível',
             path: teste && !testeRealizado ? `/teste/${teste.id}/${candidaturaId}` : null,
             icon: <FaPencilAlt />,
-            // A descrição muda para informar o candidato que o teste foi concluído.
-            descricao: testeRealizado
-                ? 'Seu teste foi finalizado e está aguardando a avaliação do recrutador.'
-                : 'Realize o teste técnico para esta vaga.'
+            descricao: testeRealizado ? 'Seu teste foi finalizado e aguarda avaliação.' : 'Realize o teste técnico para esta vaga.'
         },
-        // --- NOVAS ETAPAS ADICIONADAS ---
-        {
-            nome: 'Entrevista com RH',
-            statusEnum: 'Entrevista com RH',
-            path: null, // Sem link, apenas informativo
-            icon: <FaUsers />,
-            descricao: 'O recrutador entrará em contato através do seu e-mail ou telefone para agendar.'
-        },
-        {
-            nome: 'Entrevista com Gestor',
-            statusEnum: 'Entrevista com Gestor',
-            path: null, // Sem link, apenas informativo
-            icon: <FaUserTie />, // Ícone diferente para o gestor
-            descricao: 'O gestor da área entrará em contato através do seu e-mail ou telefone para agendar.'
-        },
-        // --- RESTANTE DAS ETAPAS ---
-        {
-            nome: 'Manual da Empresa',
-            statusEnum: 'Manual',
-            path:  `/candidato/manual/${candidaturaId}`,
-            icon: <FaBook />,
-            descricao: 'Conheça mais sobre nossa cultura e valores.'
-        },
-        {
-            nome: 'Envio de Documentos',
-            statusEnum: 'Envio de Documentos',
-            path: `/candidato/documentos/${candidaturaId}`,
-            icon: <FaFolderOpen />,
-            descricao: 'Envie os documentos necessários para a próxima fase.'
-        },
-        {
-            nome: 'Processo Finalizado',
-            statusEnum: 'Finalizado',
-            path: null,
-            icon: <FaCheckCircle />,
-            descricao: 'O processo seletivo para esta vaga foi concluído. Agradecemos sua participação!'
-        },
+        { nome: 'Entrevista com RH', statusEnum: 'Entrevista com RH', path: null, icon: <FaUsers />, descricao: 'O recrutador entrará em contato para agendar.' },
+        { nome: 'Entrevista com Gestor', statusEnum: 'Entrevista com Gestor', path: null, icon: <FaUserTie />, descricao: 'O gestor da área entrará em contato para agendar.' },
+        { nome: 'Manual da Empresa', statusEnum: 'Manual', path: `/candidato/manual/${candidaturaId}`, icon: <FaBook />, descricao: 'Conheça mais sobre nossa cultura e valores.' },
+        { nome: 'Envio de Documentos', statusEnum: 'Envio de Documentos', path: `/candidato/documentos/${candidaturaId}`, icon: <FaFolderOpen />, descricao: 'Envie os documentos necessários para a próxima fase.' },
+        { nome: 'Processo Finalizado', statusEnum: 'Finalizado', path: null, icon: <FaCheckCircle />, descricao: 'O processo seletivo foi concluído. Agradecemos sua participação!' },
     ];
 
     const currentStatusIndex = etapasConfig.findIndex(etapa => etapa.statusEnum === candidatura?.status);
 
     const getStatusClass = (index) => {
-        if (currentStatusIndex === -1 && index === 0) return 'current'; // Caso inicial
+        if (currentStatusIndex === -1 && index === 0) return 'current';
         if (index < currentStatusIndex) return 'completed';
         if (index === currentStatusIndex) return 'current';
         return 'pending';
     };
 
     const handleEtapaClick = (etapa, index) => {
-        // Permite o clique apenas na etapa atual e se houver um caminho definido
         if (getStatusClass(index) === 'current' && etapa.path) {
-            // Substitui o placeholder :candidaturaId pelo ID real
-            const pathFinal = etapa.path.replace(':candidaturaId', candidaturaId);
-            navigate(pathFinal);
+            navigate(etapa.path);
         }
     };
 
@@ -123,31 +75,37 @@ const Etapas = () => {
     if (error) return <div className="error-container">{error}</div>;
 
     return (
-        <div className="etapas-page-container">
-            <h1>Progresso da Candidatura</h1>
-            <p>Acompanhe aqui as etapas do seu processo seletivo.</p>
-            <div className="etapas-timeline">
+        <div className="etapas-page-wrapper">
+             <header className="etapas-header">
+                <h1>Acompanhamento do Processo Seletivo</h1>
+                {vaga && (
+                    <div className="vaga-summary-card">
+                        <FaBuilding className="company-icon"/>
+                        <div>
+                            <h3>{vaga.titulo}</h3>
+                            <p>{vaga.area}</p>
+                        </div>
+                    </div>
+                )}
+            </header>
+            <main className="etapas-timeline">
                 {etapasConfig.map((etapa, index) => {
                     const statusClass = getStatusClass(index);
-                    const positionClass = index % 2 === 0 ? 'left' : 'right';
                     const isClickable = statusClass === 'current' && etapa.path;
 
                     return (
-                        <div
-                            key={etapa.nome}
-                            className={`timeline-item-container ${positionClass} ${statusClass} ${isClickable ? 'clickable' : ''}`}
-                            onClick={() => handleEtapaClick(etapa, index)}
-                        >
-                            <div className="timeline-icon">{etapa.icon}</div>
-                            <div className="timeline-item-content">
-                                <span className="timeline-item-title">{etapa.nome}</span>
-                                <p className="timeline-item-desc">{etapa.descricao}</p>
-                                <span className="timeline-item-circle"></span>
+                        <div key={etapa.nome} className={`timeline-item ${statusClass} ${isClickable ? 'clickable' : ''}`} onClick={() => handleEtapaClick(etapa, index)}>
+                            <div className="timeline-marker">
+                                <div className="timeline-icon">{etapa.icon}</div>
+                            </div>
+                            <div className="timeline-content">
+                                <h3 className="timeline-title">{etapa.nome}</h3>
+                                <p className="timeline-desc">{etapa.descricao}</p>
                             </div>
                         </div>
                     );
                 })}
-            </div>
+            </main>
         </div>
     );
 };

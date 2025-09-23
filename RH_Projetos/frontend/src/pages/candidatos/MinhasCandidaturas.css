@@ -1,138 +1,170 @@
-.minhas-candidaturas-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 40px;
-  background-color: #f9f9f9;
-  border-radius: 40px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* src/pages/candidatos/MinhasCandidaturas.css */
+
+.candidaturas-page-wrapper {
+  background-color: #f7f9fa;
+  min-height: calc(100vh - 180px);
 }
 
-.minhas-candidaturas-container h1 {
+.candidaturas-header {
   text-align: center;
-  color: #333;
-  margin-bottom: 2rem;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.candidaturas-header h1 {
+  font-size: 2.2rem;
+  color: #127067;
+  margin-bottom: 10px;
+}
+
+.candidaturas-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
 }
 
 .lista-candidaturas {
-  display: grid;
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  padding: 40px 20px;
 }
 
 .candidatura-card {
+  width: 100%;
+  max-width: 800px;
   background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 40px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease-in-out;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
 }
 
 .candidatura-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
 }
 
-.candidatura-card h2 {
-  margin-top: 0;
-  color: #0056b3;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 25px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.candidatura-card p {
-  margin-bottom: 0.5rem;
+.card-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.card-body {
+  padding: 20px 25px;
   color: #555;
 }
 
-.status {
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-weight: bold;
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 20px 25px;
+  background-color: #f9fafb;
+  border-top: 1px solid #f0f0f0;
+  border-radius: 0 0 15px 15px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
   color: #fff;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
-/* Cor para o status inicial */
-.status-aguardando-teste {
-    background-color: #f0ad4e; /* Laranja */
-}
-
-/* Cor para a etapa do teste */
-.status-teste-disponível {
-    background-color: #337ab7; /* Azul */
-}
-
-/* Cor para a etapa de manuais */
-.status-manual {
-    background-color: #5bc0de; /* Azul claro */
-}
-
-/* Cor para a etapa de documentos */
-.status-envio-de-documentos {
-    background-color: #6a5acd; /* Roxo ardósia */
-}
-
-/* Cor para a etapa de entrevista */
-.status-entrevista {
-    background-color: #d9534f; /* Vermelho */
-}
-
-/* Cor para o processo finalizado */
-.status-finalizado {
-    background-color: #5cb85c; /* Verde */
-}
-
-/* Cor padrão caso algum status inesperado apareça */
-.status-default {
-    background-color: #777; /* Cinza */
-}
-.status-aguardando-teste {
-    background-color: #ffc107; /* Amarelo */
-}
-
-.status-aprovado {
-    background-color: #28a745; /* Verde */
-}
-
-.status-reprovado {
-    background-color: #dc3545; /* Vermelho */
-}
-
-.candidatura-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 1rem;
-}
+.status-badge.aguardando { background-color: #ffc107; color: #333; }
+.status-badge.disponivel { background-color: #17a2b8; }
+.status-badge.manual, .status-badge.documentos { background-color: #6f42c1; }
+.status-badge.entrevista { background-color: #fd7e14; }
+.status-badge.finalizado, .status-badge.aprovado { background-color: #28a745; }
+.status-badge.reprovado { background-color: #dc3545; }
+.status-badge.default { background-color: #6c757d; }
 
 .btn-desistir, .btn-progresso {
-  padding: 0.6rem 1.2rem;
+  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 50px;
   cursor: pointer;
-  text-decoration: none;
-  text-align: center;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-desistir {
+  background-color: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+}
+.btn-desistir:hover {
   background-color: #dc3545;
   color: white;
 }
 
-.btn-desistir:hover {
-  background-color: #c82333;
-}
-
 .btn-progresso {
-  background-color: #007bff;
+  background-color: #127067;
   color: white;
 }
-
 .btn-progresso:hover {
-  background-color: #0056b3;
+  background-color: #179387;
+  transform: translateY(-2px);
 }
 
-.loading-container, .error-container, .nenhuma-candidatura {
-    text-align: center;
-    font-size: 1.2rem;
-    padding: 2rem;
-    color: #555;
+.nenhuma-candidatura {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #fff;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 800px;
+}
+.nenhuma-candidatura h3 { color: #333; }
+.nenhuma-candidatura p { color: #666; margin-bottom: 20px; }
+
+
+/* --- Modal de Confirmação --- */
+.confirm-modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.confirm-modal-content {
+  background: white; padding: 30px; border-radius: 15px;
+  width: 90%; max-width: 400px; text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+.confirm-modal-icon {
+  font-size: 3rem; color: #dc3545; margin-bottom: 15px;
+}
+.confirm-modal-content h3 { margin-bottom: 10px; }
+.confirm-modal-content p { color: #555; margin-bottom: 25px; }
+.confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
+
+.btn-confirm-delete {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-confirm-delete:hover {
+  background-color: #c82333;
 }
