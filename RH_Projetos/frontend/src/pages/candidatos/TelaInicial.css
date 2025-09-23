@@ -1,7 +1,7 @@
 /* src/pages/candidatos/TelaInicial.css */
 
 .vagas-page-wrapper {
-  background-color: #f7f9fa;
+  background-color: #e6ebf2;
   min-height: calc(100vh - 180px); /* Ajusta para descontar header/footer */
 }
 
