@@ -1,63 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const candidaturaController = require('../controllers/candidaturaController');
+const { protect } = require('../middleware/authMiddleware');
+const fileUpload = require('express-fileupload');
 
-// CORREÇÃO AQUI: Adicionamos 'authorize' na importação
-const { protect, authorize } = require('../middleware/authMiddleware');
+router.post('/vagas/:vaga_id', protect, fileUpload(), candidaturaController.inscreverCandidato);
 
-// Rota para se inscrever em uma vaga
-router.post(
-  '/:vaga_id/inscrever',
-  protect,
-  authorize(['CANDIDATO']),
-  candidaturaController.inscreverCandidato
-);
+// Esta rota deve vir ANTES da rota com parâmetro '/:candidato_id' para evitar conflitos
+router.get('/minhas', protect, candidaturaController.listarMinhasCandidaturas);
 
-// Rota para o candidato listar suas próprias candidaturas
-router.get(
-  '/minhas-candidaturas',
-  protect,
-  authorize(['CANDIDATO']),
-  candidaturaController.listarMinhasCandidaturas
-);
+// Rota para listar todas as candidaturas de um usuário (ex: GET /api/candidaturas/usuario/5)
+router.get('/usuario/:candidato_id', candidaturaController.listarCandidaturasPorCandidato);
 
-// Rota para o RH/Admin buscar candidatos de uma vaga específica
-router.get(
-  '/vagas/:vagaId/candidatos',
-  protect,
-  authorize(['ADMIN', 'RH']),
-  candidaturaController.getCandidatosPorVaga
-);
+router.delete('/:candidatura_id', candidaturaController.desistirDeVaga);
 
-// --- NOVA ROTA ADICIONADA ---
-// Rota para o RH/Admin buscar os documentos de uma candidatura específica
-router.get(
-  '/:id/documentos',
-  protect,
-  authorize(['ADMIN', 'RH']),
-  candidaturaController.getDocumentosPorCandidatura
-);
+// Rota para buscar os candidatos de uma vaga específica
+router.get('/vagas/:vagaId/candidatos', candidaturaController.getCandidatosPorVaga);
 
-// Rota para obter uma candidatura específica pelo ID
-router.get(
-  '/:id',
-  protect,
-  candidaturaController.getCandidaturaById
-);
+// Rota para ATUALIZAR o status de uma candidatura
+router.put('/:id/status', candidaturaController.updateStatusCandidatura);
 
-// Rota para atualizar o status de uma candidatura (usada por candidato e RH)
-router.put(
-  '/:id/status',
-  protect,
-  candidaturaController.updateStatusCandidatura
-);
+// Rota para DELETAR uma candidatura
+router.delete('/:id', candidaturaController.deleteCandidatura);
 
-// Rota para o RH/Admin deletar uma candidatura
-router.delete(
-  '/:id',
-  protect,
-  authorize(['ADMIN', 'RH']),
-  candidaturaController.deleteCandidatura
-);
+// Rota para buscar uma candidatura específica pelo ID
+router.get('/:id', candidaturaController.getCandidaturaById);
 
 module.exports = router;
