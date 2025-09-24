@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Navbar.css';
@@ -7,6 +7,20 @@ const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef();
+
+    useEffect(() => {
+        if (!menuOpen) return;
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuOpen]);
 
     const handleLogout = () => {
         logout();
@@ -61,9 +75,9 @@ const Navbar = () => {
             <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
                 <span />
                 <span />
-                <span />
+                <span /> 
             </button>
-            <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
+            <div ref={menuRef} className={`navbar-links ${menuOpen ? "open" : ""}`}>
                 {getLinks()}
             </div>
         </nav>

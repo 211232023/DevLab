@@ -181,7 +181,7 @@ const GestaoVaga = () => {
                         <h3>Nenhuma vaga cadastrada.</h3>
                         <p>Comece publicando uma nova oportunidade.</p>
                         <Link to="/cadastro-vaga" className="btn-acao-gestao cadastrar">Cadastrar Nova Vaga</Link>
-                    </div>
+                    </div> 
                 ) : (
                     vagasComCandidatos.map((vaga) => (
                         <div key={vaga.id} className={`vaga-item ${expandedVaga === vaga.id ? 'expanded' : ''}`}>
