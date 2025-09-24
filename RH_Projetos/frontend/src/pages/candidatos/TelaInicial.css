@@ -102,11 +102,17 @@
 .vaga-detalhes {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+  transition: max-height 0.7s ease-in-out; /* Aumentado o tempo para uma animação mais suave */
 }
 
+/* --- CORREÇÃO APLICADA AQUI --- */
 .vaga-card.expanded .vaga-detalhes {
-  max-height: 1000px; /* Altura suficiente para qualquer conteúdo */
+  /*
+    Usamos um valor de max-height muito grande. O elemento vai se expandir
+    apenas até a altura do conteúdo interno, mas a animação de transição
+    continuará funcionando suavemente.
+  */
+  max-height: 5000px; /* Valor alto o suficiente para qualquer conteúdo */
 }
 
 .vaga-detalhes-content {
