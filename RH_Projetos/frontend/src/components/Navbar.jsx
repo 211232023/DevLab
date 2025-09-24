@@ -27,7 +27,8 @@ const Navbar = () => {
                 ...baseLinks,
                 { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
                 { to: "/minhas-candidaturas", text: "Minhas Candidaturas" },
-                { to: "/gestao-vaga", text: "Gestão de Vaga" }
+                { to: "/gestao-vaga", text: "Gestão de Vaga" },
+                { to: "/gestao-sistema", text: "Gestão do Sistema" }
             ],
             CANDIDATO: [
                 ...baseLinks,

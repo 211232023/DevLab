@@ -1,0 +1,119 @@
+/* Estilos para a página de Gestão de Sistema - pode copiar de GestaoVaga.css */
+.gestao-page-wrapper {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #e6ebf2;
+    border-radius: 40px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.gestao-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-radius: 40px;
+}
+
+.gestao-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.gestao-header p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.vagas-accordion .vaga-item {
+    background-color: #fff;
+    border-radius: 40px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.vaga-item.expanded {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.vaga-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    cursor: pointer;
+}
+
+.vaga-info h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.candidatos-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #555;
+    margin-top: 0.5rem;
+}
+
+.vaga-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-delete-vaga {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.btn-delete-vaga:hover {
+    background-color: #f8d7da;
+}
+
+.expand-icon {
+    font-size: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.vaga-item.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.candidatos-table-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.vaga-item.expanded .candidatos-table-container {
+    max-height: 1000px; /* ou um valor suficientemente grande */
+    padding: 0 1.5rem 1.5rem;
+}
+
+.candidatos-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.candidatos-table th, .candidatos-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.candidatos-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
