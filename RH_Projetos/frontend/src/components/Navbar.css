@@ -46,7 +46,7 @@
   border-bottom: 2px solid #c8f5f1;
 }
 
-.nav-button {
+.nav-button { 
   background-color: #e63946; /* Cor um pouco mais vibrante */
   color: white;
   border: none;
@@ -63,4 +63,62 @@
   background-color: #d62828;
   transform: translateY(-2px); /* Efeito de levantar o botão */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.navbar-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 38px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 12px;
+}
+
+.navbar-hamburger span {
+  display: block;
+  width: 26px;
+  height: 3px;
+  background: #fff;
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+/* Responsivo */
+@media (max-width: 800px) {
+  .navbar {
+    flex-direction: row;
+    padding: 0.8rem 1rem;
+  }
+  .navbar-links {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #127067;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    display: none;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .navbar-links.open {
+    display: flex;
+  }
+  .nav-link, .nav-button {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #179387;
+    border-radius: 0;
+  }
+  .navbar-hamburger {
+    display: flex;
+  }
 }
