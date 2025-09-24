@@ -121,6 +121,7 @@ const MinhasCandidaturas = () => {
                                 </div>
                                 <div className="card-footer">
                                     <Button
+                                        style={{backgroundColor:"#cc4040ff"}}
                                         onClick={() => openConfirmModal(candidatura.id)}
                                         className="btn-desistir"
                                     >

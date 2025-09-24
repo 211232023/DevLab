@@ -140,7 +140,7 @@ const InscricaoVaga = () => {
                     </fieldset>
 
                     <div className="form-actions">
-                        <Button type="button" className="btn-cancel" onClick={() => navigate("/inicio")}>Cancelar</Button>
+                        <Button style={{backgroundColor:"#cc4040ff"}} type="button" className="btn-cancel" onClick={() => navigate("/inicio")}>Cancelar</Button>
                         <Button type="submit" className="btn-confirm" disabled={isLoading}>{isLoading ? "Enviando..." : "Confirmar Inscrição"}</Button>
                     </div>
                 </form>

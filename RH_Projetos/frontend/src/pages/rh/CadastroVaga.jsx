@@ -70,7 +70,7 @@ const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
                     ))}
                 </div>
                 <div className="modal-actions">
-                    <Button type="button" onClick={onClose} className="btn-cancel">Cancelar</Button>
+                    <Button style={{backgroundColor:"#cc4040ff"}} type="button" onClick={onClose} className="btn-cancel">Cancelar</Button>
                     <Button type="button" onClick={handleAddQuestao} className="btn-confirm">Adicionar Questão</Button>
                 </div>
             </div>

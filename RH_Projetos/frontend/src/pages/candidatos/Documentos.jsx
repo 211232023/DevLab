@@ -131,7 +131,7 @@ const Documentos = () => {
                     {success && <p className="message success-message">{success}</p>}
 
                     <div className="form-actions">
-                         <Button type="button" className="btn-cancel" onClick={() => navigate(-1)}>Voltar</Button>
+                         <Button style={{backgroundColor:"#cc4040ff"}} type="button" className="btn-cancel" onClick={() => navigate(-1)}>Voltar</Button>
                          <Button type="submit" className="btn-submit" disabled={loading}>
                             {loading ? 'Enviando...' : 'Enviar Documentos e Avançar'}
                          </Button>

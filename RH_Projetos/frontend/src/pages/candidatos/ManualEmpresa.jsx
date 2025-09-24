@@ -94,7 +94,7 @@ const ManualEmpresa = () => {
                 </div>
                 
                 <div className="form-actions">
-                    <Button type="button" className="btn-cancel" onClick={() => navigate(-1)}>Voltar</Button>
+                    <Button style={{backgroundColor:"#cc4040ff"}} type="button" className="btn-cancel" onClick={() => navigate(-1)}>Voltar</Button>
                     <Button onClick={handleConfirmar} className="btn-confirm" disabled={loading || !concordou}>
                         {loading ? 'Confirmando...' : 'Confirmar e Avançar'}
                     </Button>

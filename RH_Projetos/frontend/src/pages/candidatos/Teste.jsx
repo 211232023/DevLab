@@ -15,7 +15,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, message }) => {
                 <h3>Finalizar Teste?</h3>
                 <p>{message}</p>
                 <div className="confirm-modal-actions">
-                    <Button onClick={onClose} className="btn-cancel">Voltar</Button>
+                    <Button style={{backgroundColor:"#cc4040ff"}} onClick={onClose} className="btn-cancel">Voltar</Button>
                     <Button onClick={onConfirm} className="btn-confirm">Sim, Enviar</Button>
                 </div>
             </div>
