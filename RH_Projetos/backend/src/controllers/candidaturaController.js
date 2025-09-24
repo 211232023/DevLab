@@ -12,7 +12,8 @@ exports.inscreverCandidato = async (req, res) => {
     }
     const curriculoFile = req.files.curriculo;
 
-    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
+    // Define o caminho completo onde o arquivo será salvo
+    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads', nomeArquivo);
     const curriculoNome = `${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
     const curriculoPath = path.join(uploadPath, curriculoNome);
 
@@ -81,11 +82,11 @@ exports.desistirDeVaga = async (req, res) => {
 };
 
 // Listar todos os candidatos de uma vaga específica
+// Listar todos os candidatos de uma vaga específica
 exports.getCandidatosPorVaga = async (req, res) => {
     const { vagaId } = req.params;
     try {
-        // --- Query SQL com a correção final no JOIN ---
-        // Alteramos 'c.usuario_id' para 'c.candidato_id'
+        // Query SQL atualizada para buscar também os documentos de cada candidatura
         const query = `
             SELECT 
                 c.id AS candidatura_id, 
@@ -93,10 +94,14 @@ exports.getCandidatosPorVaga = async (req, res) => {
                 c.pontuacao_teste,
                 c.curriculo AS curriculo_path,
                 u.nome, 
-                u.email
+                u.email,
+                (SELECT GROUP_CONCAT(CONCAT(d.tipo, '::', d.caminho) SEPARATOR ';;') 
+                 FROM documentos d 
+                 WHERE d.candidatura_id = c.id) AS outros_documentos
             FROM candidaturas c
             JOIN usuarios u ON c.candidato_id = u.id
-            WHERE c.vaga_id = ?;
+            WHERE c.vaga_id = ?
+            GROUP BY c.id;
         `;
         
         const [candidatos] = await db.query(query, [vagaId]);
@@ -233,8 +238,9 @@ exports.uploadDocumento = async (req, res) => {
     // Cria um nome de arquivo único para evitar conflitos
     const nomeArquivo = `${candidatura_id}-${tipo}-${Date.now()}-${arquivo.name}`;
     
-    // Define o caminho completo onde o arquivo será salvo
-    const uploadPath = path.join(__dirname, '..', 'public', 'uploads', nomeArquivo);
+    // --- CORREÇÃO APLICADA AQUI ---
+    // Constrói o caminho absoluto para a pasta de uploads de forma segura
+    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads', nomeArquivo);
 
     // Move o arquivo para a pasta de uploads
     await arquivo.mv(uploadPath);

@@ -138,7 +138,8 @@ const GestaoVaga = () => {
                         const vagasCompletas = await Promise.all(
                             vagasData.map(async (vaga) => {
                                 try {
-                                    const candidatosResponse = await api.get(`/vagas/${vaga.id}/candidatos`);
+                                    // A API agora retorna 'outros_documentos' nesta chamada
+                                    const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
                                     return { ...vaga, candidatos: candidatosResponse.data };
                                 } catch (err) {
                                     return { ...vaga, candidatos: [] };
@@ -156,6 +157,41 @@ const GestaoVaga = () => {
         };
         carregarTodasAsVagas();
     }, [user]);
+
+    // --- FUNÇÃO ADICIONADA PARA RENDERIZAR DOCUMENTOS ---
+    const renderizarDocumentos = (candidato) => {
+        const links = [];
+
+        // 1. Adiciona o link do currículo (que já funciona)
+        if (candidato.curriculo_path) {
+            links.push(
+                <a key="curriculo" href={`http://localhost:3001${candidato.curriculo_path}`} target="_blank" rel="noopener noreferrer" className="link-doc">
+                    <FaFilePdf /> Currículo
+                </a>
+            );
+        }
+
+        // 2. Processa a nova string 'outros_documentos'
+        if (candidato.outros_documentos) {
+            candidato.outros_documentos.split(';;').forEach((docString, index) => {
+                const [tipo, caminho] = docString.split('::');
+                if (tipo && caminho) {
+                    links.push(
+                        <a key={`doc-${index}`} href={`http://localhost:3001${caminho}`} target="_blank" rel="noopener noreferrer" className="link-doc">
+                            <FaFilePdf /> {tipo}
+                        </a>
+                    );
+                }
+            });
+        }
+
+        // Se não houver nenhum link, retorna uma mensagem
+        if (links.length === 0) {
+            return <span>Nenhum documento</span>;
+        }
+
+        return links;
+    };
 
     const toggleExpandir = (id) => setExpandedVaga(expandedVaga === id ? null : id);
 
@@ -214,8 +250,10 @@ const GestaoVaga = () => {
                                                     <td>{candidato.nome}</td>
                                                     <td>{candidato.email}</td>
                                                     <td>
-                                                        {candidato.curriculo_path && <a href={`http://localhost:3001${candidato.curriculo_path}`} target="_blank" rel="noopener noreferrer" className="link-doc"><FaFilePdf /> Currículo</a>}
-                                                        {candidato.documentos?.map((doc, i) => <a key={i} href={`http://localhost:3001/${doc}`} target="_blank" rel="noopener noreferrer" className="link-doc"><FaFilePdf /> Doc {i + 1}</a>)}
+                                                        {/* --- CÉLULA DE DOCUMENTOS MODIFICADA --- */}
+                                                        <div className="documentos-links-container">
+                                                            {renderizarDocumentos(candidato)}
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <span className={`nota-teste ${!candidato.pontuacao_teste ? 'pendente' : ''}`}>

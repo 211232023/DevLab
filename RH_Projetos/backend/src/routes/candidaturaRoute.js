@@ -6,6 +6,9 @@ const fileUpload = require('express-fileupload');
 
 router.post('/vagas/:vaga_id', protect, fileUpload(), candidaturaController.inscreverCandidato);
 
+// Adicione a rota de upload de documentos aqui
+router.post('/:id/documentos', protect, fileUpload(), candidaturaController.uploadDocumento);
+
 // Esta rota deve vir ANTES da rota com parâmetro '/:candidato_id' para evitar conflitos
 router.get('/minhas', protect, candidaturaController.listarMinhasCandidaturas);
 
