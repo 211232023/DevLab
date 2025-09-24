@@ -47,7 +47,7 @@ const Login = () => {
     return (
         <div className="login-page-wrapper">
             <div className="login-container">
-                <h2>Bem-vindo de Volta!</h2>
+                <h2>Faça o login!</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
