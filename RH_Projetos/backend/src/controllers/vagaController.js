@@ -209,42 +209,50 @@ exports.updateVaga = async (req, res) => {
 };
 
 exports.deleteVaga = async (req, res) => {
-    const { id } = req.params; // Este é o ID da vaga a ser deletada
+    const { id } = req.params; // ID da vaga
 
     let connection;
     try {
         connection = await db.getConnection();
-        // Inicia uma transação para garantir que ambas as operações funcionem ou nenhuma delas
         await connection.beginTransaction();
 
-        // ETAPA 1: Deletar todas as candidaturas associadas a esta vaga
-        console.log(`Iniciando exclusão de candidaturas para a vaga ID: ${id}`);
-        await connection.query('DELETE FROM candidaturas WHERE vaga_id = ?', [id]);
-        console.log(`Candidaturas da vaga ID: ${id} deletadas.`);
+        // 1. Encontrar todos os IDs de candidaturas para a vaga
+        const [candidaturas] = await connection.query(
+            'SELECT id FROM candidaturas WHERE vaga_id = ?',
+            [id]
+        );
 
-        // ETAPA 2: Deletar a vaga
-        console.log(`Deletando a vaga ID: ${id}`);
+        if (candidaturas.length > 0) {
+            const candidaturaIds = candidaturas.map(c => c.id);
+
+            // 2. Deletar os documentos associados a essas candidaturas
+            await connection.query(
+                'DELETE FROM documentos WHERE candidatura_id IN (?)',
+                [candidaturaIds]
+            );
+
+            // 3. Agora, deletar as candidaturas
+            await connection.query('DELETE FROM candidaturas WHERE vaga_id = ?', [id]);
+        }
+
+        // 4. Finalmente, deletar a vaga
         const [result] = await connection.query('DELETE FROM vagas WHERE id = ?', [id]);
 
-        // Se nenhuma linha foi afetada na tabela de vagas, a vaga não existia.
         if (result.affectedRows === 0) {
-            await connection.rollback(); // Desfaz a transação
+            await connection.rollback();
             return res.status(404).send('Vaga não encontrada para deletar');
         }
 
-        // Se tudo deu certo, confirma as alterações no banco
         await connection.commit();
-        res.status(200).json({ message: 'Vaga e candidaturas associadas deletadas com sucesso.' });
+        res.status(200).json({ message: 'Vaga e todas as associações deletadas com sucesso.' });
 
     } catch (err) {
-        // Se qualquer erro ocorrer, desfaz todas as alterações
         if (connection) {
             await connection.rollback();
         }
         console.error('Erro ao deletar vaga e associações:', err);
         res.status(500).send('Erro no servidor ao tentar deletar a vaga.');
     } finally {
-        // Libera a conexão com o banco de dados
         if (connection) connection.release();
     }
 };

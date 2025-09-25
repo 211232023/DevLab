@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { useAuth } from '../../AuthContext';
-import { Link } from 'react-router-dom';
+// --- ALTERAÇÃO 1: Importar useNavigate ---
+import { Link, useNavigate } from 'react-router-dom';
 import './GestaoVaga.css';
 import Button from '../../components/Button';
 import { FaUsers, FaChevronDown, FaTrash, FaArrowRight, FaFilePdf, FaClipboardCheck, FaExclamationCircle } from 'react-icons/fa';
@@ -28,6 +29,8 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
 
 const GestaoVaga = () => {
     const { user } = useAuth();
+    // --- ALTERAÇÃO 2: Inicializar o hook useNavigate ---
+    const navigate = useNavigate();
     const [vagasComCandidatos, setVagasComCandidatos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -216,7 +219,13 @@ const GestaoVaga = () => {
                     <div className="nenhuma-vaga-gestao">
                         <h3>Nenhuma vaga cadastrada.</h3>
                         <p>Comece publicando uma nova oportunidade.</p>
-                        <Link to="/cadastro-vaga" className="btn-acao-gestao cadastrar">Cadastrar Nova Vaga</Link>
+                        {/* --- ALTERAÇÃO 3: Substituir Link por Button --- */}
+                        <Button 
+                            onClick={() => navigate('/cadastro-vaga')} 
+                            className="btn-acao-gestao cadastrar"
+                        >
+                            Cadastrar Nova Vaga
+                        </Button>
                     </div> 
                 ) : (
                     vagasComCandidatos.map((vaga) => (
