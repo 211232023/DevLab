@@ -29,9 +29,9 @@ const Login = () => {
                 if (data.user.tipo === 'Candidato') {
                     navigate("/inicio");
                 } else if (data.user.tipo === 'RH') {
-                    navigate("/dashboard-rh");
+                    navigate("/gestao-vaga");
                 } else {
-                    navigate("/");
+                    navigate("/inicio");
                 }
             } else {
                 alert(data.error || "Erro ao fazer login.");
