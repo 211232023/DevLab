@@ -1,26 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom'; // Importa NavLink
 import { useAuth } from '../AuthContext';
 import './Navbar.css';
 
-const Navbar = () => { 
+const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const [menuOpen, setMenuOpen] = useState(false);
-    const menuRef = useRef();
-
-    useEffect(() => {
-        if (!menuOpen) return;
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [menuOpen]);
 
     const handleLogout = () => {
         logout();
@@ -31,16 +16,18 @@ const Navbar = () => {
         if (!user) {
             return <NavLink to="/login" className="nav-link">Login/Cadastro</NavLink>;
         }
+
         const baseLinks = [
             { to: "/inicio", text: "Vagas" },
             { to: "/perfil", text: "Perfil" }
         ];
+
         const roleLinks = {
             ADMIN: [
                 ...baseLinks,
                 { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
                 { to: "/minhas-candidaturas", text: "Minhas Candidaturas" },
-                { to: "/gestao-vaga", text: "Gestão de Vaga" },
+                { to: "/gestao-vaga", text: "Gestão de Vaga" }, 
                 { to: "/gestao-sistema", text: "Gestão do Sistema" }
             ],
             CANDIDATO: [
@@ -54,11 +41,13 @@ const Navbar = () => {
                 { to: "/gestao-candidato", text: "Gestão dos candidatos" }
             ]
         };
+
         const links = roleLinks[user.tipo] || [];
+
         return (
             <>
                 {links.map(link => (
-                    <NavLink key={link.to} to={link.to} className="nav-link" onClick={() => setMenuOpen(false)}>
+                    <NavLink key={link.to} to={link.to} className="nav-link">
                         {link.text}
                     </NavLink>
                 ))}
@@ -72,12 +61,7 @@ const Navbar = () => {
             <NavLink to="/" className="navbar-logo">
                 <img src="/logo2.png" alt="Logo DevLab" className='logoNavbar'/>
             </NavLink>
-            <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-                <span />
-                <span />
-                <span /> 
-            </button>
-            <div ref={menuRef} className={`navbar-links ${menuOpen ? "open" : ""}`}>
+            <div className="navbar-links">
                 {getLinks()}
             </div>
         </nav>
