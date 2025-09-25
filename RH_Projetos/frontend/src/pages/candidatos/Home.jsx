@@ -3,9 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { FaSearch, FaUserCheck, FaChartLine } from 'react-icons/fa';
 import "./Home.css";
 import Button from "../../components/Button";
+import { useAuth } from "../../AuthContext"; // Importe o contexto de autenticação
 
 const Home = () => {
     const navigate = useNavigate();
+    const { user } = useAuth(); // Pegue o usuário logado
+
+    const handleVagasClick = () => {
+        if (user) {
+            navigate("/inicio");
+        } else {
+            navigate("/login");
+        }
+    };
 
     return (
         <div className="home-page">
@@ -23,7 +33,7 @@ const Home = () => {
                     </p>
                     <Button
                         className="hero-cta-button"
-                        onClick={() => navigate("/inicio")}
+                        onClick={handleVagasClick}
                     >
                         Encontrar Vagas
                     </Button>
