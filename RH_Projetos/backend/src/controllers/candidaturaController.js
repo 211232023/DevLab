@@ -13,9 +13,8 @@ exports.inscreverCandidato = async (req, res) => {
     const curriculoFile = req.files.curriculo;
 
     // Define o caminho completo onde o arquivo será salvo
-    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads', nomeArquivo);
     const curriculoNome = `${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
-    const curriculoPath = path.join(uploadPath, curriculoNome);
+    const curriculoPath = path.join(__dirname, '..', '..', 'public', 'uploads', curriculoNome);
 
     await curriculoFile.mv(curriculoPath);
 
