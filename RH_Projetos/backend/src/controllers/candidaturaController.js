@@ -7,18 +7,27 @@ exports.inscreverCandidato = async (req, res) => {
     const candidato_id = req.user.id;
     const { endereco } = req.body;
 
+    // --- ADICIONE ESTA VERIFICAÇÃO AQUI ---
+    const [existente] = await db.query(
+      'SELECT id FROM candidaturas WHERE candidato_id = ? AND vaga_id = ?',
+      [candidato_id, vaga_id]
+    );
+
+    if (existente.length > 0) {
+      return res.status(409).json({ error: 'Você já se candidatou para esta vaga.' });
+    }
+    // --- FIM DA VERIFICAÇÃO ---
+
     if (!req.files || !req.files.curriculo) {
       return res.status(400).json({ error: 'O anexo do currículo é obrigatório.' });
     }
     const curriculoFile = req.files.curriculo;
 
-    // Define o caminho completo onde o arquivo será salvo
     const curriculoNome = `${candidato_id}-${vaga_id}-${Date.now()}-${curriculoFile.name}`;
     const curriculoPath = path.join(__dirname, '..', '..', 'public', 'uploads', curriculoNome);
 
     await curriculoFile.mv(curriculoPath);
 
-    // ALTERAÇÃO AQUI: Mudamos 'Enviado' para 'Aguardando Teste'
     const [result] = await db.query(
       'INSERT INTO candidaturas (candidato_id, vaga_id, curriculo, status, endereco) VALUES (?, ?, ?, ?, ?)',
       [candidato_id, vaga_id, `/uploads/${curriculoNome}`, 'Aguardando Teste', endereco]
