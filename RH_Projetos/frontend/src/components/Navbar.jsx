@@ -18,13 +18,13 @@ const Navbar = () => {
         }
 
         const baseLinks = [
-            { to: "/inicio", text: "Vagas" },
             { to: "/perfil", text: "Perfil" }
         ];
 
         const roleLinks = {
             ADMIN: [
                 ...baseLinks,
+                { to: "/inicio", text: "Vagas" },
                 { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
                 { to: "/minhas-candidaturas", text: "Minhas Candidaturas" },
                 { to: "/gestao-vaga", text: "Gestão de Vaga" }, 
@@ -32,13 +32,13 @@ const Navbar = () => {
             ],
             CANDIDATO: [
                 ...baseLinks,
+                { to: "/inicio", text: "Vagas" },
                 { to: "/minhas-candidaturas", text: "Minhas Candidaturas" }
             ],
             RH: [
                 ...baseLinks,
                 { to: "/cadastro-vaga", text: "Cadastrar Vaga" },
                 { to: "/gestao-vaga", text: "Gerenciar Vagas" },
-                { to: "/gestao-candidato", text: "Gestão dos candidatos" }
             ]
         };
 
