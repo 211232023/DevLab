@@ -1,11 +1,26 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom'; // Importa NavLink
+import React, { useState, useRef, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef();
+
+    useEffect(() => {
+        if (!menuOpen) return;
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuOpen]);
 
     const handleLogout = () => {
         logout();
@@ -14,13 +29,11 @@ const Navbar = () => {
 
     const getLinks = () => {
         if (!user) {
-            return <NavLink to="/login" className="nav-link">Login/Cadastro</NavLink>;
+            return <NavLink to="/login" className="nav-link" onClick={() => setMenuOpen(false)}>Login/Cadastro</NavLink>;
         }
-
         const baseLinks = [
             { to: "/perfil", text: "Perfil" }
         ];
-
         const roleLinks = {
             ADMIN: [
                 ...baseLinks,
@@ -41,13 +54,11 @@ const Navbar = () => {
                 { to: "/gestao-vaga", text: "Gerenciar Vagas" },
             ]
         };
-
         const links = roleLinks[user.tipo] || [];
-
         return (
             <>
                 {links.map(link => (
-                    <NavLink key={link.to} to={link.to} className="nav-link">
+                    <NavLink key={link.to} to={link.to} className="nav-link" onClick={() => setMenuOpen(false)}>
                         {link.text}
                     </NavLink>
                 ))}
@@ -61,7 +72,12 @@ const Navbar = () => {
             <NavLink to="/" className="navbar-logo">
                 <img src="/logo2.png" alt="Logo DevLab" className='logoNavbar'/>
             </NavLink>
-            <div className="navbar-links">
+            <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+                <span />
+                <span />
+                <span />
+            </button>
+            <div ref={menuRef} className={`navbar-links ${menuOpen ? "open" : ""}`}>
                 {getLinks()}
             </div>
         </nav>
