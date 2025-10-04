@@ -7,7 +7,6 @@ import './GestaoVaga.css';
 import Button from '../../components/Button';
 import { FaUsers, FaChevronDown, FaTrash, FaArrowRight, FaFilePdf, FaClipboardCheck, FaExclamationCircle } from 'react-icons/fa';
 
-// --- Componente do Modal de Confirmação ---
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     if (!isOpen) return null;
 
@@ -161,11 +160,9 @@ const GestaoVaga = () => {
         carregarTodasAsVagas();
     }, [user]);
 
-    // --- FUNÇÃO ADICIONADA PARA RENDERIZAR DOCUMENTOS ---
     const renderizarDocumentos = (candidato) => {
         const links = [];
 
-        // 1. Adiciona o link do currículo (que já funciona)
         if (candidato.curriculo_path) {
             links.push(
                 <a key="curriculo" href={`http://localhost:3001${candidato.curriculo_path}`} target="_blank" rel="noopener noreferrer" className="link-doc">
@@ -174,7 +171,6 @@ const GestaoVaga = () => {
             );
         }
 
-        // 2. Processa a nova string 'outros_documentos'
         if (candidato.outros_documentos) {
             candidato.outros_documentos.split(';;').forEach((docString, index) => {
                 const [tipo, caminho] = docString.split('::');
@@ -187,8 +183,6 @@ const GestaoVaga = () => {
                 }
             });
         }
-
-        // Se não houver nenhum link, retorna uma mensagem
         if (links.length === 0) {
             return <span>Nenhum documento</span>;
         }
@@ -219,7 +213,6 @@ const GestaoVaga = () => {
                     <div className="nenhuma-vaga-gestao">
                         <h3>Nenhuma vaga cadastrada.</h3>
                         <p>Comece publicando uma nova oportunidade.</p>
-                        {/* --- ALTERAÇÃO 3: Substituir Link por Button --- */}
                         <Button 
                             onClick={() => navigate('/cadastro-vaga')} 
                             className="btn-acao-gestao cadastrar"

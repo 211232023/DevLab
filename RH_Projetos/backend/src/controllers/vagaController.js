@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-// --- FUNÇÃO PARA CRIAR APENAS A VAGA ---
 exports.createVaga = async (req, res) => {
     const { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, rh_id } = req.body;
     const vagaData = { titulo, area, salario, descricao, data_Abertura, data_fechamento, escala_trabalho, beneficios, rh_id };
@@ -28,16 +27,13 @@ exports.createVagaCompleta = async (req, res) => {
     console.log('--- INICIANDO CRIAÇÃO DE VAGA COMPLETA ---');
     const { vagaData, testeData, questoes } = req.body;
 
-    // --- PONTO DE INVESTIGAÇÃO 1: Verificar dados recebidos ---
     console.log('Dados recebidos no corpo da requisição:', JSON.stringify(req.body, null, 2));
 
-    // Validação de dados de entrada
     if (!vagaData || !testeData || !questoes) {
         console.error('ERRO: Dados de entrada ausentes ou inválidos.');
         return res.status(400).json({ error: 'Dados da vaga, teste e questões são obrigatórios.' });
     }
 
-    // --- ALTERAÇÃO: Adicionada validação para o título do teste ---
     if (!testeData.titulo || testeData.titulo.trim() === '') {
         console.error('ERRO: O título do teste é obrigatório.');
         return res.status(400).json({ error: 'O título do teste é obrigatório.' });
@@ -49,7 +45,7 @@ exports.createVagaCompleta = async (req, res) => {
     }
 
 
-    let connection; // Declarar a conexão aqui para que seja acessível no finally
+    let connection; 
     try {
         console.log('Tentando obter conexão com o banco de dados...');
         connection = await db.getConnection();
@@ -59,20 +55,17 @@ exports.createVagaCompleta = async (req, res) => {
         await connection.beginTransaction();
         console.log('Transação iniciada.');
 
-        // 1. Criar a Vaga
         console.log('1. Inserindo vaga na tabela "vagas"...');
         const [vagaResult] = await connection.query('INSERT INTO vagas SET ?', [vagaData]);
         const vagaId = vagaResult.insertId;
         console.log(`Vaga inserida com sucesso! ID da Vaga: ${vagaId}`);
 
-        // 2. Criar o Teste
         console.log('2. Inserindo teste na tabela "testes"...');
         const testeParaSalvar = { ...testeData, vaga_id: vagaId };
         const [testeResult] = await connection.query('INSERT INTO testes SET ?', [testeParaSalvar]);
         const testeId = testeResult.insertId;
         console.log(`Teste inserido com sucesso! ID do Teste: ${testeId}`);
 
-        // 3. Criar as Questões e Alternativas
         console.log('3. Iniciando loop para inserir questões e alternativas...');
         for (const [index, questao] of questoes.entries()) {
             const { enunciado, area_conhecimento, alternativas } = questao;
@@ -94,7 +87,7 @@ exports.createVagaCompleta = async (req, res) => {
 
             if (alternativas && alternativas.length > 0) {
                 console.log(`    - Inserindo ${alternativas.length} alternativas para a questão ${questaoId}...`);
-                const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta ? 1 : 0]); // Garante que booleano vire 0 ou 1
+                const alternativasValues = alternativas.map(alt => [questaoId, alt.texto, alt.correta ? 1 : 0]); 
                 await connection.query(
                     'INSERT INTO alternativas (questao_id, texto, correta) VALUES ?',
                     [alternativasValues]
@@ -131,10 +124,7 @@ exports.createVagaCompleta = async (req, res) => {
     }
 };
 
-// --- DEMAIS FUNÇÕES DO CONTROLLER ---
-
 exports.getAllVagas = async (req, res) => {
-    // Consulta explícita com alias para garantir os nomes corretos
     const query = `
         SELECT 
             id,
@@ -209,14 +199,13 @@ exports.updateVaga = async (req, res) => {
 };
 
 exports.deleteVaga = async (req, res) => {
-    const { id } = req.params; // ID da vaga
+    const { id } = req.params; 
 
     let connection;
     try {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // 1. Encontrar todos os IDs de candidaturas para a vaga
         const [candidaturas] = await connection.query(
             'SELECT id FROM candidaturas WHERE vaga_id = ?',
             [id]
@@ -225,17 +214,14 @@ exports.deleteVaga = async (req, res) => {
         if (candidaturas.length > 0) {
             const candidaturaIds = candidaturas.map(c => c.id);
 
-            // 2. Deletar os documentos associados a essas candidaturas
             await connection.query(
                 'DELETE FROM documentos WHERE candidatura_id IN (?)',
                 [candidaturaIds]
             );
 
-            // 3. Agora, deletar as candidaturas
             await connection.query('DELETE FROM candidaturas WHERE vaga_id = ?', [id]);
         }
 
-        // 4. Finalmente, deletar a vaga
         const [result] = await connection.query('DELETE FROM vagas WHERE id = ?', [id]);
 
         if (result.affectedRows === 0) {
@@ -260,7 +246,6 @@ exports.deleteVaga = async (req, res) => {
 exports.getCandidatosPorVaga = async (req, res) => {
     try {
         const { vagaId } = req.params;
-        // Query corrigida para usar c.usuario_id no JOIN
         const query = `
             SELECT 
                 u.id, 

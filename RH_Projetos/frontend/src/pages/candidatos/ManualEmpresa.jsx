@@ -43,8 +43,7 @@ const ManualEmpresa = () => {
         try {
             const novoStatus = 'Envio de Documentos';
             await api.put(`/candidaturas/${candidaturaId}/status`, { status: novoStatus });
-            
-            // Navega de volta para a tela de etapas
+     
             navigate(`/etapas/${candidatura.vaga_id}/${candidaturaId}`);
 
         } catch (err) {

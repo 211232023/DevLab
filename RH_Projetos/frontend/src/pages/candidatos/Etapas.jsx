@@ -10,7 +10,7 @@ const Etapas = () => {
 
     const [candidatura, setCandidatura] = useState(null);
     const [teste, setTeste] = useState(null);
-    const [vaga, setVaga] = useState(null); // Estado para guardar informações da vaga
+    const [vaga, setVaga] = useState(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -24,11 +24,11 @@ const Etapas = () => {
                         if (err.response && err.response.status === 404) return { data: null };
                         throw err;
                     }),
-                    api.get(`/vagas/${vagaId}`) // Busca os dados da vaga
+                    api.get(`/vagas/${vagaId}`) 
                 ]);
                 setCandidatura(candidaturaRes.data);
                 setTeste(testeRes.data);
-                setVaga(vagaRes.data); // Armazena os dados da vaga
+                setVaga(vagaRes.data);
             } catch (err) {
                 console.error("Erro ao buscar dados das etapas:", err);
                 setError('Não foi possível carregar os detalhes da sua candidatura.');

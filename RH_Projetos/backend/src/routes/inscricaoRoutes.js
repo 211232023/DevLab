@@ -3,7 +3,6 @@ const router = express.Router();
 const path = require('path');
 const db = require(path.resolve(__dirname, '../config/db'));
 
-// Rota para um usuário se candidatar a uma vaga
 router.post('/', async (req, res) => {
     const { usuario_id, vaga_id } = req.body;
     try {
@@ -18,7 +17,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Rota para listar todas as candidaturas de um usuário
 router.get('/usuario/:usuario_id', async (req, res) => {
     const { usuario_id } = req.params;
     try {

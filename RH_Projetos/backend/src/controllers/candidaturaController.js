@@ -7,7 +7,6 @@ exports.inscreverCandidato = async (req, res) => {
     const candidato_id = req.user.id;
     const { endereco } = req.body;
 
-    // --- ADICIONE ESTA VERIFICAÇÃO AQUI ---
     const [existente] = await db.query(
       'SELECT id FROM candidaturas WHERE candidato_id = ? AND vaga_id = ?',
       [candidato_id, vaga_id]
@@ -16,7 +15,6 @@ exports.inscreverCandidato = async (req, res) => {
     if (existente.length > 0) {
       return res.status(409).json({ error: 'Você já se candidatou para esta vaga.' });
     }
-    // --- FIM DA VERIFICAÇÃO ---
 
     if (!req.files || !req.files.curriculo) {
       return res.status(400).json({ error: 'O anexo do currículo é obrigatório.' });
@@ -41,7 +39,6 @@ exports.inscreverCandidato = async (req, res) => {
   }
 };
 
-// Listar todas as candidaturas de um candidato específico
 exports.listarCandidaturasPorCandidato = async (req, res) => {
   const { candidato_id } = req.params;
 
@@ -57,7 +54,7 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
     );
 
     if (candidaturas.length === 0) {
-      return res.status(200).json([]); // Retorna array vazio em vez de 404
+      return res.status(200).json([]); 
     }
 
     res.status(200).json(candidaturas);
@@ -67,7 +64,6 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
   }
 };
 
-// Desistir de uma candidatura
 exports.desistirDeVaga = async (req, res) => {
   const { candidatura_id } = req.params;
 
@@ -89,12 +85,9 @@ exports.desistirDeVaga = async (req, res) => {
   }
 };
 
-// Listar todos os candidatos de uma vaga específica
-// Listar todos os candidatos de uma vaga específica
 exports.getCandidatosPorVaga = async (req, res) => {
     const { vagaId } = req.params;
     try {
-        // Query SQL atualizada para buscar também os documentos de cada candidatura
         const query = `
             SELECT 
                 c.id AS candidatura_id, 
@@ -120,12 +113,10 @@ exports.getCandidatosPorVaga = async (req, res) => {
     }
 };
 
-// Atualizar o status de uma candidatura
 exports.updateStatusCandidatura = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // 1. Lista de todos os status permitidos (deve ser IGUAL ao seu ENUM no banco)
     const statusPermitidos = [
         'Aguardando Teste', 
         'Teste Disponível', 
@@ -136,7 +127,6 @@ exports.updateStatusCandidatura = async (req, res) => {
         'Finalizado'
     ];
 
-    // 2. Validação explícita do status
     if (!status) {
         return res.status(400).json({ message: 'O novo status é obrigatório.' });
     }
@@ -145,7 +135,6 @@ exports.updateStatusCandidatura = async (req, res) => {
         return res.status(400).json({ message: `O status "${status}" é inválido.` });
     }
 
-    // 3. Se a validação passar, atualiza o banco
     try {
         const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
         const [result] = await db.query(query, [status, id]);
@@ -161,7 +150,6 @@ exports.updateStatusCandidatura = async (req, res) => {
     }
 };
 
-// Deletar uma candidatura (pelo RH/Admin)
 exports.deleteCandidatura = async (req, res) => {
   const { id } = req.params;
 
@@ -178,8 +166,6 @@ exports.deleteCandidatura = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor ao tentar eliminar a candidatura.' });
   }
 };
-
-// Adicione esta função em src/controllers/candidaturaController.js
 
 exports.getCandidaturaById = async (req, res) => {
   const { id } = req.params;
@@ -201,7 +187,6 @@ exports.getCandidaturaById = async (req, res) => {
 };
 
 exports.listarMinhasCandidaturas = async (req, res) => {
-  // O ID do candidato vem do token JWT, injetado pelo middleware 'protect'
   const candidato_id = req.user.id;
 
   try {
@@ -226,36 +211,27 @@ exports.listarMinhasCandidaturas = async (req, res) => {
 
 exports.uploadDocumento = async (req, res) => {
   try {
-    // Pega o ID da candidatura a partir dos parâmetros da URL
     const { id: candidatura_id } = req.params;
-    // Pega o tipo de documento do corpo da requisição
     const { tipo } = req.body;
 
-    // Verifica se algum arquivo foi enviado
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ message: 'Nenhum arquivo foi enviado.' });
     }
 
     const arquivo = req.files.documento;
 
-    // Validação básica para garantir que o tipo e o arquivo existem
     if (!tipo || !arquivo) {
         return res.status(400).json({ message: 'Tipo de documento ou arquivo ausente.' });
     }
 
-    // Cria um nome de arquivo único para evitar conflitos
     const nomeArquivo = `${candidatura_id}-${tipo}-${Date.now()}-${arquivo.name}`;
     
-    // --- CORREÇÃO APLICADA AQUI ---
-    // Constrói o caminho absoluto para a pasta de uploads de forma segura
     const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads', nomeArquivo);
 
-    // Move o arquivo para a pasta de uploads
     await arquivo.mv(uploadPath);
 
     const caminhoFinal = `/uploads/${nomeArquivo}`;
 
-    // Insere o registro do documento no banco de dados
     await db.query(
       'INSERT INTO documentos (candidatura_id, tipo, caminho) VALUES (?, ?, ?)',
       [candidatura_id, tipo, caminhoFinal]

@@ -179,7 +179,6 @@ exports.submeterTeste = async (req, res) => {
     }
 
     try {
-        // 1. Buscar o gabarito do teste
         const gabaritoQuery = `
             SELECT q.id AS questao_id, a.id AS alternativa_correta_id
             FROM testes_questoes tq
@@ -193,16 +192,14 @@ exports.submeterTeste = async (req, res) => {
             return res.status(404).json({ message: 'Gabarito para este teste não encontrado.' });
         }
 
-        // 2. Calcular a pontuação
         let acertos = 0;
         gabarito.forEach(item => {
-            if (respostas[item.questao_id] == item.alternativa_correta_id) { // Usando == por segurança
+            if (respostas[item.questao_id] == item.alternativa_correta_id) { 
                 acertos++;
             }
         });
         const pontuacao = (acertos / gabarito.length) * 100;
 
-        // 3. Salvar a pontuação na tabela 'candidaturas'
         const updateQuery = 'UPDATE candidaturas SET pontuacao_teste = ? WHERE id = ?';
         await db.query(updateQuery, [pontuacao, candidatura_id]);
 

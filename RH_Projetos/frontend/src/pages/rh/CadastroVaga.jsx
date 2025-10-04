@@ -6,7 +6,6 @@ import "./CadastroVaga.css";
 import Button from "../../components/Button";
 import { FaTrashAlt } from 'react-icons/fa';
 
-// --- Componente do Modal para Nova Questão ---
 const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
     const [enunciado, setEnunciado] = useState('');
     const [area, setArea] = useState('');
@@ -78,7 +77,6 @@ const NovaQuestaoModal = ({ onClose, onQuestaoCriada }) => {
     );
 };
 
-// --- Componente Principal ---
 export default function CadastroVaga() {
     const { user } = useAuth();
     const navigate = useNavigate();

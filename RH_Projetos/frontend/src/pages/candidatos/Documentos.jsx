@@ -5,7 +5,6 @@ import Button from '../../components/Button';
 import './Documentos.css';
 import { FaFileUpload, FaFilePdf, FaCheckCircle, FaFolderOpen } from 'react-icons/fa';
 
-// Subcomponente para o campo de upload de arquivo
 const FileUpload = ({ label, id, accept, onFileSelect, selectedFile }) => {
     return (
         <div className="form-group-upload">
@@ -33,7 +32,7 @@ const FileUpload = ({ label, id, accept, onFileSelect, selectedFile }) => {
 
 const Documentos = () => {
     const navigate = useNavigate();
-    const { candidaturaId } = useParams(); // Pega o ID da URL
+    const { candidaturaId } = useParams();
 
     const [files, setFiles] = useState({
         RG: null,
@@ -84,7 +83,7 @@ const Documentos = () => {
             setSuccess('Documentos enviados com sucesso!');
             
             setTimeout(() => {
-                navigate(`/etapas/${candidaturaId}`); // Ajuste para a rota correta
+                navigate(`/etapas/${candidaturaId}`); 
             }, 2000);
 
         } catch (err) {

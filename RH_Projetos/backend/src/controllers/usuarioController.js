@@ -2,7 +2,6 @@ const path = require('path');
 const pool = require(path.resolve(__dirname, '../config/db'));
 const bcrypt = require('bcrypt');
 
-// CREATE
 exports.createUsuario = async (req, res) => {
   try {
     const { nome, cpf, email, telefone, genero, senha, tipo } = req.body;
@@ -20,7 +19,6 @@ exports.createUsuario = async (req, res) => {
   }
 };
 
-// READ ALL
 exports.getAllUsuarios = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios');
@@ -30,7 +28,6 @@ exports.getAllUsuarios = async (req, res) => {
   }
 };
 
-// READ ONE
 exports.getUsuarioById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,7 +43,6 @@ exports.getUsuarioById = async (req, res) => {
 exports.updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    // Adicionado "tipo" para ser extraído do corpo da requisição
     const { nome, cpf, email, genero, telefone, senha, tipo } = req.body;
 
     const [usuarioRows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
@@ -64,7 +60,6 @@ exports.updateUsuario = async (req, res) => {
       tipo: tipo !== undefined ? tipo : usuario.tipo, // Adicionado
     };
 
-    // Query e parâmetros atualizados para incluir o campo "tipo"
     let query = 'UPDATE usuarios SET nome = ?, cpf = ?, email = ?, genero = ?, telefone = ?, tipo = ?';
     const queryParams = [
         updatedUsuario.nome, 
@@ -86,7 +81,6 @@ exports.updateUsuario = async (req, res) => {
 
     await pool.query(query, queryParams);
 
-    // Retorna o usuário atualizado (sem a senha)
     res.json({ id: parseInt(id, 10), ...updatedUsuario });
 
   } catch (err) {
@@ -95,8 +89,6 @@ exports.updateUsuario = async (req, res) => {
   }
 };
 
-
-// DELETE
 exports.deleteUsuario = async (req, res) => {
   try {
     const { id } = req.params;

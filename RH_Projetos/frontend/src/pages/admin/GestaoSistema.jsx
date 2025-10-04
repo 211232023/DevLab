@@ -6,7 +6,6 @@ import './GestaoSistema.css';
 import Button from '../../components/Button';
 import { FaUsers, FaChevronDown, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
-// --- Componente do Modal de Confirmação ---
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     if (!isOpen) return null;
 
@@ -33,7 +32,6 @@ const GestaoSistema = () => {
     const [error, setError] = useState('');
     const [expandedUser, setExpandedUser] = useState(null);
     
-    // State para o modal de confirmação
     const [modalState, setModalState] = useState({
         isOpen: false,
         title: '',
@@ -69,7 +67,7 @@ const GestaoSistema = () => {
             if (user && user.tipo === 'ADMIN') {
                 setLoading(true);
                 try {
-                    const response = await api.get('/usuarios'); // Endpoint para buscar todos os usuários
+                    const response = await api.get('/usuarios');
                     setUsuarios(response.data);
                 } catch (err) {
                     setError('Não foi possível carregar as informações dos usuários.');

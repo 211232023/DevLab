@@ -1,11 +1,8 @@
-/* src/pages/candidatos/Home.css */
-
 .home-page {
   width: 100%;
   background-color: #e6ebf2;
 }
 
-/* --- Seção Hero --- */
 .hero-section {
   background: linear-gradient(135deg, #127067 0%, #179387 100%);
   color: white;
@@ -31,7 +28,7 @@
   font-weight: 700;
   margin-bottom: 15px;
   animation: fadeInUp 1s ease-out 0.2s;
-  animation-fill-mode: both; /* Mantém o estado final da animação */
+  animation-fill-mode: both;
 }
 
 .hero-subtitle {
@@ -64,7 +61,6 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* --- Seção de Funcionalidades --- */
 .features-section {
   padding: 80px 20px;
   background-color: #e6ebf2;
@@ -141,7 +137,7 @@
   }
 }
 
-/* --- Responsividade --- */
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;

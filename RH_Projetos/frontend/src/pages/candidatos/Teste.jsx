@@ -5,7 +5,6 @@ import Button from '../../components/Button';
 import './Teste.css';
 import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaTimesCircle, FaFlagCheckered, FaExclamationCircle } from 'react-icons/fa';
 
-// --- Componente do Modal de Confirmação ---
 const ConfirmModal = ({ isOpen, onClose, onConfirm, message }) => {
     if (!isOpen) return null;
     return (

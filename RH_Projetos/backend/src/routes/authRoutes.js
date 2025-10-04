@@ -5,14 +5,12 @@ const db = require(path.resolve(__dirname, '../config/db'));
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Função para gerar o token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
 
-// Rota para registrar um novo usuário (já corrigida anteriormente)
 router.post('/register', async (req, res) => {
     const { nome, cpf, email, telefone, genero, senha, tipo } = req.body;
 
@@ -44,7 +42,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Rota para o login de usuário (CORRIGIDA E REATORADA)
 router.post('/login', async (req, res) => {
     const { email, senha } = req.body;
 
@@ -53,7 +50,6 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Verifica se o usuário existe no banco de dados
         const [rows] = await db.execute('SELECT * FROM usuarios WHERE email = ?', [email]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -61,22 +57,19 @@ router.post('/login', async (req, res) => {
 
         const user = rows[0];
 
-        // Compara a senha fornecida com a senha criptografada
         const senhaCorreta = await bcrypt.compare(senha, user.senha);
         if (!senhaCorreta) {
             return res.status(401).json({ error: 'Credenciais inválidas' });
         }
 
-        // 2. Gere o token e o envie junto com os dados do usuário
         const token = generateToken(user.id);
 
-        // Remove a senha do objeto de usuário antes de enviar a resposta
         delete user.senha;
 
         res.status(200).json({
             message: 'Login bem-sucedido!',
             user: user,
-            token: token // <-- TOKEN ENVIADO AQUI
+            token: token 
         });
 
     } catch (error) {

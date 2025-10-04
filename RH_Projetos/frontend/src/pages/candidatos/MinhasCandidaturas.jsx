@@ -6,7 +6,6 @@ import './MinhasCandidaturas.css';
 import Button from '../../components/Button';
 import { FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaFileAlt, FaVideo, FaClipboardList, FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
 
-// --- Componente do Modal de Confirmação ---
 const ConfirmModal = ({ isOpen, onClose, onConfirm, message }) => {
     if (!isOpen) return null;
 
@@ -25,7 +24,6 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, message }) => {
     );
 };
 
-// --- Componente Principal ---
 const MinhasCandidaturas = () => {
     const [candidaturas, setCandidaturas] = useState([]);
     const [loading, setLoading] = useState(true);

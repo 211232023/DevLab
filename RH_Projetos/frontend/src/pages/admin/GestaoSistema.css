@@ -1,4 +1,3 @@
-/* Estilos para a página de Gestão de Sistema - pode copiar de GestaoVaga.css */
 .gestao-page-wrapper {
     max-width: 1200px;
     margin: 2rem auto;
@@ -98,7 +97,7 @@
 }
 
 .vaga-item.expanded .candidatos-table-container {
-    max-height: 1000px; /* ou um valor suficientemente grande */
+    max-height: 1000px; 
     padding: 0 1.5rem 1.5rem;
 }
 

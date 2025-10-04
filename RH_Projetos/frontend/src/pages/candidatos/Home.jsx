@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { FaSearch, FaUserCheck, FaChartLine } from 'react-icons/fa';
 import "./Home.css";
 import Button from "../../components/Button";
-import { useAuth } from "../../AuthContext"; // Importe o contexto de autenticação
+import { useAuth } from "../../AuthContext"; 
 
 const Home = () => {
     const navigate = useNavigate();
-    const { user } = useAuth(); // Pegue o usuário logado
+    const { user } = useAuth(); 
 
     const handleVagasClick = () => {
         if (user) {
@@ -19,7 +19,6 @@ const Home = () => {
 
     return (
         <div className="home-page">
-            {/* Seção Hero */}
             <header className="hero-section">
                 <div className="hero-content">
                     <img
@@ -40,7 +39,6 @@ const Home = () => {
                 </div>
             </header>
 
-            {/* Seção de Funcionalidades */}
             <section className="features-section">
                 <h2 className="section-title">Por que usar a DevLab?</h2>
                 <div className="features-grid">

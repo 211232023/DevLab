@@ -1,5 +1,3 @@
-/* src/pages/candidatos/InscricaoVaga.css */
-
 .inscricao-page-wrapper {
   background-color: #e6ebf2;
   padding: 40px 20px;
@@ -98,9 +96,8 @@
   box-shadow: 0 0 8px rgba(18, 112, 103, 0.3);
 }
 
-/* Custom File Upload */
 .inscricao-form input[type="file"] {
-  display: none; /* Esconde o input original */
+  display: none; 
 }
 
 .custom-file-upload {

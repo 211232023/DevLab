@@ -1,9 +1,7 @@
-/* src/pages/candidatos/Perfil.css */
-
 .perfil-page-wrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Alinha no topo */
+  align-items: flex-start;
   padding: 40px 20px;
   background-color: #e6ebf2;
   min-height: calc(100vh - 180px);
@@ -36,7 +34,6 @@
   margin: 0;
 }
 
-/* --- Modo de Visualização --- */
 .perfil-info {
   display: flex;
   flex-direction: column;
@@ -60,7 +57,6 @@
   color: #555;
 }
 
-/* --- Modo de Edição --- */
 .perfil-form .form-row {
   display: flex;
   gap: 20px;
@@ -104,7 +100,6 @@
   margin: 10px 0 30px;
 }
 
-/* --- Botões --- */
 .btn-group {
   display: flex;
   justify-content: flex-end;
@@ -145,7 +140,6 @@
   width: fit-content;
 }
 
-/* Responsividade */
 @media (max-width: 600px) {
   .perfil-container {
     padding: 20px;
