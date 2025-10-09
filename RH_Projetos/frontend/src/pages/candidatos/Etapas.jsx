@@ -52,7 +52,7 @@ const Etapas = () => {
         { nome: 'Entrevista com RH', statusEnum: 'Entrevista com RH', path: null, icon: <FaUsers />, descricao: 'O recrutador entrará em contato para agendar.' },
         { nome: 'Entrevista com Gestor', statusEnum: 'Entrevista com Gestor', path: null, icon: <FaUserTie />, descricao: 'O gestor da área entrará em contato para agendar.' },
         { nome: 'Manual da Empresa', statusEnum: 'Manual', path: `/candidato/manual/${candidaturaId}`, icon: <FaBook />, descricao: 'Conheça mais sobre nossa cultura e valores.' },
-        { nome: 'Envio de Documentos', statusEnum: 'Envio de Documentos', path: `/candidato/documentos/${candidaturaId}`, icon: <FaFolderOpen />, descricao: 'Envie os documentos necessários para a próxima fase.' },
+        { nome: 'Envio de Documentos', statusEnum: 'Envio de Documentos', path: `/candidato/documentos/${vagaId}/${candidaturaId}`, icon: <FaFolderOpen />, descricao: 'Envie os documentos necessários para a próxima fase.'},
         { nome: 'Processo Finalizado', statusEnum: 'Finalizado', path: null, icon: <FaCheckCircle />, descricao: 'O processo seletivo foi concluído. Agradecemos sua participação!' },
     ];
 

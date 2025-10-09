@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../api';
 import Button from '../../components/Button';
 import './Documentos.css';
-import { FaFileUpload, FaFilePdf, FaCheckCircle, FaFolderOpen } from 'react-icons/fa';
+import { FaFileUpload, FaCheckCircle, FaFolderOpen } from 'react-icons/fa';
 
 const FileUpload = ({ label, id, accept, onFileSelect, selectedFile }) => {
     return (
@@ -32,7 +32,7 @@ const FileUpload = ({ label, id, accept, onFileSelect, selectedFile }) => {
 
 const Documentos = () => {
     const navigate = useNavigate();
-    const { candidaturaId } = useParams();
+    const { vagaId, candidaturaId } = useParams();
 
     const [files, setFiles] = useState({
         RG: null,
@@ -44,11 +44,11 @@ const Documentos = () => {
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
-        if (!candidaturaId) {
-            console.error("ID da candidatura não encontrado na URL.");
+        if (!candidaturaId || !vagaId) {
+            console.error("ID da vaga ou da candidatura não encontrado na URL.");
             navigate('/minhas-candidaturas');
         }
-    }, [candidaturaId, navigate]);
+    }, [candidaturaId, vagaId, navigate]);
     
     const handleFileSelect = (tipo, file) => {
         setFiles(prev => ({ ...prev, [tipo]: file }));
@@ -61,7 +61,7 @@ const Documentos = () => {
         setSuccess('');
 
         const filesToUpload = Object.entries(files)
-            .filter(([tipo, file]) => file !== null)
+            .filter(([_, file]) => file !== null)
             .map(([tipo, file]) => ({ tipo, file }));
 
         if (filesToUpload.length === 0) {
@@ -83,7 +83,7 @@ const Documentos = () => {
             setSuccess('Documentos enviados com sucesso!');
             
             setTimeout(() => {
-                navigate(`/etapas/${candidaturaId}`); 
+                navigate(`/etapas/${vagaId}/${candidaturaId}`); 
             }, 2000);
 
         } catch (err) {

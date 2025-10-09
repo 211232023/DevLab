@@ -35,7 +35,7 @@ export default function AppRoutes() {
                 <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
                 <Route path="/candidato/manual/:candidaturaId" element={<ManualEmpresa />} />
-                <Route path="/candidato/documentos/:candidaturaId" element={<Documentos />} />
+                <Route path="/candidato/documentos/:vagaId/:candidaturaId" element={<Documentos />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/etapas/:vagaId/:candidaturaId" element={<Etapas />} />
