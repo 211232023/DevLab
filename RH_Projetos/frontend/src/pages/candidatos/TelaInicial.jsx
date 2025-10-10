@@ -54,6 +54,7 @@ const TelaInicial = () => {
                         <div className="vaga-header">
                             <div className="vaga-header-main">
                                 <h2 className="vaga-titulo">{vaga.titulo}</h2>
+                                <br />
                                 <div className="vaga-tags">
                                     <span className="tag tag-area"><FaBriefcase /> {vaga.area}</span>
                                     <span className="tag tag-salario"><FaMoneyBillWave /> R$ {parseFloat(vaga.salario).toFixed(2)}</span>
