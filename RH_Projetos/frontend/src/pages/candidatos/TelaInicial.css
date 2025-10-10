@@ -49,15 +49,23 @@
 .vaga-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* garante topo alinhado */
   padding: 25px;
   cursor: pointer;
+}
+
+.vaga-header-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; 
+  flex: 1; 
 }
 
 .vaga-titulo {
   font-size: 1.5rem;
   color: #333;
-  margin: 0 0 0 0;
+  margin: 0 0 10px 0;
+  text-align: left; 
 }
 
 .vaga-tags {
