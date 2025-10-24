@@ -293,3 +293,26 @@ textarea {
 .alternativa-input input[type="text"] { flex-grow: 1; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
 .btn-cancel { background-color: #f1f1f1; color: #555; }
+
+/* Ajustes responsivos para o modal de NovaQuestaoModal em CadastroVaga */
+@media (max-width: 700px) {
+  .modal-content {
+    width: 92%; /* aumentar para quase toda a largura da tela */
+    padding: 20px; /* reduzir um pouco o padding para caber melhor */
+    max-height: 90vh; /* permitir mais altura para rolagem interna */
+  }
+
+  .modal-content h2 { font-size: 1.25rem; }
+
+  .form-group-modal textarea {
+    min-height: 140px; /* aumentar área do enunciado para facilitar digitação no mobile */
+  }
+
+  .alternativa-input input[type="text"] {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .modal-actions { justify-content: stretch; flex-direction: column-reverse; gap: 8px; }
+  .modal-actions .btn-cancel, .modal-actions .btn-confirm { width: 100%; }
+}
