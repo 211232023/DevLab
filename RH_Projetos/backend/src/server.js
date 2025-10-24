@@ -11,6 +11,7 @@ const candidaturaRoutes = require('./routes/candidaturaRoute');
 const authRoutes = require('./routes/authRoutes');
 const testeRoutes = require('./routes/testeRoutes');
 const questaoRoutes = require('./routes/questaoRoutes');
+const testEmailRoutes = require('./routes/test-email.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +33,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/candidaturas', candidaturaRoutes);
 app.use('/api/testes', testeRoutes);
 app.use('/api/questoes', questaoRoutes);
+app.use('/api', testEmailRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando com sucesso na porta ${PORT}`);
