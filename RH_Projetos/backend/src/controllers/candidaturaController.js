@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const path = require('path');
+const { sendStageUpdateEmail } = require('../../nodemailer');
 
 exports.inscreverCandidato = async (req, res) => {
   try {
@@ -136,12 +137,40 @@ exports.updateStatusCandidatura = async (req, res) => {
     }
 
     try {
-        const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
-        const [result] = await db.query(query, [status, id]);
+        // Busca dados do candidato e vaga para enviar email
+        const [candidaturas] = await db.query(
+          `SELECT 
+            c.id, c.status,
+            u.nome AS candidato_nome,
+            u.email AS candidato_email,
+            v.titulo AS vaga_titulo
+          FROM candidaturas c
+          INNER JOIN usuarios u ON c.candidato_id = u.id
+          INNER JOIN vagas v ON c.vaga_id = v.id
+          WHERE c.id = ?`,
+          [id]
+        );
 
-        if (result.affectedRows === 0) {
+        if (candidaturas.length === 0) {
             return res.status(404).json({ message: 'Candidatura não encontrada.' });
         }
+
+        const candidatura = candidaturas[0];
+
+        // Atualiza o status
+        const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
+        await db.query(query, [status, id]);
+
+        // Envia email de forma assíncrona
+        sendStageUpdateEmail({
+          email: candidatura.candidato_email,
+          nome: candidatura.candidato_nome,
+          vaga: candidatura.vaga_titulo,
+          etapa: status,
+          link: `${process.env.APP_BASE_URL}/minhas-candidaturas`,
+        }).catch((err) => {
+          console.error('❌ Falha ao enviar email de atualização de status:', err.message);
+        });
 
         res.status(200).json({ message: 'Status da candidatura atualizado com sucesso!' });
     } catch (error) {
