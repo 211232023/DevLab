@@ -116,3 +116,84 @@
     background-color: #f8f9fa;
     font-weight: 600;
 }
+
+/* Modal básico usado em GestaoSistema (mesmo padrão de GestaoVaga) */
+.confirm-modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.confirm-modal-content {
+    background: white; padding: 30px; border-radius: 15px;
+    width: 90%; max-width: 400px; text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+.confirm-modal-icon { font-size: 3rem; color: #dc3545; margin-bottom: 15px; }
+.confirm-modal-content h3 { margin-bottom: 10px; }
+.confirm-modal-content p { color: #555; margin-bottom: 25px; }
+.confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
+.btn-confirm-delete { background-color: #dc3545; color: white; }
+.btn-confirm-delete:hover { background-color: #c82333; }
+
+/* Responsividade: transformar tabela em cartões em telas pequenas */
+@media (max-width: 700px) {
+    .gestao-page-wrapper { padding: 16px; border-radius: 18px; }
+
+    .vaga-item {
+        border-radius: 12px;
+    }
+
+    .vaga-item-header { padding: 12px; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+    .candidatos-table {
+        display: block;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .candidatos-table thead { display: none; }
+    .candidatos-table tbody { display: block; }
+
+    .candidatos-table tbody tr {
+        display: block;
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+    }
+
+    .candidatos-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 6px;
+        border: none;
+        gap: 8px;
+    }
+
+    /* Rótulos que aparecem antes dos valores (baseado na ordem das colunas) */
+    .candidatos-table tbody tr td:nth-child(1)::before { content: "ID:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(2)::before { content: "Nome:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(3)::before { content: "CPF:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(4)::before { content: "Email:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(5)::before { content: "Telefone:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(6)::before { content: "Data Cadastro:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(7)::before { content: "Gênero:"; font-weight:600; margin-right:8px; }
+    .candidatos-table tbody tr td:nth-child(8)::before { content: "Tipo:"; font-weight:600; margin-right:8px; }
+
+    .candidatos-table td::before { flex: 0 0 auto; color: #333; }
+
+    .candidatos-table td span, .candidatos-table td div { flex: 1 1 auto; text-align: right; white-space: normal; }
+
+    /* Ajuste do botão de deletar para caber em mobile */
+    .btn-delete-vaga { padding: 8px 10px; font-size: 0.95rem; border-radius: 10px; }
+
+    /* Limita a largura do cabeçalho e textos grandes para evitar overflow */
+    .vaga-info h2 { font-size: 1.05rem; word-break: break-word; }
+    .candidatos-count { font-size: 0.95rem; }
+
+    /* Modal mais estreito em dispositivos móveis */
+    .confirm-modal-content { max-width: 95%; padding: 18px; }
+}

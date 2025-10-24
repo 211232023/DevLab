@@ -272,4 +272,73 @@
     font-size: 0.8rem;
     min-width: 220px;
   }
+
+/* Responsive: transformar tabela em cartões em telas pequenas */
+@media (max-width: 700px) {
+  .candidatos-table {
+    display: block;
+    width: 100%;
+  }
+
+  /* esconder cabeçalho da tabela e mostrar cada linha como um cartão */
+  .candidatos-table thead {
+    display: none;
+  }
+
+  .candidatos-table tbody {
+    display: block;
+  }
+
+  .candidatos-table tbody tr {
+    display: block;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e9ecef;
+  }
+
+  .candidatos-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 6px;
+    border: none;
+    border-bottom: none;
+    gap: 8px;
+  }
+
+  /* Labels visíveis antes do valor (usando nth-child pois JSX não tem data-labels ainda) */
+  .candidatos-table tbody tr td:nth-child(1)::before { content: "Candidato:"; font-weight:600; margin-right:8px; }
+  .candidatos-table tbody tr td:nth-child(2)::before { content: "Contato:"; font-weight:600; margin-right:8px; }
+  .candidatos-table tbody tr td:nth-child(3)::before { content: "Documentos:"; font-weight:600; margin-right:8px; }
+  .candidatos-table tbody tr td:nth-child(4)::before { content: "Nota Teste:"; font-weight:600; margin-right:8px; }
+  .candidatos-table tbody tr td:nth-child(5)::before { content: "Status:"; font-weight:600; margin-right:8px; }
+  .candidatos-table tbody tr td:nth-child(6)::before { content: "Ações:"; font-weight:600; margin-right:8px; }
+
+  .candidatos-table td::before { flex: 0 0 auto; color: #333; }
+
+  /* Fazer o conteúdo ocupar o restante e alinhar à direita quando apropriado */
+  .candidatos-table td span,
+  .candidatos-table td .link-doc,
+  .candidatos-table td div {
+    flex: 1 1 auto;
+    text-align: right;
+    white-space: normal;
+  }
+
+  /* Ações empilham quando necessário */
+  .coluna-acoes { justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  /* Documentos empilham em coluna para evitar overflow */
+  .documentos-links-container { display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+
+  /* Modal mais estreito em dispositivos móveis */
+  .confirm-modal-content { max-width: 95%; padding: 18px; }
+
+  /* Ajustes gerais de botão para mobile */
+  .btn-acao-gestao { padding: 8px 10px; font-size: 0.95rem; }
+  .btn-delete-vaga { padding: 8px 10px; font-size: 0.95rem; }
+}
 }
