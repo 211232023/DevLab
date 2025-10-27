@@ -1,10 +1,11 @@
+/* Estilos gerais da página de cadastro */
 .cadastro-page-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-  background-color: #e6ebf2;
-  min-height: calc(100vh - 180px); 
+  background-color: #e6ebf2; /* Fundo suave */
+  min-height: calc(100vh - 180px); /* Ajuste conforme a altura do seu Navbar/Footer */
   box-sizing: border-box;
 }
 
@@ -13,26 +14,32 @@
   width: 100%;
   padding: 40px;
   background-color: white;
-  border-radius: 40px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 40px; /* Bordas mais arredondadas */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra suave */
   text-align: center;
 }
 
 .cadastro-container h2 {
-  color: #004d40;
+  color: #004d40; /* Verde escuro */
   margin-bottom: 30px;
   font-size: 2rem;
   font-weight: 700;
 }
 
+/* Estilos do formulário */
+.cadastro-form {
+  display: flex;
+  flex-direction: column;
+}
+
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 20px; /* Espaço entre campos na mesma linha */
 }
 
 .form-group {
-  flex: 1;
-  margin-bottom: 20px;
+  flex: 1; /* Para que os grupos ocupem espaço igual em form-row */
+  margin-bottom: 20px; /* Espaço abaixo de cada grupo de campo */
   text-align: left;
 }
 
@@ -40,27 +47,29 @@
   font-weight: bold;
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #333; /* Cor escura para o texto do label */
 }
 
+/* Estilos de Inputs e Selects */
 .cadastro-container input,
 .cadastro-container .input-select {
   width: 100%;
   padding: 12px 15px;
-  border: 2px solid #ddd;
-  border-radius: 10px;
+  border: 2px solid #ddd; /* Borda cinza clara */
+  border-radius: 10px; /* Bordas arredondadas para inputs */
   font-size: 1rem;
   transition: border-color 0.3s, box-shadow 0.3s;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
 }
 
 .cadastro-container input:focus,
 .cadastro-container .input-select:focus {
   outline: none;
-  border-color: #127067;
-  box-shadow: 0 0 8px rgba(18, 112, 103, 0.3);
+  border-color: #127067; /* Cor de destaque ao focar */
+  box-shadow: 0 0 8px rgba(18, 112, 103, 0.3); /* Sombra suave ao focar */
 }
 
+/* Estilos específicos para o select */
 .input-select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -72,10 +81,120 @@
   cursor: pointer;
 }
 
+/* --- NOVOS ESTILOS PARA VERIFICAÇÃO DE EMAIL --- */
+
+/* Seção de verificação de email */
+.email-verification-section {
+  display: flex;
+  flex-direction: column; /* Coloca o input e o botão em coluna */
+  margin-bottom: 20px; /* Mantém o espaçamento */
+  text-align: left;
+}
+
+.email-verification-section .form-group {
+    margin-bottom: 10px; /* Reduz espaço entre input e botão */
+}
+
+
+.email-input-wrapper {
+  display: flex;
+  align-items: center; /* Alinha input e botão/badge verticalmente */
+  gap: 10px; /* Espaço entre input e botão/badge */
+  width: 100%;
+}
+
+.email-input-wrapper input {
+  flex-grow: 1; /* Input ocupa o espaço restante */
+}
+
+/* Botão de Verificação (reutiliza/modifica estilo de botão se necessário) */
+.verify-button {
+  padding: 12px 15px;
+  background: #f0f0f0; /* Cor diferente para destaque */
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s, border-color 0.3s;
+  white-space: nowrap; /* Impede que o texto quebre */
+  flex-shrink: 0; /* Impede que o botão encolha */
+}
+
+.verify-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+}
+
+.verify-button:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
+/* Badge de Email Verificado */
+.email-verificado-badge {
+  color: green;
+  font-weight: bold;
+  font-size: 1.2rem; /* Tamanho do ícone/texto */
+  margin-left: 5px; /* Pequeno espaço à esquerda */
+  flex-shrink: 0; /* Impede que o badge encolha */
+}
+
+
+/* Seção do Código de Verificação */
+.codigo-section {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.codigo-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.codigo-input-wrapper input {
+   flex-grow: 1;
+   text-align: center; /* Centraliza o código digitado */
+   letter-spacing: 0.3em; /* Espaça os dígitos */
+}
+
+/* Mensagens de Erro e Sucesso */
+.error-message {
+  color: #dc3545; /* Vermelho para erros */
+  background-color: #f8d7da; /* Fundo vermelho claro */
+  border: 1px solid #f5c6cb;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  color: #155724; /* Verde escuro para sucesso */
+  background-color: #d4edda; /* Fundo verde claro */
+  border: 1px solid #c3e6cb;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+
+/* --- FIM DOS NOVOS ESTILOS --- */
+
+
+/* Botão Principal de Cadastro */
 .cadastro-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(90deg, #127067 0%, #179387 100%);
+  background: linear-gradient(90deg, #127067 0%, #179387 100%); /* Gradiente verde */
   color: white;
   border: none;
   border-radius: 10px;
@@ -84,19 +203,27 @@
   font-weight: bold;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  margin-top: 10px;
+  margin-top: 10px; /* Espaço acima do botão */
 }
 
-.cadastro-btn:hover {
-  transform: translateY(-3px);
+.cadastro-btn:hover:not(:disabled) {
+  transform: translateY(-3px); 
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cadastro-btn:disabled {
+    background: #ccc; 
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
 }
 
 .link-login {
   display: block;
   text-align: center;
   text-decoration: none;
-  color: #127067;
+  color: #127067; 
   margin-top: 25px;
   font-weight: 600;
   transition: color 0.3s;
@@ -109,7 +236,90 @@
 
 @media (max-width: 600px) {
   .form-row {
-    flex-direction: column;
-    gap: 0;
+    flex-direction: column; 
+    gap: 0; 
   }
+
+  .cadastro-container {
+      padding: 30px 20px; 
+  }
+
+   .email-input-wrapper, .codigo-input-wrapper {
+        flex-direction: column; 
+        align-items: stretch; 
+   }
+
+   .verify-button {
+       margin-top: 10px; 
+       width: 100%;
+   }
+
+    .email-verificado-badge {
+       margin-top: 10px;
+       margin-left: 0;
+       text-align: center;
+    }
+
+}
+
+.codigo-verification-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  text-align: center;
+  padding: 20px 0;
+}
+
+.codigo-verification-section h3 {
+  color: #004d40;
+  margin-bottom: 15px;
+}
+
+.codigo-verification-section p {
+  margin-bottom: 20px;
+  color: #555;
+  max-width: 400px; 
+}
+
+.codigo-input-wrapper-centered {
+   width: 100%;
+   max-width: 250px;
+   margin-left: auto;
+   margin-right: auto;
+   text-align: left; 
+}
+
+.cancel-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-top: 15px; 
+  max-width: 300px; 
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #e2e6ea;
+  border-color: #adb5bd;
+}
+
+.cancel-btn:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+    .codigo-input-wrapper-centered {
+        max-width: 90%;
+    }
+    .cancel-btn {
+        max-width: 100%;
+    }
 }
