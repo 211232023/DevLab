@@ -31,6 +31,10 @@ export default function AppRoutes() {
                 <Route path="/" element={<Home />} />
                 <Route path="/cadastro" element={<Cadastro />} />
                 <Route path="/login" element={<Login />} />
+                
+                {/* ROTA PARA RESETAR A SENHA (APONTA PARA O LOGIN) */}
+                <Route path="/reset-password/:token" element={<Login />} /> 
+
                 <Route path="/inicio" element={<TelaInicial />} />
                 <Route path="/inscricao/:vagaId" element={<InscricaoVaga />} />
                 <Route path="/minhas-candidaturas" element={<MinhasCandidaturas />} />
@@ -50,6 +54,7 @@ export default function AppRoutes() {
                 {/* ADMIN */}
                 <Route path="/gestao-sistema" element={<GestaoSistema />} />
             </Routes>
+
         </BrowserRouter>
     );
 }

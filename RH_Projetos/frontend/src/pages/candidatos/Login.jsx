@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+// RH_Projetos/frontend/src/pages/candidatos/Login.jsx
+import React, { useState, useEffect } from "react"; // <-- Importe useEffect
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom"; // <-- Importe useParams
 import { useAuth } from "../../AuthContext";
 import api from "../../api";
 import "./Login.css"; // Importa os estilos
 
 const Login = () => {
-    // Estado para controlar a visualização: 'login' ou 'forgotPassword'
+    // Estado para controlar a visualização: 'login', 'forgotPassword' ou 'resetPassword'
     const [view, setView] = useState('login'); 
     
     // Estados para o formulário de Login
@@ -17,19 +18,34 @@ const Login = () => {
     // Estado para o formulário de Recuperação de Senha
     const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
 
+    // --- NOVOS ESTADOS para Redefinir Senha ---
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    // ------------------------------------------
+
     // Estados compartilhados
     const [message, setMessage] = useState(""); // Para mensagens de erro e sucesso
     const [isLoading, setIsLoading] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const { token } = useParams(); // <-- Pega o :token da URL
+
+    // --- NOVO EFEITO para verificar o token na URL ---
+    useEffect(() => {
+        // Se um token estiver presente na URL, mude para a view de redefinição
+        if (token) {
+            setView('resetPassword');
+        }
+    }, [token]); // Executa sempre que o 'token' da URL mudar
+    // -------------------------------------------------
 
     /**
      * Lida com o submit do formulário de login.
      */
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        setMessage(""); // Limpa mensagens anteriores
+        setMessage("");
         if (email === "" || senha === "") {
             setMessage("Preencha todos os campos para entrar!");
             return;
@@ -41,24 +57,21 @@ const Login = () => {
             const data = response.data;
 
             if (response.status === 200) {
-                login(data.user, data.token); // Armazena usuário e token
-
-                // Redireciona com base no tipo de usuário
+                login(data.user, data.token); 
                 if (data.user.tipo === 'Candidato') {
                     navigate("/inicio");
                 } else if (data.user.tipo === 'RH') {
                     navigate("/gestao-vaga");
                 } else {
-                    navigate("/inicio"); // Navegação padrão
+                    navigate("/inicio"); 
                 }
             } else {
-                // Exibe erro vindo da API
-                setMessage(data.error || "Erro ao fazer login.");
+                setMessage(data.message || data.error || "Erro ao fazer login.");
             }
         } catch (error) {
             console.error("Erro na requisição de login:", error);
             setMessage(
-                error.response?.data?.error || "Não foi possível conectar ao servidor."
+                error.response?.data?.message || error.response?.data?.error || "Não foi possível conectar ao servidor."
             );
         } finally {
             setIsLoading(false);
@@ -66,8 +79,7 @@ const Login = () => {
     };
 
     /**
-     * Lida com o submit do formulário de recuperação de senha.
-     * (Apenas frontend por enquanto)
+     * Lida com o submit do formulário de solicitação de recuperação de senha.
      */
     const handleForgotPasswordSubmit = async (e) => {
         e.preventDefault();
@@ -79,29 +91,60 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // --- LÓGICA DO BACKEND (A SER IMPLEMENTADA) ---
-            // Aqui você chamaria sua API, ex:
-            // await api.post('/auth/forgot-password', { email: forgotPasswordEmail });
+            await api.post('/auth/forgot-password', { email: forgotPasswordEmail });
             
-            console.log('Solicitação de recuperação de senha para:', forgotPasswordEmail);
-            
-            // Simula uma pequena espera (remover ao implementar API real)
-            await new Promise(resolve => setTimeout(resolve, 1000)); 
-
-            // Exibe mensagem de sucesso
             setMessage("Se o e-mail estiver cadastrado em nosso sistema, você receberá um link para redefinir sua senha em breve.");
-            setForgotPasswordEmail(""); // Limpa o campo
+            setForgotPasswordEmail(""); 
             
         } catch (error) {
             console.error("Erro ao solicitar recuperação de senha:", error);
-            // Ajuste a mensagem de erro conforme o retorno da sua API
             setMessage(
-                error.response?.data?.error || "Não foi possível processar sua solicitação."
+                error.response?.data?.message || "Não foi possível processar sua solicitação."
             );
         } finally {
             setIsLoading(false);
         }
     };
+
+    // --- NOVA FUNÇÃO: Lida com o submit do formulário de redefinição de senha ---
+    const handleResetPasswordSubmit = async (e) => {
+        e.preventDefault();
+        setMessage('');
+
+        if (!newPassword || !confirmPassword) {
+            setMessage('Por favor, preencha as duas senhas.');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setMessage('As senhas não coincidem.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            // Envia o token (da URL) e a nova senha
+            const response = await api.post(`/auth/reset-password/${token}`, { 
+                password: newPassword 
+            });
+
+            setMessage(response.data.message + " Redirecionando para o login em 3 segundos...");
+
+            // Desabilita o botão e redireciona para o login após 3 segundos
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+
+        } catch (error) {
+            console.error("Erro ao redefinir senha:", error);
+            setMessage(
+                error.response?.data?.message || 'Erro ao processar sua solicitação. O link pode ter expirado.'
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    // ------------------------------------------------------------------------
 
     /**
      * Renderiza a área de mensagens (erro ou sucesso).
@@ -109,12 +152,15 @@ const Login = () => {
     const renderMessage = () => {
         if (!message) return null;
         
-        // Determina se a mensagem é de erro (vermelho) ou sucesso (verde)
         const isError = message.includes("Preencha") || 
                         message.includes("Erro") || 
                         message.includes("Não foi") ||
                         message.includes("Por favor") ||
-                        message.includes("Não foi possível");
+                        message.includes("Não foi possível") ||
+                        message.includes("inválidos") ||
+                        message.includes("inválido") ||
+                        message.includes("expirado") ||
+                        message.includes("coincidem");
         
         const messageClass = isError 
             ? "message-area error-message" 
@@ -159,13 +205,12 @@ const Login = () => {
                 />
             </div>
             
-            {/* Link de "Esqueceu a Senha?" */}
             <div className="forgot-password-link-container">
                 <span 
                     className="forgot-password-link" 
                     onClick={() => {
                         setView('forgotPassword');
-                        setMessage(''); // Limpa mensagens ao trocar de view
+                        setMessage('');
                     }}
                 >
                     Esqueceu a Senha?
@@ -207,12 +252,11 @@ const Login = () => {
                 {isLoading ? "Enviando..." : "Enviar Link"}
             </Button>
             
-            {/* Link para Voltar */}
             <span 
                 className="back-to-login-link" 
                 onClick={() => {
                     setView('login');
-                    setMessage(''); // Limpa mensagens ao trocar de view
+                    setMessage('');
                 }}
             >
                 Voltar para Login
@@ -220,11 +264,55 @@ const Login = () => {
         </form>
     );
 
+    // --- NOVA FUNÇÃO: Renderiza o formulário de Redefinição de Senha ---
+    const renderResetPasswordView = () => (
+        <form onSubmit={handleResetPasswordSubmit}>
+            <h2>Redefinir Senha</h2>
+            <p className="forgot-password-instructions">
+                Digite sua nova senha.
+            </p>
+            {renderMessage()}
+            
+            <div className="form-group">
+                <label htmlFor="newPassword">Nova Senha:</label>
+                <Input
+                    type="password"
+                    id="newPassword"
+                    placeholder="Digite sua nova senha"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                />
+            </div>
+            <div className="form-group">
+                <label htmlFor="confirmPassword">Confirmar Nova Senha:</label>
+                <Input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="Confirme sua nova senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                />
+            </div>
+            
+            <Button type="submit" className="login-btn" disabled={isLoading}>
+                {isLoading ? 'Salvando...' : 'Salvar Nova Senha'}
+            </Button>
+        </form>
+    );
+    // --------------------------------------------------------------------
+
     return (
         <div className="login-page-wrapper">
             <div className="login-container">
-                {/* Renderiza a view correta com base no estado 'view' */}
-                {view === 'login' ? renderLoginView() : renderForgotPasswordView()}
+                {/* --- LÓGICA DE RENDERIZAÇÃO ATUALIZADA --- */}
+                {view === 'login' && renderLoginView()}
+                {view === 'forgotPassword' && renderForgotPasswordView()}
+                {view === 'resetPassword' && renderResetPasswordView()}
+                {/* ------------------------------------------- */}
             </div>
         </div>
     );

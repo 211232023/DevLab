@@ -1,7 +1,8 @@
 const path = require('path');
 const pool = require(path.resolve(__dirname, '../config/db')); 
 const { sendMail } = require('../../nodemailer');
-
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const codigosVerificacao = {};
 
@@ -271,19 +272,20 @@ exports.requestPasswordReset = async (req, res) => {
     }
 
     try {
-        const [users] = await pool.query('SELECT id_usuario FROM usuarios WHERE email = ?', [email]);
+        const [users] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [email]);
 
         if (users.length === 0) {
             console.log(`Tentativa de reset para email não encontrado: ${email}`);
             return res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
         }
 
-        const userId = users[0].id_usuario;
+        const userId = users[0].id;
         const token = crypto.randomBytes(32).toString('hex');
         const expires = new Date(Date.now() + 3600000); // 1 hora
 
+        // **** CORREÇÃO AQUI ****
         await pool.query(
-            'UPDATE usuarios SET reset_password_token = ?, reset_password_expires = ? WHERE id_usuario = ?',
+            'UPDATE usuarios SET resetPasswordToken = ?, resetPasswordExpires = ? WHERE id = ?',
             [token, expires, userId]
         );
 
@@ -297,7 +299,7 @@ exports.requestPasswordReset = async (req, res) => {
 
         // Use a função sendMail importada
         try {
-            await sendMail({ to: email, subject, text, html }); // <-- Mudança aqui
+            await sendMail({ to: email, subject, text, html });
             console.log(`Email de redefinição enviado para ${email}`);
             res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
         } catch (mailError) {
@@ -323,9 +325,9 @@ exports.resetPassword = async (req, res) => {
     try {
         const now = new Date();
 
-        // Buscar usuário pelo token e verificar se não expirou
+        // **** CORREÇÃO AQUI (SELECT) ****
         const [users] = await pool.query(
-            'SELECT id_usuario FROM usuarios WHERE reset_password_token = ? AND reset_password_expires > ?',
+            'SELECT id FROM usuarios WHERE resetPasswordToken = ? AND resetPasswordExpires > ?',
             [token, now]
         );
 
@@ -333,14 +335,14 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Token inválido ou expirado.' });
         }
 
-        const userId = users[0].id_usuario;
+        const userId = users[0].id;
 
         // Hash da nova senha
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Atualizar senha e limpar campos de reset no banco
+        // **** CORREÇÃO AQUI (UPDATE) ****
         await pool.query(
-            'UPDATE usuarios SET senha = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE id_usuario = ?',
+            'UPDATE usuarios SET senha = ?, resetPasswordToken = NULL, resetPasswordExpires = NULL WHERE id = ?',
             [hashedPassword, userId]
         );
 
