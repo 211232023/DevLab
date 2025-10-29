@@ -262,3 +262,92 @@ exports.deleteUsuario = async (req, res) => {
     res.status(500).json({ error: 'Erro ao remover usuário.', details: err.message });
   }
 };
+
+exports.requestPasswordReset = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'O email é obrigatório.' });
+    }
+
+    try {
+        const [users] = await pool.query('SELECT id_usuario FROM usuarios WHERE email = ?', [email]);
+
+        if (users.length === 0) {
+            console.log(`Tentativa de reset para email não encontrado: ${email}`);
+            return res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
+        }
+
+        const userId = users[0].id_usuario;
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = new Date(Date.now() + 3600000); // 1 hora
+
+        await pool.query(
+            'UPDATE usuarios SET reset_password_token = ?, reset_password_expires = ? WHERE id_usuario = ?',
+            [token, expires, userId]
+        );
+
+        // Use a variável APP_BASE_URL do seu .env para construir a URL
+        const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'; // Fallback
+        const resetUrl = `${appBaseUrl}/reset-password/${token}`;
+
+        const subject = 'Redefinição de Senha - DevLab';
+        const text = `Você solicitou uma redefinição de senha. Clique no link a seguir para redefinir sua senha: ${resetUrl}\n\nSe você não solicitou isso, ignore este email.\nEste link expira em 1 hora.`;
+        const html = `<p>Você solicitou uma redefinição de senha.</p><p>Clique no link a seguir para redefinir sua senha: <a href="${resetUrl}">${resetUrl}</a></p><p>Se você não solicitou isso, ignore este email.</p><p>Este link expira em 1 hora.</p>`;
+
+        // Use a função sendMail importada
+        try {
+            await sendMail({ to: email, subject, text, html }); // <-- Mudança aqui
+            console.log(`Email de redefinição enviado para ${email}`);
+            res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
+        } catch (mailError) {
+            console.error('Erro ao enviar email de redefinição:', mailError);
+            // Mesmo com erro no envio, retornamos sucesso para não expor informações
+            res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao solicitar redefinição de senha:', error);
+        res.status(500).json({ message: 'Ocorreu um problema ao processar sua solicitação.' }); // Retornar 500 para erro interno
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+        return res.status(400).json({ message: 'A nova senha é obrigatória.' });
+    }
+
+    try {
+        const now = new Date();
+
+        // Buscar usuário pelo token e verificar se não expirou
+        const [users] = await pool.query(
+            'SELECT id_usuario FROM usuarios WHERE reset_password_token = ? AND reset_password_expires > ?',
+            [token, now]
+        );
+
+        if (users.length === 0) {
+            return res.status(400).json({ message: 'Token inválido ou expirado.' });
+        }
+
+        const userId = users[0].id_usuario;
+
+        // Hash da nova senha
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Atualizar senha e limpar campos de reset no banco
+        await pool.query(
+            'UPDATE usuarios SET senha = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE id_usuario = ?',
+            [hashedPassword, userId]
+        );
+
+        res.status(200).json({ message: 'Senha redefinida com sucesso!' });
+
+    } catch (error) {
+        console.error('Erro ao redefinir senha:', error);
+        res.status(500).json({ message: 'Erro ao redefinir a senha.', error: error.message });
+    }
+};

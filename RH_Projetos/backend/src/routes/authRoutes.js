@@ -78,4 +78,8 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/forgot-password', usuarioController.requestPasswordReset); 
+
+router.post('/reset-password/:token', usuarioController.resetPassword);
+
 module.exports = router;
