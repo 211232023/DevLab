@@ -23,12 +23,14 @@
 }
 
 .vagas-accordion {
+  width: 1200px;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 0 2rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap: 1.5rem;
+  box-sizing: border-box;
 }
 
 .vaga-item {
@@ -111,9 +113,10 @@
 }
 
 .candidatos-table th, .candidatos-table td {
-  padding: 12px 15px;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  vertical-align: top; /* <-- ADICIONE ESTA LINHA */
 }
 .candidatos-table th {
   background-color: #f8f9fa;
@@ -135,10 +138,19 @@
 .nota-teste.pendente { color: #888; font-style: italic; }
 
 .coluna-acoes {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
+  white-space: nowrap; 
+  min-width: 260px; 
+  vertical-align: top; 
 }
+.coluna-acoes-wrapper {
+  display: flex;
+  flex-direction: row; 
+  justify-content: flex-end; 
+  align-items: flex-start; 
+  gap: 0.5rem;
+  width: 100%;
+}
+
 .btn-acao-gestao {
     padding: 8px 12px;
     border-radius: 50px;
@@ -341,4 +353,56 @@
   .btn-acao-gestao { padding: 8px 10px; font-size: 0.95rem; }
   .btn-delete-vaga { padding: 8px 10px; font-size: 0.95rem; }
 }
+}
+
+/* Container da barra de filtros dos candidatos */
+.filtros-bar-candidatos {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem; /* Ajuste o padding conforme o container da tabela */
+  flex-wrap: wrap; /* Permite que os filtros quebrem a linha em telas menores */
+  background-color: #f9f9f9; /* Um fundo leve para destacar a barra */
+  border-bottom: 1px solid #eee;
+}
+
+/* Estilos para o input de pesquisa (baseado no de TelaInicial.jsx) */
+.filtros-bar-candidatos .filtro-input {
+  flex: 1; /* Ocupa o espaço disponível */
+  min-width: 200px; /* Largura mínima */
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Estilos para os selects (baseado no de TelaInicial.jsx) */
+.filtros-bar-candidatos .filtro-select {
+  flex: 1; /* Ocupa o espaço disponível */
+  min-width: 180px; /* Largura mínima */
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  background-color: #fff;
+  cursor: pointer;
+  background-image: none; /* Remove a seta padrão se necessário */
+  appearance: none; /* Remove a aparência padrão */
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  /* Adicionando uma seta customizada (opcional, mas melhora o visual) */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%232c3e50" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem; /* Espaço para a seta */
+}
+
+.filtros-bar-candidatos .filtro-input:focus,
+.filtros-bar-candidatos .filtro-select:focus {
+  outline: none;
+  border-color: #007bff; /* Cor de destaque do seu tema */
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }
