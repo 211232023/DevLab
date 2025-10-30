@@ -1,10 +1,9 @@
 import React, { useState, useRef } from "react";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import "./Cadastro.css"; 
+import "./Cadastro.css"; // Certifique-se que o CSS atualizado está sendo importado
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api";
-import InputMask from "react-input-mask"; 
 
 const Cadastro = () => {
   const [form, setForm] = useState({
@@ -39,7 +38,6 @@ const Cadastro = () => {
   const handleCodigoChange = (e) => {
     setCodigoVerificacao(e.target.value);
     setCodeError('');
-    setSuccess(''); 
   };
 
   const handleInitialSubmit = async (e) => {
@@ -48,42 +46,18 @@ const Cadastro = () => {
     setSuccess('');
     setCodeError('');
 
-    // Validações
     for (const key in form) {
       if (form[key] === "") {
         setError("Preencha todos os campos para se cadastrar!");
         return;
       }
     }
-    if (form.nomeCompleto.trim().split(' ').length < 2) {
-      setError("Por favor, digite seu nome completo (nome e sobrenome).");
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      setError("Por favor, insira um formato de e-mail válido.");
-      return;
-    }
-    const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-    if (!cpfRegex.test(form.cpf)) {
-      setError("O CPF deve estar no formato 000.000.000-00.");
-      return;
-    }
-    const telefoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
-    if (!telefoneRegex.test(form.telefone)) {
-      setError("O telefone deve estar no formato (99) 99999-9999.");
-      return;
-    }
-    if (form.senha.length < 8) {
-      setError("A senha deve ter no mínimo 8 caracteres.");
-      return;
-    }
+
     if (form.senha !== form.confirmarSenha) {
       setError("As senhas não coincidem!");
       return;
     }
 
-    // Envio
     setLoading(true);
     try {
       pendingFormData.current = { ...form };
@@ -148,69 +122,36 @@ const Cadastro = () => {
     }
   };
 
+  // Determina a classe do container principal para ajustar o tamanho
   const containerClassName = `cadastro-container ${showCodeInput ? 'code-input-active' : ''}`;
 
   return (
     <div className="cadastro-page-wrapper">
+      {/* Aplica a classe condicional aqui */}
       <div className={containerClassName}>
 
+        {/* Formulário Principal */}
         {!showCodeInput ? (
           <>
             <h2>Crie sua Conta</h2>
+            {/* Mensagens Globais */}
             {error && <p className="error-message">{error}</p>}
             {success && <p className="success-message">{success}</p>}
             <form onSubmit={handleInitialSubmit} className="cadastro-form">
+              {/* --- Campos do Formulário (iguais aos anteriores) --- */}
               <div className="form-group">
                 <label htmlFor="nomeCompleto">Nome Completo</label>
                 <Input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" value={form.nomeCompleto} onChange={handleChange} required disabled={loading}/>
               </div>
               <div className="form-row">
-                
-                {/* --- INÍCIO DA CORREÇÃO --- */}
-                {/* A prop 'disabled' foi MOVIDA daqui... */}
                 <div className="form-group">
                   <label htmlFor="cpf">CPF</label>
-                  <InputMask
-                    mask="999.999.999-99"
-                    value={form.cpf}
-                    onChange={handleChange}
-                  >
-                    {(inputProps) => (
-                      <Input
-                        {...inputProps}
-                        type="text"
-                        id="cpf"
-                        name="cpf"
-                        placeholder="000.000.000-00"
-                        required
-                        disabled={loading} // <-- ...para CÁ
-                      />
-                    )}
-                  </InputMask>
+                  <Input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" value={form.cpf} onChange={handleChange} required disabled={loading}/>
                 </div>
-                
                 <div className="form-group">
                   <label htmlFor="telefone">Telefone</label>
-                  <InputMask
-                    mask="(99) 99999-9999"
-                    value={form.telefone}
-                    onChange={handleChange}
-                  >
-                    {(inputProps) => (
-                      <Input
-                        {...inputProps}
-                        type="text"
-                        id="telefone"
-                        name="telefone"
-                        placeholder="(99) 99999-9999"
-                        required
-                        disabled={loading} // <-- ...para CÁ
-                      />
-                    )}
-                  </InputMask>
+                  <Input type="text" id="telefone" name="telefone" placeholder="(99) 99999-9999" value={form.telefone} onChange={handleChange} required disabled={loading}/>
                 </div>
-                {/* --- FIM DA CORREÇÃO --- */}
-
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
@@ -238,7 +179,7 @@ const Cadastro = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="senha">Senha</label>
-                  <Input type="password" id="senha" name="senha" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={handleChange} required disabled={loading}/>
+                  <Input type="password" id="senha" name="senha" placeholder="Crie uma senha" value={form.senha} onChange={handleChange} required disabled={loading}/>
                 </div>
                 <div className="form-group">
                   <label htmlFor="confirmarSenha">Confirmar Senha</label>
@@ -261,6 +202,7 @@ const Cadastro = () => {
             <h3>Verifique seu E-mail</h3>
             <p>Enviamos um código de verificação para <strong>{pendingFormData.current?.email}</strong>. Por favor, insira o código abaixo para concluir o cadastro.</p>
 
+            {/* Mensagem de sucesso do envio ou erro da validação/cadastro */}
             {success && <p className="success-message">{success}</p>}
             {codeError && <p className="error-message">{codeError}</p>}
 
@@ -276,22 +218,27 @@ const Cadastro = () => {
                 maxLength="6"
                 required
                 disabled={loading}
-                className="codigo-input-style" 
+                className="codigo-input-style" // Adiciona classe para estilo específico
               />
             </div>
 
+            {/* Botão principal (verde) */}
             <Button type="button" onClick={handleCodigoSubmit} className="cadastro-btn" disabled={loading || !codigoVerificacao}>
               {loading ? 'Verificando e cadastrando...' : 'Confirmar Código e Cadastrar'}
             </Button>
 
+             {/* Botão secundário (estilo link) */}
              <button
                 type="button"
                 onClick={() => { setShowCodeInput(false); setError(''); setSuccess(''); setCodeError(''); pendingFormData.current = null; setCodigoVerificacao(''); }}
-                className="cancel-link-btn"
+                className="cancel-link-btn" // Nova classe para estilo de link
                 disabled={loading}
              >
                 Cancelar ou corrigir e-mail
              </button>
+
+            {/* Opcional: Reenviar código */}
+            {/* <Button type="button" onClick={handleInitialSubmit} className="secondary-btn" disabled={loading}>Reenviar Código</Button> */}
           </div>
         )}
       </div>
