@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react'; // --- ALTERADO: Adicionado useMemo
+import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { useAuth } from '../../AuthContext';
+// --- ALTERAÇÃO 1: Importar useNavigate ---
 import { Link, useNavigate } from 'react-router-dom';
 import './GestaoVaga.css';
 import Button from '../../components/Button';
 import { FaUsers, FaChevronDown, FaTrash, FaArrowRight, FaFilePdf, FaClipboardCheck, FaExclamationCircle } from 'react-icons/fa';
 
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-    // ... (Modal de confirmação existente - sem alteração)
     if (!isOpen) return null;
 
     return (
@@ -28,12 +28,14 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
 
 const GestaoVaga = () => {
     const { user } = useAuth();
+    // --- ALTERAÇÃO 2: Inicializar o hook useNavigate ---
     const navigate = useNavigate();
     const [vagasComCandidatos, setVagasComCandidatos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedVaga, setExpandedVaga] = useState(null);
     
+    // State para o modal de confirmação
     const [modalState, setModalState] = useState({
         isOpen: false,
         title: '',
@@ -41,38 +43,12 @@ const GestaoVaga = () => {
         onConfirm: () => {}
     });
 
-    // --- NOVO: State para filtros e ordenação por vaga (chave é o vaga.id) ---
-    const [vagaFilters, setVagaFilters] = useState({});
-
     const statusOrdem = [
         'Aguardando Teste', 'Teste Disponível', 'Entrevista com RH', 
         'Entrevista com Gestor', 'Manual', 'Envio de Documentos', 'Finalizado'
     ];
 
-    // --- NOVO: Funções auxiliares para gerenciar o state dos filtros ---
-    const getFiltersForVaga = (vagaId) => {
-        // Retorna os filtros para uma vaga específica ou os valores padrão
-        return vagaFilters[vagaId] || {
-            searchTerm: '',
-            filterStatus: 'All',
-            sortOrder: 'default' // 'default' | 'alpha-asc' | 'alpha-desc'
-        };
-    };
-
-    const updateVagaFilter = (vagaId, filterName, value) => {
-        // Atualiza um filtro específico para uma vaga específica
-        setVagaFilters(prev => ({
-            ...prev,
-            [vagaId]: {
-                ...getFiltersForVaga(vagaId),
-                [filterName]: value
-            }
-        }));
-    };
-
-
     const getNextStatus = (statusAtual) => {
-        // ... (função existente - sem alteração)
         const currentIndex = statusOrdem.indexOf(statusAtual);
         if (currentIndex >= 0 && currentIndex < statusOrdem.length - 1) {
             return statusOrdem[currentIndex + 1];
@@ -81,7 +57,6 @@ const GestaoVaga = () => {
     };
 
     const handleAvancarEtapa = async (candidato, vagaId) => {
-        // ... (função existente - sem alteração)
         const { candidatura_id, status: statusAtual, pontuacao_teste } = candidato;
 
         if (statusAtual === 'Teste Disponível' && (pontuacao_teste === null || pontuacao_teste === undefined)) {
@@ -108,7 +83,6 @@ const GestaoVaga = () => {
     };
 
     const handleEliminarCandidatura = (candidaturaId, vagaId) => {
-        // ... (função existente - sem alteração)
         setModalState({
             isOpen: true,
             title: 'Eliminar Candidatura',
@@ -118,7 +92,6 @@ const GestaoVaga = () => {
     };
 
     const executeEliminarCandidatura = async (candidaturaId, vagaId) => {
-        // ... (função existente - sem alteração)
          try {
             await api.delete(`/candidaturas/${candidaturaId}`);
             setVagasComCandidatos(vagasAtuais => vagasAtuais.map(vaga => 
@@ -132,7 +105,6 @@ const GestaoVaga = () => {
     };
     
     const handleDeletarVaga = (vagaId) => {
-        // ... (função existente - sem alteração)
         const vaga = vagasComCandidatos.find(v => v.id === vagaId);
         const numCandidatos = vaga ? vaga.candidatos.length : 0;
         
@@ -145,7 +117,6 @@ const GestaoVaga = () => {
     };
 
     const executeDeletarVaga = async (vagaId) => {
-        // ... (função existente - sem alteração)
         try {
             await api.delete(`/vagas/${vagaId}`);
             setVagasComCandidatos(vagasAtuais => vagasAtuais.filter(vaga => vaga.id !== vagaId));
@@ -158,7 +129,6 @@ const GestaoVaga = () => {
     };
     
     useEffect(() => {
-        // ... (função existente - sem alteração)
         const carregarTodasAsVagas = async () => {
             if (user && (user.tipo === 'ADMIN' || user.tipo === 'RH')) {
                 setLoading(true);
@@ -170,6 +140,7 @@ const GestaoVaga = () => {
                         const vagasCompletas = await Promise.all(
                             vagasData.map(async (vaga) => {
                                 try {
+                                    // A API agora retorna 'outros_documentos' nesta chamada
                                     const candidatosResponse = await api.get(`/candidaturas/vagas/${vaga.id}/candidatos`);
                                     return { ...vaga, candidatos: candidatosResponse.data };
                                 } catch (err) {
@@ -190,7 +161,6 @@ const GestaoVaga = () => {
     }, [user]);
 
     const renderizarDocumentos = (candidato) => {
-        // ... (função existente - sem alteração)
         const links = [];
 
         if (candidato.curriculo_path) {
@@ -228,7 +198,6 @@ const GestaoVaga = () => {
     return (
         <div className="gestao-page-wrapper">
              <ConfirmModal 
-                // ... (Modal props - sem alteração)
                 isOpen={modalState.isOpen}
                 onClose={() => setModalState({ isOpen: false })}
                 onConfirm={modalState.onConfirm}
@@ -236,158 +205,76 @@ const GestaoVaga = () => {
                 message={modalState.message}
             />
             <header className="gestao-header">
-                {/* ... (Header - sem alteração) */}
                 <h1>Gerenciamento de Vagas</h1>
                 <p>Visualize e gerencie os candidatos de cada uma das suas vagas ativas.</p>
             </header>
             <main className="vagas-accordion">
                 {vagasComCandidatos.length === 0 ? (
-                    // ... (nenhuma vaga - sem alteração)
                     <div className="nenhuma-vaga-gestao">
-                         {/* ... */}
+                        <h3>Nenhuma vaga cadastrada.</h3>
+                        <p>Comece publicando uma nova oportunidade.</p>
+                        <Button 
+                            onClick={() => navigate('/cadastro-vaga')} 
+                            className="btn-acao-gestao cadastrar"
+                        >
+                            Cadastrar Nova Vaga
+                        </Button>
                     </div> 
                 ) : (
-                    vagasComCandidatos.map((vaga) => {
-                        
-                        // --- NOVO: Lógica de filtro e ordenação ---
-                        // 1. Pega os filtros atuais para esta vaga específica
-                        const { searchTerm, filterStatus, sortOrder } = getFiltersForVaga(vaga.id);
-
-                        // 2. Aplica a lógica (usando uma função auto-invocada para manter limpo)
-                        const filteredCandidatos = (() => {
-                            let resultado = vaga.candidatos || [];
-
-                            // Filtro por Status
-                            if (filterStatus && filterStatus !== 'All') {
-                                resultado = resultado.filter(c => (c.status || '') === filterStatus);
-                            }
-
-                            // Filtro por Nome (SearchTerm)
-                            if (searchTerm && searchTerm.trim() !== '') {
-                                const termo = searchTerm.trim().toLowerCase();
-                                resultado = resultado.filter(c => (c.nome || '').toLowerCase().includes(termo));
-                            }
-
-                            // Ordenação
-                            if (sortOrder === 'alpha-asc') {
-                                // Ordem alfabética A-Z
-                                resultado = resultado.slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-                            } else if (sortOrder === 'alpha-desc') {
-                                // Ordem alfabética Z-A
-                                resultado = resultado.slice().sort((a, b) => (b.nome || '').localeCompare(a.nome || ''));
-                            }
-                            // Se sortOrder === 'default', mantém a ordem original (de inscrição)
-                            
-                            return resultado;
-                        })();
-                        // --- FIM DA LÓGICA ---
-
-
-                        return (
-                            <div key={vaga.id} className={`vaga-item ${expandedVaga === vaga.id ? 'expanded' : ''}`}>
-                                <div className="vaga-item-header" onClick={() => toggleExpandir(vaga.id)}>
-                                    {/* ... (Header do item - sem alteração) */}
-                                    <div className="vaga-info">
-                                        <h2>{vaga.titulo}</h2>
-                                        <span className="candidatos-count"><FaUsers /> {vaga.candidatos.length} Candidato(s)</span>
-                                    </div>
-                                    <div className="vaga-actions">
-                                        <button onClick={(e) => { e.stopPropagation(); handleDeletarVaga(vaga.id); }} className="btn-delete-vaga"><FaTrash /> Deletar Vaga</button>
-                                        <FaChevronDown className="expand-icon" />
-                                    </div>
+                    vagasComCandidatos.map((vaga) => (
+                        <div key={vaga.id} className={`vaga-item ${expandedVaga === vaga.id ? 'expanded' : ''}`}>
+                            <div className="vaga-item-header" onClick={() => toggleExpandir(vaga.id)}>
+                                <div className="vaga-info">
+                                    <h2>{vaga.titulo}</h2>
+                                    <span className="candidatos-count"><FaUsers /> {vaga.candidatos.length} Candidato(s)</span>
                                 </div>
-                                <div className="candidatos-table-container">
-
-                                    {/* --- NOVO: Barra de Filtros --- */}
-                                    {/* Só mostra a barra se houver candidatos na vaga */}
-                                    {vaga.candidatos.length > 0 && (
-                                        <div className="filtros-bar-candidatos">
-                                            <input
-                                                type="search"
-                                                className="filtro-input"
-                                                placeholder="Pesquisar por nome..."
-                                                value={searchTerm}
-                                                onChange={(e) => updateVagaFilter(vaga.id, 'searchTerm', e.target.value)}
-                                                aria-label="Pesquisar candidato por nome"
-                                            />
-                                            
-                                            <select 
-                                                className="filtro-select" 
-                                                value={filterStatus} 
-                                                onChange={(e) => updateVagaFilter(vaga.id, 'filterStatus', e.target.value)}
-                                                aria-label="Filtrar por etapa"
-                                            >
-                                                <option value="All">Todas as Etapas</option>
-                                                {statusOrdem.map(status => (
-                                                    <option key={status} value={status}>{status}</option>
-                                                ))}
-                                            </select>
-
-                                            <select 
-                                                className="filtro-select" 
-                                                value={sortOrder} 
-                                                onChange={(e) => updateVagaFilter(vaga.id, 'sortOrder', e.target.value)}
-                                                aria-label="Ordenar candidatos"
-                                            >
-                                                <option value="default">Ordem de Inscrição</option>
-                                                <option value="alpha-asc">Ordem Alfabética (A-Z)</option>
-                                                <option value="alpha-desc">Ordem Alfabética (Z-A)</option>
-                                            </select>
-                                        </div>
-                                    )}
-                                    {/* --- FIM da Barra de Filtros --- */}
-
-
-                                    {/* --- LÓGICA DE EXIBIÇÃO ATUALIZADA --- */}
-                                    {vaga.candidatos.length === 0 ? (
-                                        <p className="nenhum-candidato">Nenhum candidato inscrito nesta vaga.</p>
-                                    ) : filteredCandidatos.length === 0 ? (
-                                        <p className="nenhum-candidato">Nenhum candidato encontrado com os filtros atuais.</p>
-                                    ) : (
-                                        <table className="candidatos-table">
-                                            <thead>
-                                                <tr>
-                                                    {/* ... (Thead - sem alteração) */}
-                                                    <th>Candidato</th>
-                                                    <th>Contato</th>
-                                                    <th>Documentos</th>
-                                                    <th>Nota Teste</th>
-                                                    <th>Status</th>
-                                                    <th style={{ textAlign: 'right' }}>Ações</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {/* --- ALTERADO: Mapeia filteredCandidatos --- */}
-                                                {filteredCandidatos.map((candidato) => (
-                                                    <tr key={candidato.candidatura_id}>
-                                                        <td>{candidato.nome}</td>
-                                                        <td>{candidato.email}</td>
-                                                        <td>
-                                                            <div className="documentos-links-container">
-                                                                {renderizarDocumentos(candidato)}
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span className={`nota-teste ${!candidato.pontuacao_teste ? 'pendente' : ''}`}>
-                                                                {candidato.pontuacao_teste !== null ? `${parseFloat(candidato.pontuacao_teste).toFixed(1)}%` : 'Pendente'}
-                                                            </span>
-                                                        </td>
-                                                        <td>{candidato.status}</td>
-                                                        <td className="coluna-acoes">
-                                                            <div className="coluna-acoes-wrapper">
-                                                                <button onClick={() => handleAvancarEtapa(candidato, vaga.id)} className="btn-acao-gestao avancar" disabled={candidato.status === 'Finalizado'}><FaArrowRight /> Avançar</button>
-                                                                <button onClick={() => handleEliminarCandidatura(candidato.candidatura_id, vaga.id)} className="btn-acao-gestao eliminar"><FaTrash /></button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
+                                <div className="vaga-actions">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeletarVaga(vaga.id); }} className="btn-delete-vaga"><FaTrash /> Deletar Vaga</button>
+                                    <FaChevronDown className="expand-icon" />
                                 </div>
                             </div>
-                        )
-                    })
+                            <div className="candidatos-table-container">
+                                {vaga.candidatos.length > 0 ? (
+                                    <table className="candidatos-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Candidato</th>
+                                                <th>Contato</th>
+                                                <th>Documentos</th>
+                                                <th>Nota Teste</th>
+                                                <th>Status</th>
+                                                <th style={{ textAlign: 'right' }}>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {vaga.candidatos.map((candidato) => (
+                                                <tr key={candidato.candidatura_id}>
+                                                    <td>{candidato.nome}</td>
+                                                    <td>{candidato.email}</td>
+                                                    <td>
+                                                        {/* --- CÉLULA DE DOCUMENTOS MODIFICADA --- */}
+                                                        <div className="documentos-links-container">
+                                                            {renderizarDocumentos(candidato)}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`nota-teste ${!candidato.pontuacao_teste ? 'pendente' : ''}`}>
+                                                            {candidato.pontuacao_teste !== null ? `${parseFloat(candidato.pontuacao_teste).toFixed(1)}%` : 'Pendente'}
+                                                        </span>
+                                                    </td>
+                                                    <td>{candidato.status}</td>
+                                                    <td className="coluna-acoes">
+                                                        <button onClick={() => handleAvancarEtapa(candidato, vaga.id)} className="btn-acao-gestao avancar" disabled={candidato.status === 'Finalizado'}><FaArrowRight /> Avançar</button>
+                                                        <button onClick={() => handleEliminarCandidatura(candidato.candidatura_id, vaga.id)} className="btn-acao-gestao eliminar"><FaTrash /></button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : <p className="nenhum-candidato">Nenhum candidato inscrito nesta vaga.</p>}
+                            </div>
+                        </div>
+                    ))
                 )}
             </main>
         </div>

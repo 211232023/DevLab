@@ -37,6 +37,8 @@
   color: #333;
 }
 
+/* --- ESTILOS DO INPUT REINSERIDOS --- */
+/* (Se o seu componente 'Input' renderiza uma tag <input>) */
 .login-container input {
   width: 100%;
   padding: 12px 15px;
@@ -44,7 +46,7 @@
   border-radius: 10px;
   font-size: 1rem;
   transition: border-color 0.3s, box-shadow 0.3s;
-  box-sizing: border-box; 
+  box-sizing: border-box; /* Garante que padding não afete a largura */
 }
 
 .login-container input:focus {
@@ -52,6 +54,8 @@
   border-color: #127067;
   box-shadow: 0 0 8px rgba(18, 112, 103, 0.3);
 }
+/* --- FIM DOS ESTILOS DO INPUT --- */
+
 
 .login-btn {
   width: 100%;
@@ -81,6 +85,7 @@
   opacity: 0.7;
 }
 
+
 .link-cadastro {
   display: block;
   text-align: center;
@@ -96,6 +101,9 @@
   text-decoration: underline;
 }
 
+/* --- ESTILOS PARA "ESQUECEU A SENHA" --- */
+
+/* Estilos para a área de mensagem (erro ou sucesso) */
 .message-area {
   width: 100%;
   padding: 10px 15px;
@@ -119,15 +127,17 @@
   border-color: #c3e6cb;
 }
 
+/* Container para o link "Esqueceu a Senha?" */
 .forgot-password-link-container {
   width: 100%; 
   text-align: left; 
-  margin-top: -15px;
-  margin-bottom: 20px;
+  margin-top: -15px; /* Puxa para mais perto do campo de senha */
+  margin-bottom: 20px; /* Espaço antes do botão de login */
 }
 
+/* Link "Esqueceu a Senha?" */
 .forgot-password-link {
-  font-size: 1.0em;
+  font-size: 0.9em;
   color: #127067;
   cursor: pointer;
   font-weight: 600;
