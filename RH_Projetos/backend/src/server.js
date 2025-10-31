@@ -12,7 +12,6 @@ const authRoutes = require('./routes/authRoutes');
 const testeRoutes = require('./routes/testeRoutes');
 const questaoRoutes = require('./routes/questaoRoutes');
 const testEmailRoutes = require('./routes/test-email.routes');
-const notificationsRouter = require('./routes/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,7 +33,6 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/candidaturas', candidaturaRoutes);
 app.use('/api/testes', testeRoutes);
 app.use('/api/questoes', questaoRoutes);
-app.use('/notifications', notificationsRouter);
 app.use('/api', testEmailRoutes);
 
 app.listen(PORT, () => {

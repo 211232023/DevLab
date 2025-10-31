@@ -265,7 +265,7 @@ const GestaoVaga = () => {
                                                     <td>{candidato.status}</td>
                                                     <td className="coluna-acoes">
                                                         <button onClick={() => handleAvancarEtapa(candidato, vaga.id)} className="btn-acao-gestao avancar" disabled={candidato.status === 'Finalizado'}><FaArrowRight /> Avançar</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleEliminarCandidatura(candidato.candidatura_id, vaga.id); }} className="btn-acao-gestao eliminar"><FaTrash /></button>
+                                                        <button onClick={() => handleEliminarCandidatura(candidato.candidatura_id, vaga.id)} className="btn-acao-gestao eliminar"><FaTrash /></button>
                                                     </td>
                                                 </tr>
                                             ))}
