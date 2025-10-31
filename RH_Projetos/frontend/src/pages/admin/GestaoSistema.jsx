@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
 import { useAuth } from '../../AuthContext';
-import { Link } from 'react-router-dom';
 import './GestaoSistema.css';
 import Button from '../../components/Button';
-import { FaUsers, FaChevronDown, FaTrash, FaExclamationCircle } from 'react-icons/fa';
+import { FaUsers, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
+// Modal de Confirmação (sem alteração)
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     if (!isOpen) return null;
 
@@ -24,13 +24,11 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     );
 };
 
-
 const GestaoSistema = () => {
     const { user } = useAuth();
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [expandedUser, setExpandedUser] = useState(null);
     
     const [modalState, setModalState] = useState({
         isOpen: false,
@@ -39,21 +37,80 @@ const GestaoSistema = () => {
         onConfirm: () => {}
     });
 
-    const handleDeletarUsuario = (usuarioId) => {
+    // States para filtros e ordenação (sem alteração)
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('All'); // 'All' | 'ADMIN' | 'RH' | 'CANDIDATO'
+    const [sortOrder, setSortOrder] = useState('default'); // 'default' | 'alpha-asc' | 'alpha-desc'
+
+    // Carregar usuários (sem alteração)
+    useEffect(() => {
+        const fetchUsuarios = async () => {
+            if (user && user.tipo === 'ADMIN') {
+                setLoading(true);
+                try {
+                    const response = await api.get('/usuarios');
+                    setUsuarios(response.data);
+                } catch (err) {
+                    setError('Não foi possível carregar os usuários.');
+                    console.error("Erro ao buscar usuários:", err);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setError('Acesso não autorizado.');
+                setLoading(false);
+            }
+        };
+
+        fetchUsuarios();
+    }, [user]);
+
+    // Lógica de filtragem e ordenação (sem alteração)
+    const filteredUsuarios = useMemo(() => {
+        let resultado = usuarios || [];
+
+        // 1. Filtrar por Tipo
+        if (filterType && filterType !== 'All') {
+            resultado = resultado.filter(u => (u.tipo || '').toUpperCase() === filterType);
+        }
+
+        // 2. Filtrar por Nome (SearchTerm)
+        if (searchTerm && searchTerm.trim() !== '') {
+            const termo = searchTerm.trim().toLowerCase();
+            resultado = resultado.filter(u => (u.nome || '').toLowerCase().includes(termo));
+        }
+
+        // 3. Ordenação
+        if (sortOrder === 'alpha-asc') {
+            resultado = resultado.slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        } else if (sortOrder === 'alpha-desc') {
+            resultado = resultado.slice().sort((a, b) => (b.nome || '').localeCompare(a.nome || ''));
+        }
+        
+        return resultado;
+    }, [usuarios, searchTerm, filterType, sortOrder]);
+
+
+    // Funções de Ação (sem alteração)
+    const handleDeleteClick = (usuarioId) => {
         const usuario = usuarios.find(u => u.id === usuarioId);
+        if (usuario.id === user.id) {
+            alert("Você não pode deletar a si mesmo.");
+            return;
+        }
         
         setModalState({
             isOpen: true,
             title: 'Deletar Usuário',
-            message: `Tem certeza que deseja deletar o usuário ${usuario.nome}? Esta ação não pode ser desfeita.`,
-            onConfirm: () => executeDeletarUsuario(usuarioId)
+            message: `Tem certeza que deseja deletar permanentemente o usuário ${usuario.nome}? Esta ação é irreversível.`,
+            onConfirm: () => executeDeleteUsuario(usuarioId)
         });
     };
 
-    const executeDeletarUsuario = async (usuarioId) => {
+    const executeDeleteUsuario = async (id) => {
         try {
-            await api.delete(`/usuarios/${usuarioId}`);
-            setUsuarios(usuariosAtuais => usuariosAtuais.filter(u => u.id !== usuarioId));
+            await api.delete(`/usuarios/${id}`);
+            setUsuarios(usuarios.filter(u => u.id !== id));
             alert('Usuário deletado com sucesso!');
         } catch (err) {
             alert('Não foi possível deletar o usuário.');
@@ -61,91 +118,151 @@ const GestaoSistema = () => {
             setModalState({ isOpen: false });
         }
     };
-    
-    useEffect(() => {
-        const carregarTodosOsUsuarios = async () => {
-            if (user && user.tipo === 'ADMIN') {
-                setLoading(true);
-                try {
-                    const response = await api.get('/usuarios');
-                    setUsuarios(response.data);
-                } catch (err) {
-                    setError('Não foi possível carregar as informações dos usuários.');
-                } finally {
-                    setLoading(false);
-                }
-            }
-        };
-        carregarTodosOsUsuarios();
-    }, [user]);
 
-    const toggleExpandir = (id) => setExpandedUser(expandedUser === id ? null : id);
+    const handleToggleTipo = async (id, novoTipo) => {
+        if (id === user.id) {
+            alert("Você não pode alterar o tipo do seu próprio usuário.");
+            return;
+        }
+        
+        try {
+            await api.put(`/usuarios/${id}/tipo`, { tipo: novoTipo });
+            setUsuarios(usuarios.map(u => 
+                u.id === id ? { ...u, tipo: novoTipo } : u
+            ));
+            alert('Tipo de usuário atualizado com sucesso!');
+        } catch (err) {
+            alert('Não foi possível alterar o tipo do usuário.');
+        }
+    };
 
-    if (loading) return <div className="loading-container">Carregando usuários do sistema...</div>;
+    // Função de formatar data (sem alteração, mas agora será usada para data_nascimento)
+    const formatarData = (dataString) => {
+        if (!dataString) return 'N/A';
+        const data = new Date(dataString);
+        // Verifica se a data é válida
+        if (isNaN(data.getTime())) return 'N/A';
+        return data.toLocaleDateString('pt-BR');
+    };
+
+    // Renderização
+    if (loading) return <div className="loading-container">Carregando usuários...</div>;
     if (error) return <div className="error-container">{error}</div>;
 
     return (
-        <div className="gestao-page-wrapper">
-             <ConfirmModal 
+        <div className="gestao-sistema-wrapper">
+            <ConfirmModal 
                 isOpen={modalState.isOpen}
                 onClose={() => setModalState({ isOpen: false })}
                 onConfirm={modalState.onConfirm}
                 title={modalState.title}
                 message={modalState.message}
             />
-            <header className="gestao-header">
-                <h1>Gerenciamento de Usuários</h1>
-                <p>Visualize e gerencie os usuários cadastrados no sistema.</p>
+            <header className="gestao-sistema-header">
+                <h1>Gestão do Sistema</h1>
+                <p>Gerencie todos os usuários cadastrados na plataforma.</p>
             </header>
-            <main className="vagas-accordion">
-                {usuarios.length === 0 ? (
-                    <div className="nenhuma-vaga-gestao">
-                        <h3>Nenhum usuário cadastrado.</h3>
-                    </div>
-                ) : (
-                    usuarios.map((usuario) => (
-                        <div key={usuario.id} className={`vaga-item ${expandedUser === usuario.id ? 'expanded' : ''}`}>
-                            <div className="vaga-item-header" onClick={() => toggleExpandir(usuario.id)}>
-                                <div className="vaga-info">
-                                    <h2>{usuario.nome}</h2>
-                                    <span className="candidatos-count"><FaUsers /> {usuario.tipo}</span>
-                                </div>
-                                <div className="vaga-actions">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeletarUsuario(usuario.id); }} className="btn-delete-vaga"><FaTrash /> Deletar Usuário</button>
-                                    <FaChevronDown className="expand-icon" />
-                                </div>
-                            </div>
-                            <div className="candidatos-table-container">
-                                <table className="candidatos-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>CPF</th>
-                                            <th>Email</th>
-                                            <th>Telefone</th>
-                                            <th>Data Cadastro</th>
-                                            <th>Gênero</th>
-                                            <th>Tipo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{usuario.id}</td>
-                                            <td>{usuario.nome}</td>
-                                            <td>{usuario.cpf}</td>
-                                            <td>{usuario.email}</td>
-                                            <td>{usuario.telefone}</td>
-                                            <td>{new Date(usuario.data_cadastro).toLocaleDateString()}</td>
-                                            <td>{usuario.genero}</td>
-                                            <td>{usuario.tipo}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    ))
-                )}
+
+            <main className="gestao-sistema-main">
+                
+                {/* Barra de Filtros (sem alteração) */}
+                <div className="filtros-bar-sistema">
+                    <input
+                        type="search"
+                        className="filtro-input"
+                        placeholder="Pesquisar por nome..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        aria-label="Pesquisar usuário por nome"
+                    />
+                    
+                    <select 
+                        className="filtro-select" 
+                        value={filterType} 
+                        onChange={(e) => setFilterType(e.target.value)}
+                        aria-label="Filtrar por tipo"
+                    >
+                        <option value="All">Todos os Tipos</option>
+                        <option value="CANDIDATO">Candidato</option>
+                        <option value="RH">RH</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+
+                    <select 
+                        className="filtro-select" 
+                        value={sortOrder} 
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        aria-label="Ordenar usuários"
+                    >
+                        <option value="default">Ordem de Cadastro</option>
+                        <option value="alpha-asc">Ordem Alfabética (A-Z)</option>
+                        <option value="alpha-desc">Ordem Alfabética (Z-A)</option>
+                    </select>
+                </div>
+
+                {/* Tabela de Usuários (ATUALIZADA) */}
+                <div className="tabela-usuarios-container">
+                    {filteredUsuarios.length === 0 ? (
+                        <p className="nenhum-usuario">Nenhum usuário encontrado com os filtros atuais.</p>
+                    ) : (
+                        <table className="tabela-usuarios">
+                            <thead>
+                                <tr>
+                                    {/* --- COLUNAS ADICIONADAS --- */}
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Telefone</th>
+                                    <th>CPF</th>
+                                    {/* --- FIM DAS ADIÇÕES --- */}
+                                    <th>Tipo</th>
+                                    <th style={{ textAlign: 'right' }}>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredUsuarios.map((usuario) => (
+                                    <tr key={usuario.id}>
+                                        {/* --- CÉLULAS ADICIONADAS --- */}
+                                        <td>{usuario.id}</td>
+                                        <td>{usuario.nome}</td>
+                                        <td>{usuario.email}</td>
+                                        <td>{usuario.telefone || 'N/A'}</td>
+                                        <td>{usuario.cpf || 'N/A'}</td>
+                                        {/* --- FIM DAS ADIÇÕES --- */}
+                                        <td>
+                                            <span className={`tipo-tag tipo-${(usuario.tipo || 'CANDIDATO').toLowerCase()}`}>
+                                                {usuario.tipo}
+                                            </span>
+                                        </td>
+                                        <td className="coluna-acoes-sistema">
+                                            {usuario.tipo === 'CANDIDATO' && (
+                                                <>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
+                                                </>
+                                            )}
+                                            {usuario.tipo === 'RH' && (
+                                                <>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
+                                                </>
+                                            )}
+                                            {usuario.tipo === 'ADMIN' && (
+                                                <>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
+                                                </>
+                                            )}
+                                            <Button onClick={() => handleDeleteClick(usuario.id)} className="btn-acao-sistema delete" title="Deletar Usuário">
+                                                <FaTrash />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </main>
         </div>
     );
