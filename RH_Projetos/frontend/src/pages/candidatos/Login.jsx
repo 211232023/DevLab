@@ -9,7 +9,7 @@ import "./Login.css"; // Importa os estilos
 
 const Login = () => {
     // Estado para controlar a visualização: 'login', 'forgotPassword' ou 'resetPassword'
-    const [view, setView] = useState('login'); 
+    const [view, setView] = useState('login');
     
     // Estados para o formulário de Login
     const [email, setEmail] = useState("");
@@ -57,13 +57,13 @@ const Login = () => {
             const data = response.data;
 
             if (response.status === 200) {
-                login(data.user, data.token); 
+                login(data.user, data.token);
                 if (data.user.tipo === 'Candidato') {
                     navigate("/inicio");
                 } else if (data.user.tipo === 'RH') {
                     navigate("/gestao-vaga");
                 } else {
-                    navigate("/inicio"); 
+                    navigate("/inicio");
                 }
             } else {
                 setMessage(data.message || data.error || "Erro ao fazer login.");
@@ -94,7 +94,7 @@ const Login = () => {
             await api.post('/auth/forgot-password', { email: forgotPasswordEmail });
             
             setMessage("Se o e-mail estiver cadastrado em nosso sistema, você receberá um link para redefinir sua senha em breve.");
-            setForgotPasswordEmail(""); 
+            setForgotPasswordEmail("");
             
         } catch (error) {
             console.error("Erro ao solicitar recuperação de senha:", error);
@@ -124,8 +124,8 @@ const Login = () => {
         setIsLoading(true);
         try {
             // Envia o token (da URL) e a nova senha
-            const response = await api.post(`/auth/reset-password/${token}`, { 
-                password: newPassword 
+            const response = await api.post(`/auth/reset-password/${token}`, {
+                password: newPassword
             });
 
             setMessage(response.data.message + " Redirecionando para o login em 3 segundos...");
@@ -152,15 +152,23 @@ const Login = () => {
     const renderMessage = () => {
         if (!message) return null;
         
-        const isError = message.includes("Preencha") || 
-                        message.includes("Erro") || 
-                        message.includes("Não foi") ||
-                        message.includes("Por favor") ||
-                        message.includes("Não foi possível") ||
-                        message.includes("inválidos") ||
-                        message.includes("inválido") ||
-                        message.includes("expirado") ||
-                        message.includes("coincidem");
+        // --- INÍCIO DA CORREÇÃO ---
+        // Converte a mensagem para minúsculas para garantir que a verificação funcione
+        // independentemente de maiúsculas/minúsculas.
+        const lowerCaseMessage = message.toLowerCase();
+
+        const isError = lowerCaseMessage.includes("preencha") || 
+                        lowerCaseMessage.includes("erro") || 
+                        lowerCaseMessage.includes("não foi") ||
+                        lowerCaseMessage.includes("por favor") ||
+                        lowerCaseMessage.includes("não foi possível") ||
+                        lowerCaseMessage.includes("inválidos") ||
+                        lowerCaseMessage.includes("inválido") ||
+                        lowerCaseMessage.includes("inválidas") || // <-- Adicionado para "Credenciais Inválidas"
+                        lowerCaseMessage.includes("não encontrado") || // <-- Adicionado para "Usuário não encontrado"
+                        lowerCaseMessage.includes("expirado") ||
+                        lowerCaseMessage.includes("coincidem");
+        // --- FIM DA CORREÇÃO ---
         
         const messageClass = isError 
             ? "message-area error-message" 
@@ -179,7 +187,7 @@ const Login = () => {
     const renderLoginView = () => (
         <form onSubmit={handleLoginSubmit}>
             <h2>Faça o login!</h2>
-            {renderMessage()} 
+            {renderMessage()}
             <div className="form-group">
                 <label htmlFor="email">Email:</label>
                 <Input
@@ -206,8 +214,8 @@ const Login = () => {
             </div>
             
             <div className="forgot-password-link-container">
-                <span 
-                    className="forgot-password-link" 
+                <span
+                    className="forgot-password-link"
                     onClick={() => {
                         setView('forgotPassword');
                         setMessage('');
@@ -252,8 +260,8 @@ const Login = () => {
                 {isLoading ? "Enviando..." : "Enviar Link"}
             </Button>
             
-            <span 
-                className="back-to-login-link" 
+            <span
+                className="back-to-login-link"
                 onClick={() => {
                     setView('login');
                     setMessage('');
