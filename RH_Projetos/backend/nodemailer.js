@@ -87,7 +87,45 @@ async function sendStageUpdateEmail({ email, nome, vaga, etapa, link }) {
   return sendMail({ to: email, subject, text, html });
 }
 
+function buildRejectionTemplate({ nome, vaga, link }) {
+  const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+  const safeLink = link || `${appUrl}/inicio`;
+  const subject = `Atualização do processo seletivo (${vaga})`;
+  const text = `Olá ${nome},
+
+Agradecemos pelo seu interesse na vaga "${vaga}". 
+Após análise, informamos que sua candidatura não seguirá para as próximas etapas.
+
+Acompanhe seu cadastro e outras oportunidades em: ${safeLink}
+
+Agradecemos pela participação e desejamos sucesso em suas próximas buscas.
+
+Atenciosamente,
+Equipe de RH`;
+  const html = `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto">
+    <h2 style="color:#111">Atualização do processo seletivo</h2>
+    <p>Olá <strong>${nome}</strong>,</p>
+    <p>Agradecemos pelo seu interesse na vaga <strong>${vaga}</strong></p>
+    <p>Após análise, informamos que sua candidatura não seguirá para as próximas etapas.</p>
+    <p>Agradecemos pela participação e desejamos sucesso em suas próximas buscas.</p>
+    <p style="margin:24px 0">
+      <a href="${safeLink}" style="background:#0d6efd;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:bold" target="_blank">Acessar Minhas Candidaturas</a>
+    </p>
+    <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
+    <p style="color:#666;font-size:12px">Se você não esperava este email, ignore-o com segurança.<br>Este é um email automático, por favor não responda.</p>
+  </div>`;
+  return { subject, text, html };
+}
+
+async function sendRejectionEmail({ email, nome, vaga, link }) {
+  const { subject, text, html } = buildRejectionTemplate({ nome, vaga, link });
+  return sendMail({ to: email, subject, text, html });
+}
+
+
 module.exports = {
   sendMail,
   sendStageUpdateEmail,
+  sendRejectionEmail
 };

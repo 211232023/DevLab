@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const path = require('path');
-const { sendStageUpdateEmail } = require('../../nodemailer');
+const { sendStageUpdateEmail, sendRejectionEmail } = require('../../nodemailer');
 
 exports.inscreverCandidato = async (req, res) => {
   try {
@@ -65,6 +65,36 @@ exports.listarCandidaturasPorCandidato = async (req, res) => {
   }
 };
 
+// helper: deleta e notifica candidato por email (em background)
+async function deleteAndNotify(candidaturaId) {
+  const [rows] = await db.query(
+    `SELECT c.id, u.nome, u.email, v.titulo AS vaga_titulo
+     FROM candidaturas c
+     JOIN usuarios u ON c.candidato_id = u.id
+     JOIN vagas v ON c.vaga_id = v.id
+     WHERE c.id = ?`,
+    [candidaturaId]
+  );
+
+  if (rows.length === 0) return { ok: false, status: 404, message: 'Candidatura não encontrada.' };
+
+  const candidate = rows[0];
+
+  const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [candidaturaId]);
+
+  if (result.affectedRows === 0) return { ok: false, status: 404, message: 'Candidatura não encontrada.' };
+
+  // envia email em background (não bloqueia o fluxo)
+  sendRejectionEmail({
+    email: candidate.email,
+    nome: candidate.nome,
+    vaga: candidate.vaga_titulo || 'Vaga',
+    link: `${process.env.APP_BASE_URL || 'http://localhost:3000'}/minhas-candidaturas`
+  }).catch(e => console.error('Falha ao notificar candidato por email:', e && e.message ? e.message : e));
+
+  return { ok: true };
+}
+
 exports.desistirDeVaga = async (req, res) => {
   const { candidatura_id } = req.params;
 
@@ -73,126 +103,120 @@ exports.desistirDeVaga = async (req, res) => {
   }
 
   try {
-    const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [candidatura_id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Candidatura não encontrada.' });
-    }
-
-    res.status(200).json({ message: 'Você desistiu da vaga com sucesso.' });
+    const result = await deleteAndNotify(candidatura_id);
+    if (!result.ok) return res.status(result.status).json({ message: result.message });
+    return res.status(200).json({ message: 'Você desistiu da vaga com sucesso.' });
   } catch (error) {
     console.error('Erro ao desistir da vaga:', error);
-    res.status(500).json({ message: 'Erro no servidor ao tentar desistir da vaga.' });
+    return res.status(500).json({ message: 'Erro no servidor ao tentar desistir da vaga.' });
   }
 };
 
 exports.getCandidatosPorVaga = async (req, res) => {
-    const { vagaId } = req.params;
-    try {
-        const query = `
-            SELECT 
-                c.id AS candidatura_id, 
-                c.status, 
-                c.pontuacao_teste,
-                c.curriculo AS curriculo_path,
-                u.nome, 
-                u.email,
-                (SELECT GROUP_CONCAT(CONCAT(d.tipo, '::', d.caminho) SEPARATOR ';;') 
-                 FROM documentos d 
-                 WHERE d.candidatura_id = c.id) AS outros_documentos
-            FROM candidaturas c
-            JOIN usuarios u ON c.candidato_id = u.id
-            WHERE c.vaga_id = ?
-            GROUP BY c.id;
-        `;
-        
-        const [candidatos] = await db.query(query, [vagaId]);
-        res.status(200).json(candidatos);
-    } catch (error) {
-        console.error('Erro ao buscar candidatos por vaga:', error);
-        res.status(500).json({ message: 'Erro no servidor ao buscar candidatos.' });
-    }
+  const { vagaId } = req.params;
+  try {
+      const query = `
+          SELECT 
+              c.id AS candidatura_id, 
+              c.status, 
+              c.pontuacao_teste,
+              c.curriculo AS curriculo_path,
+              u.nome, 
+              u.email,
+              (SELECT GROUP_CONCAT(CONCAT(d.tipo, '::', d.caminho) SEPARATOR ';;') 
+               FROM documentos d 
+               WHERE d.candidatura_id = c.id) AS outros_documentos
+          FROM candidaturas c
+          JOIN usuarios u ON c.candidato_id = u.id
+          WHERE c.vaga_id = ?
+          GROUP BY c.id;
+      `;
+      
+      const [candidatos] = await db.query(query, [vagaId]);
+      res.status(200).json(candidatos);
+  } catch (error) {
+      console.error('Erro ao buscar candidatos por vaga:', error);
+      res.status(500).json({ message: 'Erro no servidor ao buscar candidatos.' });
+  }
 };
 
 exports.updateStatusCandidatura = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+  const { id } = req.params;
+  const { status } = req.body;
 
-    const statusPermitidos = [
-        'Aguardando Teste', 
-        'Teste Disponível', 
-        'Entrevista com RH', 
-        'Entrevista com Gestor', 
-        'Manual', 
-        'Envio de Documentos', 
-        'Finalizado'
-    ];
+  const statusPermitidos = [
+      'Aguardando Teste', 
+      'Teste Disponível', 
+      'Entrevista com RH', 
+      'Entrevista com Gestor', 
+      'Manual', 
+      'Envio de Documentos', 
+      'Finalizado'
+  ];
 
-    if (!status) {
-        return res.status(400).json({ message: 'O novo status é obrigatório.' });
-    }
+  if (!status) {
+      return res.status(400).json({ message: 'O novo status é obrigatório.' });
+  }
 
-    if (!statusPermitidos.includes(status)) {
-        return res.status(400).json({ message: `O status "${status}" é inválido.` });
-    }
+  if (!statusPermitidos.includes(status)) {
+      return res.status(400).json({ message: `O status "${status}" é inválido.` });
+  }
 
-    try {
-        // Busca dados do candidato e vaga para enviar email
-        const [candidaturas] = await db.query(
-          `SELECT 
-            c.id, c.status,
-            u.nome AS candidato_nome,
-            u.email AS candidato_email,
-            v.titulo AS vaga_titulo
-          FROM candidaturas c
-          INNER JOIN usuarios u ON c.candidato_id = u.id
-          INNER JOIN vagas v ON c.vaga_id = v.id
-          WHERE c.id = ?`,
-          [id]
-        );
+  try {
+      // Busca dados do candidato e vaga para enviar email
+      const [candidaturas] = await db.query(
+        `SELECT 
+          c.id, c.status,
+          u.nome AS candidato_nome,
+          u.email AS candidato_email,
+          v.titulo AS vaga_titulo
+        FROM candidaturas c
+        INNER JOIN usuarios u ON c.candidato_id = u.id
+        INNER JOIN vagas v ON c.vaga_id = v.id
+        WHERE c.id = ?`,
+        [id]
+      );
 
-        if (candidaturas.length === 0) {
-            return res.status(404).json({ message: 'Candidatura não encontrada.' });
-        }
+      if (candidaturas.length === 0) {
+          return res.status(404).json({ message: 'Candidatura não encontrada.' });
+      }
 
-        const candidatura = candidaturas[0];
+      const candidatura = candidaturas[0];
 
-        // Atualiza o status
-        const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
-        await db.query(query, [status, id]);
+      // Atualiza o status
+      const query = 'UPDATE candidaturas SET status = ? WHERE id = ?';
+      await db.query(query, [status, id]);
 
-        // Envia email de forma assíncrona
-        sendStageUpdateEmail({
-          email: candidatura.candidato_email,
-          nome: candidatura.candidato_nome,
-          vaga: candidatura.vaga_titulo,
-          etapa: status,
-          link: `${process.env.APP_BASE_URL}/minhas-candidaturas`,
-        }).catch((err) => {
-          console.error('❌ Falha ao enviar email de atualização de status:', err.message);
-        });
+      // Envia email de forma assíncrona
+      sendStageUpdateEmail({
+        email: candidatura.candidato_email,
+        nome: candidatura.candidato_nome,
+        vaga: candidatura.vaga_titulo,
+        etapa: status,
+        link: `${process.env.APP_BASE_URL}/minhas-candidaturas`,
+      }).catch((err) => {
+        console.error('❌ Falha ao enviar email de atualização de status:', err && err.message ? err.message : err);
+      });
 
-        res.status(200).json({ message: 'Status da candidatura atualizado com sucesso!' });
-    } catch (error) {
-        console.error('Erro ao atualizar status da candidatura:', error);
-        res.status(500).json({ message: 'Erro no servidor ao atualizar o status.' });
-    }
+      res.status(200).json({ message: 'Status da candidatura atualizado com sucesso!' });
+  } catch (error) {
+      console.error('Erro ao atualizar status da candidatura:', error);
+      res.status(500).json({ message: 'Erro no servidor ao atualizar o status.' });
+  }
 };
 
 exports.deleteCandidatura = async (req, res) => {
   const { id } = req.params;
 
+  if (!id) return res.status(400).json({ message: 'O ID da candidatura é obrigatório.' });
+
   try {
-    const [result] = await db.query('DELETE FROM candidaturas WHERE id = ?', [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Candidatura não encontrada.' });
-    }
-
-    res.status(200).json({ message: 'Candidatura eliminada com sucesso.' });
+    const result = await deleteAndNotify(id);
+    if (!result.ok) return res.status(result.status).json({ message: result.message });
+    return res.status(200).json({ message: 'Candidatura eliminada com sucesso.' });
   } catch (error) {
     console.error('Erro ao deletar candidatura:', error);
-    res.status(500).json({ message: 'Erro no servidor ao tentar eliminar a candidatura.' });
+    return res.status(500).json({ message: 'Erro no servidor ao tentar eliminar a candidatura.' });
   }
 };
 
