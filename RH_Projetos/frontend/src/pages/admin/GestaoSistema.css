@@ -1,132 +1,223 @@
-.gestao-page-wrapper {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #e6ebf2;
-    border-radius: 40px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+/* =========================================
+  LAYOUT GERAL E HEADER (ATUALIZADO)
+=========================================
+*/
+
+.gestao-sistema-wrapper {
+  background-color: #e6ebf2; /* Fundo da página */
+  min-height: calc(100vh - 180px); /* Altura mínima (ajuste 180px se seu header/footer for diferente) */
+  padding-bottom: 3rem;
 }
 
-.gestao-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    border-radius: 40px;
+.gestao-sistema-header {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.gestao-header h1 {
-    font-size: 2.5rem;
-    color: #333;
+.gestao-sistema-header h1 {
+  font-size: 2.2rem; 
+  color: #127067; /* Cor principal do tema */
+  margin-bottom: 10px;
 }
 
-.gestao-header p {
-    font-size: 1.1rem;
-    color: #666;
+.gestao-sistema-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
 }
 
-.vagas-accordion .vaga-item {
-    background-color: #fff;
-    border-radius: 40px;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: all 0.3s ease-in-out;
+.gestao-sistema-main {
+  width: 1200px; /* Largura fixa como em GestaoVaga */
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 0 2rem;
+  box-sizing: border-box;
 }
 
-.vaga-item.expanded {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+/* =========================================
+  BARRA DE FILTROS (NOVO)
+=========================================
+*/
+
+.filtros-bar-sistema {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap; 
+  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.vaga-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    cursor: pointer;
+.filtros-bar-sistema .filtro-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.vaga-info h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333;
+.filtros-bar-sistema .filtro-select {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%232c3e50" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.candidatos-count {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #555;
-    margin-top: 0.5rem;
+.filtros-bar-sistema .filtro-input:focus,
+.filtros-bar-sistema .filtro-select:focus {
+  outline: none;
+  border-color: #127067; /* Cor de destaque */
+  box-shadow: 0 0 0 2px rgba(18, 112, 103, 0.2);
 }
 
-.vaga-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+/* =========================================
+  TABELA DE USUÁRIOS (ATUALIZADO)
+=========================================
+*/
+
+.tabela-usuarios-container {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow-x: auto; /* <-- ALTERADO DE 'hidden' PARA 'auto' */
+  border: 1px solid #e0e0e0;
 }
 
-.btn-delete-vaga {
-    background: none;
-    border: none;
-    color: #dc3545;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    transition: background-color 0.2s;
+.tabela-usuarios {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.btn-delete-vaga:hover {
-    background-color: #f8d7da;
+.tabela-usuarios th, 
+.tabela-usuarios td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle; 
+  white-space: nowrap; /* <-- ADICIONADO: Impede que o conteúdo quebre linha */
 }
 
-.expand-icon {
-    font-size: 1.5rem;
-    transition: transform 0.3s;
+.tabela-usuarios th {
+  background-color: #f8f9fa;
+  font-size: 0.9rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.vaga-item.expanded .expand-icon {
-    transform: rotate(180deg);
+.tabela-usuarios tbody tr:hover { 
+  background-color: #f0f2f5; 
 }
 
-.candidatos-table-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-in-out;
+/* Mensagem de "Nenhum usuário" */
+.nenhum-usuario {
+  text-align: center;
+  padding: 40px;
+  color: #666;
 }
 
-.vaga-item.expanded .candidatos-table-container {
-    max-height: 1000px; 
-    padding: 0 1.5rem 1.5rem;
+/* Tags de Tipo de Usuário */
+.tipo-tag {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fff;
+  white-space: nowrap; /* Garante que a tag não quebre */
+}
+.tipo-tag.tipo-admin {
+  background-color: #dc3545; /* Vermelho */
+}
+.tipo-tag.tipo-rh {
+  background-color: #007bff; /* Azul */
+}
+.tipo-tag.tipo-candidato {
+  background-color: #6c757d; /* Cinza */
 }
 
-.candidatos-table {
-    width: 100%;
-    border-collapse: collapse;
+/* =========================================
+  AÇÕES DA TABELA (NOVO)
+=========================================
+*/
+
+.coluna-acoes-sistema {
+  text-align: right;
+  white-space: nowrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-.candidatos-table th, .candidatos-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.btn-acao-sistema {
+  padding: 8px 12px;
+  border-radius: 50px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: white;
 }
 
-.candidatos-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
+.btn-acao-sistema.promote-admin { background-color: #dc3545; }
+.btn-acao-sistema.promote-admin:hover { background-color: #c82333; }
+
+.btn-acao-sistema.promote-rh { background-color: #007bff; }
+.btn-acao-sistema.promote-rh:hover { background-color: #0069d9; }
+
+.btn-acao-sistema.demote { background-color: #6c757d; }
+.btn-acao-sistema.demote:hover { background-color: #5a6268; }
+
+.btn-acao-sistema.delete { 
+  background-color: #343a40;
+  padding: 8px 10px;
+}
+.btn-acao-sistema.delete:hover { background-color: #23272b; }
+
+
+/* =========================================
+  MODAL E LOADING (Sem alteração)
+=========================================
+*/
+
+.loading-container, .error-container {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+  color: #555;
 }
 
-/* Modal básico usado em GestaoSistema (mesmo padrão de GestaoVaga) */
 .confirm-modal-backdrop {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex; justify-content: center; align-items: center; z-index: 1000;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 .confirm-modal-content {
-    background: white; padding: 30px; border-radius: 15px;
-    width: 90%; max-width: 400px; text-align: center;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  background: white; padding: 30px; border-radius: 15px;
+  width: 90%; max-width: 400px; text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 .confirm-modal-icon { font-size: 3rem; color: #dc3545; margin-bottom: 15px; }
 .confirm-modal-content h3 { margin-bottom: 10px; }
@@ -134,66 +225,3 @@
 .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
 .btn-confirm-delete { background-color: #dc3545; color: white; }
 .btn-confirm-delete:hover { background-color: #c82333; }
-
-/* Responsividade: transformar tabela em cartões em telas pequenas */
-@media (max-width: 700px) {
-    .gestao-page-wrapper { padding: 16px; border-radius: 18px; }
-
-    .vaga-item {
-        border-radius: 12px;
-    }
-
-    .vaga-item-header { padding: 12px; flex-direction: column; align-items: flex-start; gap: 8px; }
-
-    .candidatos-table {
-        display: block;
-        width: 100%;
-        font-size: 0.95rem;
-    }
-
-    .candidatos-table thead { display: none; }
-    .candidatos-table tbody { display: block; }
-
-    .candidatos-table tbody tr {
-        display: block;
-        background: #fff;
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border: 1px solid #e9ecef;
-    }
-
-    .candidatos-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 6px;
-        border: none;
-        gap: 8px;
-    }
-
-    /* Rótulos que aparecem antes dos valores (baseado na ordem das colunas) */
-    .candidatos-table tbody tr td:nth-child(1)::before { content: "ID:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(2)::before { content: "Nome:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(3)::before { content: "CPF:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(4)::before { content: "Email:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(5)::before { content: "Telefone:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(6)::before { content: "Data Cadastro:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(7)::before { content: "Gênero:"; font-weight:600; margin-right:8px; }
-    .candidatos-table tbody tr td:nth-child(8)::before { content: "Tipo:"; font-weight:600; margin-right:8px; }
-
-    .candidatos-table td::before { flex: 0 0 auto; color: #333; }
-
-    .candidatos-table td span, .candidatos-table td div { flex: 1 1 auto; text-align: right; white-space: normal; }
-
-    /* Ajuste do botão de deletar para caber em mobile */
-    .btn-delete-vaga { padding: 8px 10px; font-size: 0.95rem; border-radius: 10px; }
-
-    /* Limita a largura do cabeçalho e textos grandes para evitar overflow */
-    .vaga-info h2 { font-size: 1.05rem; word-break: break-word; }
-    .candidatos-count { font-size: 0.95rem; }
-
-    /* Modal mais estreito em dispositivos móveis */
-    .confirm-modal-content { max-width: 95%; padding: 18px; }
-}
