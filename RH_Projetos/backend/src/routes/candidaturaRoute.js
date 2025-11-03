@@ -18,7 +18,7 @@ router.get('/vagas/:vagaId/candidatos', candidaturaController.getCandidatosPorVa
 
 router.put('/:id/status', candidaturaController.updateStatusCandidatura);
 
-router.delete('/:id', candidaturaController.deleteCandidatura);
+router.delete('/:id', protect, candidaturaController.deleteCandidatura);
 
 router.get('/:id', candidaturaController.getCandidaturaById);
 

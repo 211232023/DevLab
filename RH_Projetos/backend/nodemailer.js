@@ -87,7 +87,44 @@ async function sendStageUpdateEmail({ email, nome, vaga, etapa, link }) {
   return sendMail({ to: email, subject, text, html });
 }
 
+// Adiciona template e função para envio de email de rejeição
+function buildRejectionTemplate({ nome, vaga, link }) {
+  const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+  const safeLink = link || `${appUrl}/minhas-candidaturas`;
+  const subject = `Sobre sua candidatura — ${vaga || 'Vaga'}`;
+  const text = `Olá ${nome},
+
+Agradecemos seu interesse na vaga ${vaga} e o tempo dedicado ao processo seletivo.
+Após análise, informamos que não seguiremos com sua candidatura para a vaga ${vaga}.
+
+Agradecemos sua participação e o convidamos a acompanhar novas oportunidades em: ${link}
+
+Atenciosamente,
+Equipe de RH`;
+  const html = `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto">
+    <h2 style="color:#111">Informação sobre a candidatura para a vaga ${vaga}</h2>
+    <p>Olá <strong>${nome}</strong>,</p>
+    <p>Agradecemos seu interesse na vaga ${vaga} e o tempo dedicado ao processo seletivo.
+      Após análise, informamos que não seguiremos com sua candidatura para a vaga ${vaga}. </p>
+    <p>Agradecemos sua participação e o convidamos a acompanhar novas oportunidades em: </p>
+    <p style="margin:24px 0">
+      <a href="${safeLink}" style="background:#6c757d;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:bold" target="_blank">Ver Minhas Candidaturas</a>
+    </p>
+    <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
+    <p style="color:#666;font-size:12px">Se você não esperava este email, ignore-o com segurança. Este é um email automático.</p>
+  </div>`;
+  return { subject, text, html };
+}
+
+async function sendRejectionEmail({ email, nome, vaga, link }) {
+  console.log('sendRejectionEmail called:', { email, nome, vaga, link });
+  const { subject, text, html } = buildRejectionTemplate({ nome, vaga, link });
+  return sendMail({ to: email, subject, text, html });
+}
+
 module.exports = {
   sendMail,
   sendStageUpdateEmail,
+  sendRejectionEmail,
 };

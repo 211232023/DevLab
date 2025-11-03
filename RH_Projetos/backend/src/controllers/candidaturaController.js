@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const path = require('path');
 const { sendStageUpdateEmail } = require('../../nodemailer');
+const { sendRejectionEmail } = require('../../nodemailer');
 
 exports.inscreverCandidato = async (req, res) => {
   try {
