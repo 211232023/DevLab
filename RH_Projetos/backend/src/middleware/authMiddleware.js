@@ -25,8 +25,10 @@ exports.protect = async (req, res, next) => {
       connection.release();
 
       if (users.length > 0) {
-        req.user = users[0];
-        console.log('Usuário autenticado:', req.user);
+        // CORREÇÃO: Alterado de req.user para req.usuario
+        req.usuario = users[0]; 
+        // CORREÇÃO: Alterado de req.user para req.usuario (no seu paste já estava correto)
+        console.log('Usuário autenticado:', req.usuario);
         next(); 
       } else {
         return res.status(401).json({ error: 'Usuário não encontrado.' });
@@ -47,10 +49,14 @@ exports.authorize = (...roles) => {
   return (req, res, next) => {
 
     console.log(`--- Middleware "authorize" ativado para os perfis: [${roles.join(', ')}] ---`);
-    console.log(`Verificando perfil do usuário: ${req.user ? req.user.tipo : 'NENHUM'}`);
+    
+    // CORREÇÃO: Alterado de req.user para req.usuario
+    console.log(`Verificando perfil do usuário: ${req.usuario ? req.usuario.tipo : 'NENHUM'}`);
 
-    if (!req.user || !roles.includes(req.user.tipo)) {
-      console.error(`Acesso negado. Usuário com perfil "${req.user ? req.user.tipo : 'N/A'}" tentou acessar rota restrita para "[${roles.join(', ')}]".`);
+    // CORREÇÃO: Alterado de req.user para req.usuario
+    if (!req.usuario || !roles.includes(req.usuario.tipo)) {
+      // CORREÇÃO (Opcional, mas recomendado): Alterado de req.user para req.usuario
+      console.error(`Acesso negado. Usuário com perfil "${req.usuario ? req.usuario.tipo : 'N/A'}" tentou acessar rota restrita para "[${roles.join(', ')}]".`);
       return res.status(403).json({ error: 'Você não tem permissão para realizar esta ação.' });
     }
     
