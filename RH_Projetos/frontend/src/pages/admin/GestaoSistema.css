@@ -98,12 +98,12 @@
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  overflow-x: auto; /* Exibe a barra SÓ se o container for menor que a tabela */
+  overflow-x: auto; /* <-- ALTERADO DE 'hidden' PARA 'auto' */
   border: 1px solid #e0e0e0;
 }
 
 .tabela-usuarios {
-  width: 100%; 
+  width: 100%;
   border-collapse: collapse;
 }
 
@@ -113,7 +113,7 @@
   border-bottom: 1px solid #eee;
   text-align: left;
   vertical-align: middle; 
-  /* white-space: nowrap; */ /* Removido para permitir quebra de linha */
+  white-space: nowrap; /* <-- ADICIONADO: Impede que o conteúdo quebre linha */
 }
 
 .tabela-usuarios th {
@@ -155,16 +155,16 @@
 }
 
 /* =========================================
-  AÇÕES DA TABELA (ATUALIZADO)
+  AÇÕES DA TABELA (NOVO)
 =========================================
 */
 
 .coluna-acoes-sistema {
   text-align: right;
+  white-space: nowrap;
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  /* flex-wrap: wrap; */ /* <-- REMOVIDO para manter os botões na mesma linha */
 }
 
 .btn-acao-sistema {
@@ -181,21 +181,20 @@
   color: white;
 }
 
-/* --- CORES ATUALIZADAS --- */
-.btn-acao-sistema.promote-admin { background-color: #127067; } /* Verde do site */
-.btn-acao-sistema.promote-admin:hover { background-color: #0f5a50; }
+.btn-acao-sistema.promote-admin { background-color: #dc3545; }
+.btn-acao-sistema.promote-admin:hover { background-color: #c82333; }
 
-.btn-acao-sistema.promote-rh { background-color: #127067; } /* Verde do site */
-.btn-acao-sistema.promote-rh:hover { background-color: #0f5a50; }
+.btn-acao-sistema.promote-rh { background-color: #007bff; }
+.btn-acao-sistema.promote-rh:hover { background-color: #0069d9; }
 
-.btn-acao-sistema.demote { background-color: #127067; } /* Verde do site */
-.btn-acao-sistema.demote:hover { background-color: #0f5a50; }
+.btn-acao-sistema.demote { background-color: #6c757d; }
+.btn-acao-sistema.demote:hover { background-color: #5a6268; }
 
 .btn-acao-sistema.delete { 
-  background-color: #dc3545; /* Vermelho */
+  background-color: #343a40;
+  padding: 8px 10px;
 }
-.btn-acao-sistema.delete:hover { background-color: #c82333; } /* Vermelho mais escuro */
-/* --- FIM DAS CORES ATUALIZADAS --- */
+.btn-acao-sistema.delete:hover { background-color: #23272b; }
 
 
 /* =========================================

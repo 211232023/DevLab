@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
 import { useAuth } from '../../AuthContext';
 import './GestaoSistema.css';
-import Button from '../../components/Button'; // Mantido para o Modal
+import Button from '../../components/Button';
 import { FaUsers, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
 // Modal de Confirmação (sem alteração)
@@ -235,29 +235,27 @@ const GestaoSistema = () => {
                                             </span>
                                         </td>
                                         <td className="coluna-acoes-sistema">
-                                            {/* --- BOTÕES ALTERADOS --- */}
                                             {usuario.tipo === 'CANDIDATO' && (
                                                 <>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</button>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
                                                 </>
                                             )}
                                             {usuario.tipo === 'RH' && (
                                                 <>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</button>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
                                                 </>
                                             )}
                                             {usuario.tipo === 'ADMIN' && (
                                                 <>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</button>
-                                                    <button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
+                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
                                                 </>
                                             )}
-                                            <button onClick={() => handleDeleteClick(usuario.id)} className="btn-acao-sistema delete" title="Deletar Usuário">
+                                            <Button onClick={() => handleDeleteClick(usuario.id)} className="btn-acao-sistema delete" title="Deletar Usuário">
                                                 <FaTrash />
-                                            </button>
-                                            {/* --- FIM DAS ALTERAÇÕES --- */}
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
