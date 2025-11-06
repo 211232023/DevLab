@@ -1,3 +1,4 @@
+require('dotenv').config();
 const nodemailer = require("nodemailer");
 const dns = require("dns").promises;
 
@@ -7,7 +8,6 @@ let transporterReady = (async () => {
   let hostToUse = originalHost;
   const ipv4Regex = /^\d+\.\d+\.\d+\.\d+$/;
 
-  // Tenta resolver para IPv4 (evita rota IPv6/ENETUNREACH)
   if (originalHost && !ipv4Regex.test(originalHost)) {
     try {
       const { address } = await dns.lookup(originalHost, { family: 4 });
@@ -33,9 +33,7 @@ let transporterReady = (async () => {
     greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT) || 10000,
     socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT) || 15000,
     tls: {
-      // garante SNI/validação pelo hostname original quando 'host' for um IP
       servername: originalHost || undefined,
-      // definir SMTP_TLS_REJECT="false" apenas para diagnóstico local
       rejectUnauthorized: process.env.SMTP_TLS_REJECT !== "false"
     }
   });
@@ -59,13 +57,7 @@ function buildStageUpdateTemplate({ nome, vaga, etapa, link }) {
   const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
   const safeLink = link || `${appUrl}/minhas-candidaturas`;
   const subject = `Atualização do processo seletivo (${vaga}) — ${etapa}`;
-  const text = `Olá ${nome},
-
-Sua candidatura para a vaga ${vaga} avançou para a etapa: ${etapa}.
-Acompanhe os detalhes em: ${safeLink}
-
-Atenciosamente,
-Equipe de RH`;
+  const text = `Olá ${nome},\n\nSua candidatura para a vaga ${vaga} avançou para a etapa: ${etapa}.\nAcompanhe os detalhes em: ${safeLink}\n\nAtenciosamente,\nEquipe de RH`;
   const html = `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto">
     <h2 style="color:#111">Atualização do processo seletivo</h2>
@@ -87,27 +79,18 @@ async function sendStageUpdateEmail({ email, nome, vaga, etapa, link }) {
   return sendMail({ to: email, subject, text, html });
 }
 
-// Adiciona template e função para envio de email de rejeição
 function buildRejectionTemplate({ nome, vaga, link }) {
   const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
   const safeLink = link || `${appUrl}/minhas-candidaturas`;
   const subject = `Sobre sua candidatura — ${vaga || 'Vaga'}`;
-  const text = `Olá ${nome},
-
-Agradecemos seu interesse na vaga ${vaga} e o tempo dedicado ao processo seletivo.
-Após análise, informamos que não seguiremos com sua candidatura para a vaga ${vaga}.
-
-Agradecemos sua participação e o convidamos a acompanhar novas oportunidades em: ${link}
-
-Atenciosamente,
-Equipe de RH`;
+  const text = `Olá ${nome},\n\nAgradecemos seu interesse na vaga ${vaga} e o tempo dedicado ao processo seletivo.\nApós análise, informamos que não seguiremos com sua candidatura para a vaga ${vaga}.\n\nAgradecemos sua participação e o convidamos a acompanhar novas oportunidades em: ${safeLink}\n\nAtenciosamente,\nEquipe de RH`;
   const html = `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto">
     <h2 style="color:#111">Informação sobre a candidatura para a vaga ${vaga}</h2>
     <p>Olá <strong>${nome}</strong>,</p>
     <p>Agradecemos seu interesse na vaga ${vaga} e o tempo dedicado ao processo seletivo.
       Após análise, informamos que não seguiremos com sua candidatura para a vaga ${vaga}. </p>
-    <p>Agradecemos sua participação e o convidamos a acompanhar novas oportunidades em: </p>
+    <p>Se desejar revisar suas candidaturas, acesse:</p>
     <p style="margin:24px 0">
       <a href="${safeLink}" style="background:#6c757d;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:bold" target="_blank">Ver Minhas Candidaturas</a>
     </p>

@@ -2,7 +2,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '..', '..', 
 
 const { sendRejectionEmail } = require('../../nodemailer');
 
-const TEST_EMAIL = process.env.TEST_REJECTION_EMAIL || '201622023@eniac.edu.br';
+const TEST_EMAIL = process.env.TEST_REJECTION_EMAIL || 'walter.ara.souza@hotmail.com';
 const TEST_NAME = process.env.TEST_REJECTION_NAME || 'Candidato Teste';
 const TEST_VAGA = process.env.TEST_REJECTION_VAGA || 'Vaga de Exemplo';
 const TEST_LINK = process.env.TEST_REJECTION_LINK || `${process.env.APP_BASE_URL || 'http://localhost:3000'}/minhas-candidaturas`;
