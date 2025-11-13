@@ -5,7 +5,7 @@ const path = require('path');
 const db = require(path.resolve(__dirname, '../config/db'));
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const usuarioController = require('../controllers/usuarioController'); // <-- ESTA LINHA FALTAVA NO SEU ARQUIVO ORIGINAL
+const usuarioController = require('../controllers/usuarioController'); // Certifique-se que esta linha existe
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -80,11 +80,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
 // --- ALTERAÇÕES AQUI ---
-// Substituímos as rotas antigas (/forgot-password e /reset-password/:token)
-// pelas novas rotas baseadas em código.
-
 // Rota para SOLICITAR o código de redefinição de senha
 router.post('/forgot-password-send-code', usuarioController.requestPasswordResetWithCode); 
 
