@@ -1,11 +1,11 @@
 /* =========================================
-  LAYOUT GERAL E HEADER (ATUALIZADO)
+  LAYOUT GERAL E HEADER
 =========================================
 */
 
 .gestao-sistema-wrapper {
-  background-color: #e6ebf2; /* Fundo da página */
-  min-height: calc(100vh - 180px); /* Altura mínima (ajuste 180px se seu header/footer for diferente) */
+  background-color: #e6ebf2; 
+  min-height: calc(100vh - 180px);
   padding-bottom: 3rem;
 }
 
@@ -18,7 +18,7 @@
 
 .gestao-sistema-header h1 {
   font-size: 2.2rem; 
-  color: #127067; /* Cor principal do tema */
+  color: #127067;
   margin-bottom: 10px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .gestao-sistema-main {
-  width: 1200px; /* Largura fixa como em GestaoVaga */
+  width: 1200px;
   max-width: 100%;
   margin: 2rem auto;
   padding: 0 2rem;
@@ -37,7 +37,7 @@
 }
 
 /* =========================================
-  BARRA DE FILTROS (NOVO)
+  BARRA DE FILTROS
 =========================================
 */
 
@@ -84,12 +84,12 @@
 .filtros-bar-sistema .filtro-input:focus,
 .filtros-bar-sistema .filtro-select:focus {
   outline: none;
-  border-color: #127067; /* Cor de destaque */
+  border-color: #127067;
   box-shadow: 0 0 0 2px rgba(18, 112, 103, 0.2);
 }
 
 /* =========================================
-  TABELA DE USUÁRIOS (ATUALIZADO)
+  TABELA DE USUÁRIOS
 =========================================
 */
 
@@ -98,7 +98,7 @@
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  overflow-x: auto; /* <-- ALTERADO DE 'hidden' PARA 'auto' */
+  overflow-x: auto;
   border: 1px solid #e0e0e0;
 }
 
@@ -113,7 +113,7 @@
   border-bottom: 1px solid #eee;
   text-align: left;
   vertical-align: middle; 
-  white-space: nowrap; /* <-- ADICIONADO: Impede que o conteúdo quebre linha */
+  white-space: nowrap;
 }
 
 .tabela-usuarios th {
@@ -128,7 +128,6 @@
   background-color: #f0f2f5; 
 }
 
-/* Mensagem de "Nenhum usuário" */
 .nenhum-usuario {
   text-align: center;
   padding: 40px;
@@ -142,7 +141,7 @@
   font-weight: 600;
   font-size: 0.85rem;
   color: #fff;
-  white-space: nowrap; /* Garante que a tag não quebre */
+  white-space: nowrap;
 }
 .tipo-tag.tipo-admin {
   background-color: #dc3545; /* Vermelho */
@@ -155,7 +154,7 @@
 }
 
 /* =========================================
-  AÇÕES DA TABELA (NOVO)
+  AÇÕES DA TABELA (ATUALIZADO)
 =========================================
 */
 
@@ -167,38 +166,68 @@
   gap: 0.5rem;
 }
 
-.btn-acao-sistema {
-  padding: 8px 12px;
-  border-radius: 50px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  color: white;
+/* Base para todos os botões de ação na tabela */
+.coluna-acoes-sistema .btn-acao-sistema {
+    /* Padronização de tamanho */
+    min-width: 100px; /* Largura mínima para padronizar */
+    padding: 6px 12px;
+    font-size: 13px;
+    
+    /* Estilos gerais */
+    font-weight: 500;
+    margin: 2px 4px; /* Espaçamento entre os botões */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    
+    /* Para centralizar ícone e texto */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
 }
 
-.btn-acao-sistema.promote-admin { background-color: #dc3545; }
-.btn-acao-sistema.promote-admin:hover { background-color: #c82333; }
-
-.btn-acao-sistema.promote-rh { background-color: #007bff; }
-.btn-acao-sistema.promote-rh:hover { background-color: #0069d9; }
-
-.btn-acao-sistema.demote { background-color: #6c757d; }
-.btn-acao-sistema.demote:hover { background-color: #5a6268; }
-
-.btn-acao-sistema.delete { 
-  background-color: #343a40;
-  padding: 8px 10px;
+.coluna-acoes-sistema .btn-acao-sistema:hover {
+    transform: translateY(-1px); /* Efeito sutil ao passar o mouse */
+    opacity: 0.9;
 }
-.btn-acao-sistema.delete:hover { background-color: #23272b; }
+
+/* --- Cores Específicas --- */
+
+/* Tornar Admin (Azul) */
+.btn-acao-sistema.promote-admin {
+    background-color: #3182ce; /* Azul */
+    color: white;
+    border-radius: 40px;
+}
+
+/* Tornar RH (Verde) */
+.btn-acao-sistema.promote-rh {
+    background-color: #38a169; /* Verde */
+    color: white;
+    border-radius: 40px;
+}
+
+/* Rebaixar (Laranja) */
+.btn-acao-sistema.demote {
+    background-color: #dd6b20; /* Laranja */
+    color: white;
+    border-radius: 40px;
+}
+
+/* Deletar (Vermelho) */
+.btn-acao-sistema.delete {
+    background-color: #e53e3e; /* Vermelho */
+    color: white;
+    min-width: 40px; /* Tamanho menor para o botão de ícone */
+    padding: 6px 10px;
+    border-radius: 40px;
+}
 
 
 /* =========================================
-  MODAL E LOADING (Sem alteração)
+  MODAL E LOADING (ATUALIZADO)
 =========================================
 */
 
@@ -223,5 +252,33 @@
 .confirm-modal-content h3 { margin-bottom: 10px; }
 .confirm-modal-content p { color: #555; margin-bottom: 25px; }
 .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
-.btn-confirm-delete { background-color: #dc3545; color: white; }
-.btn-confirm-delete:hover { background-color: #c82333; }
+
+/* --- ESTILOS PARA BOTÕES DO MODAL (NOVOS) --- */
+.confirm-modal-actions .btn-cancel,
+.confirm-modal-actions .btn-confirm-delete {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 110px;
+    border: 1px solid transparent;
+}
+
+.confirm-modal-actions .btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #ccc;
+}
+.confirm-modal-actions .btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.confirm-modal-actions .btn-confirm-delete {
+    background-color: #e53e3e; /* Vermelho */
+    color: white;
+}
+.confirm-modal-actions .btn-confirm-delete:hover {
+    background-color: #c53030;
+}

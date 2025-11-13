@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
 import { useAuth } from '../../AuthContext';
 import './GestaoSistema.css';
-import Button from '../../components/Button';
+// import Button from '../../components/Button'; // Removido
 import { FaUsers, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
-// Modal de Confirmação (sem alteração)
+// Modal de Confirmação (Atualizado para usar <button>)
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     if (!isOpen) return null;
 
@@ -16,8 +16,8 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
                 <h3>{title}</h3>
                 <p>{message}</p>
                 <div className="confirm-modal-actions">
-                    <Button onClick={onClose} className="btn-cancel">Cancelar</Button>
-                    <Button onClick={onConfirm} className="btn-confirm-delete">Confirmar</Button>
+                    <button onClick={onClose} className="btn-cancel">Cancelar</button>
+                    <button onClick={onConfirm} className="btn-confirm-delete">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -37,12 +37,12 @@ const GestaoSistema = () => {
         onConfirm: () => {}
     });
 
-    // States para filtros e ordenação (sem alteração)
+    // States para filtros e ordenação
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('All'); // 'All' | 'ADMIN' | 'RH' | 'CANDIDATO'
-    const [sortOrder, setSortOrder] = useState('default'); // 'default' | 'alpha-asc' | 'alpha-desc'
+    const [filterType, setFilterType] = useState('All');
+    const [sortOrder, setSortOrder] = useState('default');
 
-    // Carregar usuários (sem alteração)
+    // Carregar usuários
     useEffect(() => {
         const fetchUsuarios = async () => {
             if (user && user.tipo === 'ADMIN') {
@@ -65,7 +65,7 @@ const GestaoSistema = () => {
         fetchUsuarios();
     }, [user]);
 
-    // Lógica de filtragem e ordenação (sem alteração)
+    // Lógica de filtragem e ordenação
     const filteredUsuarios = useMemo(() => {
         let resultado = usuarios || [];
 
@@ -91,7 +91,7 @@ const GestaoSistema = () => {
     }, [usuarios, searchTerm, filterType, sortOrder]);
 
 
-    // Funções de Ação (sem alteração)
+    // Funções de Ação
     const handleDeleteClick = (usuarioId) => {
         const usuario = usuarios.find(u => u.id === usuarioId);
         if (usuario.id === user.id) {
@@ -136,11 +136,10 @@ const GestaoSistema = () => {
         }
     };
 
-    // Função de formatar data (sem alteração, mas agora será usada para data_nascimento)
+    // Função de formatar data
     const formatarData = (dataString) => {
         if (!dataString) return 'N/A';
         const data = new Date(dataString);
-        // Verifica se a data é válida
         if (isNaN(data.getTime())) return 'N/A';
         return data.toLocaleDateString('pt-BR');
     };
@@ -165,7 +164,7 @@ const GestaoSistema = () => {
 
             <main className="gestao-sistema-main">
                 
-                {/* Barra de Filtros (sem alteração) */}
+                {/* Barra de Filtros */}
                 <div className="filtros-bar-sistema">
                     <input
                         type="search"
@@ -200,7 +199,7 @@ const GestaoSistema = () => {
                     </select>
                 </div>
 
-                {/* Tabela de Usuários (ATUALIZADA) */}
+                {/* Tabela de Usuários (Atualizada para usar <button>) */}
                 <div className="tabela-usuarios-container">
                     {filteredUsuarios.length === 0 ? (
                         <p className="nenhum-usuario">Nenhum usuário encontrado com os filtros atuais.</p>
@@ -208,13 +207,11 @@ const GestaoSistema = () => {
                         <table className="tabela-usuarios">
                             <thead>
                                 <tr>
-                                    {/* --- COLUNAS ADICIONADAS --- */}
                                     <th>ID</th>
                                     <th>Nome</th>
                                     <th>Email</th>
                                     <th>Telefone</th>
                                     <th>CPF</th>
-                                    {/* --- FIM DAS ADIÇÕES --- */}
                                     <th>Tipo</th>
                                     <th style={{ textAlign: 'right' }}>Ações</th>
                                 </tr>
@@ -222,13 +219,11 @@ const GestaoSistema = () => {
                             <tbody>
                                 {filteredUsuarios.map((usuario) => (
                                     <tr key={usuario.id}>
-                                        {/* --- CÉLULAS ADICIONADAS --- */}
                                         <td>{usuario.id}</td>
                                         <td>{usuario.nome}</td>
                                         <td>{usuario.email}</td>
                                         <td>{usuario.telefone || 'N/A'}</td>
                                         <td>{usuario.cpf || 'N/A'}</td>
-                                        {/* --- FIM DAS ADIÇÕES --- */}
                                         <td>
                                             <span className={`tipo-tag tipo-${(usuario.tipo || 'CANDIDATO').toLowerCase()}`}>
                                                 {usuario.tipo}
@@ -237,25 +232,25 @@ const GestaoSistema = () => {
                                         <td className="coluna-acoes-sistema">
                                             {usuario.tipo === 'CANDIDATO' && (
                                                 <>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</button>
                                                 </>
                                             )}
                                             {usuario.tipo === 'RH' && (
                                                 <>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</Button>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'ADMIN')} className="btn-acao-sistema promote-admin">Tornar Admin</button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</button>
                                                 </>
                                             )}
                                             {usuario.tipo === 'ADMIN' && (
                                                 <>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</Button>
-                                                    <Button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</Button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'RH')} className="btn-acao-sistema promote-rh">Tornar RH</button>
+                                                    <button onClick={() => handleToggleTipo(usuario.id, 'CANDIDATO')} className="btn-acao-sistema demote">Rebaixar</button>
                                                 </>
                                             )}
-                                            <Button onClick={() => handleDeleteClick(usuario.id)} className="btn-acao-sistema delete" title="Deletar Usuário">
+                                            <button onClick={() => handleDeleteClick(usuario.id)} className="btn-acao-sistema delete" title="Deletar Usuário">
                                                 <FaTrash />
-                                            </Button>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

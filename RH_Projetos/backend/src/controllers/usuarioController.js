@@ -363,3 +363,43 @@ exports.resetPasswordWithCode = async (req, res) => {
         res.status(500).json({ error: 'Erro interno ao redefinir a senha.', details: error.message });
     }
 };
+
+exports.updateUsuarioTipo = async (req, res) => {
+  const { id } = req.params;
+  const { tipo } = req.body;
+
+  // 1. Validação básica do tipo recebido
+  if (!tipo || !['ADMIN', 'RH', 'CANDIDATO'].includes(tipo)) {
+    return res.status(400).json({ error: 'Tipo de usuário inválido ou não fornecido.' });
+  }
+
+  // 2. Verificação de segurança (Opcional, mas recomendado)
+  // Se o seu 'authMiddleware' adicionar o usuário logado ao 'req.user',
+  // é uma boa prática descomentar e adaptar o código abaixo
+  // para impedir que um admin altere o seu próprio status.
+  /*
+  if (req.user && parseInt(req.user.id, 10) === parseInt(id, 10)) {
+     return res.status(403).json({ error: 'Você não pode alterar seu próprio tipo de usuário.' });
+  }
+  */
+  
+  try {
+    // 3. Atualiza o banco de dados
+    const [result] = await pool.query(
+      'UPDATE usuarios SET tipo = ? WHERE id = ?',
+      [tipo, id]
+    );
+
+    // 4. Verifica se a atualização funcionou
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // 5. Resposta de sucesso
+    res.json({ message: 'Tipo de usuário atualizado com sucesso!', id, novoTipo: tipo });
+
+  } catch (err) {
+    console.error('Erro ao atualizar tipo de usuário:', err);
+    res.status(500).json({ error: 'Erro interno ao atualizar tipo de usuário.', details: err.message });
+  }
+};  
