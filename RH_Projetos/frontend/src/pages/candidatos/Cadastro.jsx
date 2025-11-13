@@ -14,7 +14,7 @@ const Cadastro = () => {
     genero: "",
     senha: "",
     confirmarSenha: "",
-    tipo: "Candidato",
+    tipo: "Candidato", // Valor fixo, todos se cadastram como Candidato
   });
   const [codigoVerificacao, setCodigoVerificacao] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
@@ -46,8 +46,12 @@ const Cadastro = () => {
     setSuccess('');
     setCodeError('');
 
-    for (const key in form) {
-      if (form[key] === "") {
+    // Remove 'tipo' da verificação de campos vazios, pois é fixo
+    const camposParaValidar = { ...form };
+    delete camposParaValidar.tipo; // Não precisamos validar 'tipo' vindo do usuário
+
+    for (const key in camposParaValidar) {
+      if (camposParaValidar[key] === "") {
         setError("Preencha todos os campos para se cadastrar!");
         return;
       }
@@ -61,6 +65,8 @@ const Cadastro = () => {
     setLoading(true);
     try {
       pendingFormData.current = { ...form };
+      // O backend já sabe que o tipo é Candidato, ou podemos enviar
+      // O e-mail para verificação
       const response = await api.post("/usuarios/enviar-codigo", { email: form.email });
       setSuccess(response.data.message || 'Código de verificação enviado para o seu e-mail.');
       setShowCodeInput(true);
@@ -94,6 +100,7 @@ const Cadastro = () => {
       });
 
       try {
+        // 'tipo' já está corretamente definido como "Candidato" no pendingFormData
         const dadosParaCadastrar = {
             nome: pendingFormData.current.nomeCompleto,
             cpf: pendingFormData.current.cpf,
@@ -101,7 +108,7 @@ const Cadastro = () => {
             telefone: pendingFormData.current.telefone,
             genero: pendingFormData.current.genero,
             senha: pendingFormData.current.senha,
-            tipo: pendingFormData.current.tipo,
+            tipo: pendingFormData.current.tipo, // Sempre será "Candidato"
         };
         const registerResponse = await api.post("/auth/register", dadosParaCadastrar);
         setSuccess(registerResponse.data.message || "Cadastro realizado com sucesso! Redirecionando...");
@@ -138,7 +145,7 @@ const Cadastro = () => {
             {error && <p className="error-message">{error}</p>}
             {success && <p className="success-message">{success}</p>}
             <form onSubmit={handleInitialSubmit} className="cadastro-form">
-              {/* --- Campos do Formulário (iguais aos anteriores) --- */}
+              {/* --- Campos do Formulário --- */}
               <div className="form-group">
                 <label htmlFor="nomeCompleto">Nome Completo</label>
                 <Input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" value={form.nomeCompleto} onChange={handleChange} required disabled={loading}/>
@@ -157,25 +164,21 @@ const Cadastro = () => {
                 <label htmlFor="email">Email</label>
                 <Input type="email" id="email" name="email" placeholder="Digite seu email" value={form.email} onChange={handleChange} required disabled={loading}/>
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="genero">Gênero</label>
-                  <select id="genero" name="genero" value={form.genero} onChange={handleChange} required className="input-select" disabled={loading}>
-                    <option value="" disabled>Selecione</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Outro">Outro</option>
-                    <option value="Prefiro não informar">Prefiro não informar</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="tipo">Tipo de Conta</label>
-                  <select id="tipo" name="tipo" value={form.tipo} onChange={handleChange} required className="input-select" disabled={loading}>
-                    <option value="Candidato">Candidato</option>
-                    <option value="RH">Recursos Humanos</option>
-                  </select>
-                </div>
+              
+              {/* --- Campo Gênero (agora em largura total) --- */}
+              <div className="form-group">
+                <label htmlFor="genero">Gênero</label>
+                <select id="genero" name="genero" value={form.genero} onChange={handleChange} required className="input-select" disabled={loading}>
+                  <option value="" disabled>Selecione</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
+                  <option value="Prefiro não informar">Prefiro não informar</option>
+                </select>
               </div>
+
+              {/* --- Campo Tipo de Conta REMOVIDO --- */}
+
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="senha">Senha</label>
@@ -197,12 +200,11 @@ const Cadastro = () => {
             </form>
           </>
         ) : (
-          /* Seção para Inserir o Código de Verificação */
+          /* Seção para Inserir o Código de Verificação (sem alterações) */
           <div className="codigo-verification-section">
             <h3>Verifique seu E-mail</h3>
             <p>Enviamos um código de verificação para <strong>{pendingFormData.current?.email}</strong>. Por favor, insira o código abaixo para concluir o cadastro.</p>
 
-            {/* Mensagem de sucesso do envio ou erro da validação/cadastro */}
             {success && <p className="success-message">{success}</p>}
             {codeError && <p className="error-message">{codeError}</p>}
 
@@ -218,27 +220,22 @@ const Cadastro = () => {
                 maxLength="6"
                 required
                 disabled={loading}
-                className="codigo-input-style" // Adiciona classe para estilo específico
+                className="codigo-input-style"
               />
             </div>
 
-            {/* Botão principal (verde) */}
             <Button type="button" onClick={handleCodigoSubmit} className="cadastro-btn" disabled={loading || !codigoVerificacao}>
               {loading ? 'Verificando e cadastrando...' : 'Confirmar Código e Cadastrar'}
             </Button>
 
-             {/* Botão secundário (estilo link) */}
              <button
                 type="button"
                 onClick={() => { setShowCodeInput(false); setError(''); setSuccess(''); setCodeError(''); pendingFormData.current = null; setCodigoVerificacao(''); }}
-                className="cancel-link-btn" // Nova classe para estilo de link
+                className="cancel-link-btn"
                 disabled={loading}
              >
                 Cancelar ou corrigir e-mail
              </button>
-
-            {/* Opcional: Reenviar código */}
-            {/* <Button type="button" onClick={handleInitialSubmit} className="secondary-btn" disabled={loading}>Reenviar Código</Button> */}
           </div>
         )}
       </div>

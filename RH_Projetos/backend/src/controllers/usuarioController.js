@@ -264,92 +264,97 @@ exports.deleteUsuario = async (req, res) => {
   }
 };
 
-exports.requestPasswordReset = async (req, res) => {
+exports.requestPasswordResetWithCode = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-        return res.status(400).json({ message: 'O email é obrigatório.' });
+        return res.status(400).json({ error: 'O e-mail é obrigatório.' });
     }
 
     try {
+        // 1. Verifica se o usuário EXISTE
         const [users] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [email]);
 
+        // 2. Se não existir, retorna uma mensagem genérica (por segurança)
+        // É importante retornar 200 OK para não permitir que alguém
+        // descubra quais e-mails estão ou não cadastrados.
         if (users.length === 0) {
             console.log(`Tentativa de reset para email não encontrado: ${email}`);
-            return res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
+            return res.status(200).json({ message: 'Se o e-mail estiver cadastrado em nosso sistema, você receberá um código de verificação.' });
         }
 
-        const userId = users[0].id;
-        const token = crypto.randomBytes(32).toString('hex');
-        const expires = new Date(Date.now() + 3600000); // 1 hora
+        // 3. Gerar e armazenar o código (reutilizando o objeto)
+        const codigo = gerarCodigoAleatorio();
+        const expiracao = Date.now() + 15 * 60 * 1000; // 15 minutos
+        codigosVerificacao[email] = { codigo, expiracao, verificado: false }; // 'verificado' não é usado aqui, mas mantemos a estrutura
 
-        // **** CORREÇÃO AQUI ****
-        await pool.query(
-            'UPDATE usuarios SET resetPasswordToken = ?, resetPasswordExpires = ? WHERE id = ?',
-            [token, expires, userId]
-        );
+        console.log(`Código de REDEFINIÇÃO para ${email}: ${codigo}`);
 
-        // Use a variável APP_BASE_URL do seu .env para construir a URL
-        const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000'; // Fallback
-        const resetUrl = `${appBaseUrl}/reset-password/${token}`;
+        // 4. Enviar e-mail com o CÓDIGO
+        await sendMail({
+            to: email,
+            subject: 'Redefinição de Senha - DevLab',
+            text: `Olá,\n\nSeu código para redefinição de senha é: ${codigo}\n\nEste código expira em 15 minutos.\n\nAtenciosamente,\nEquipe DevLab`,
+            html: `<p>Olá,</p><p>Seu código para redefinição de senha é: <strong>${codigo}</strong></p><p>Este código expira em 15 minutos.</p>`
+        });
 
-        const subject = 'Redefinição de Senha - DevLab';
-        const text = `Você solicitou uma redefinição de senha. Clique no link a seguir para redefinir sua senha: ${resetUrl}\n\nSe você não solicitou isso, ignore este email.\nEste link expira em 1 hora.`;
-        const html = `<p>Você solicitou uma redefinição de senha.</p><p>Clique no link a seguir para redefinir sua senha: <a href="${resetUrl}">${resetUrl}</a></p><p>Se você não solicitou isso, ignore este email.</p><p>Este link expira em 1 hora.</p>`;
-
-        // Use a função sendMail importada
-        try {
-            await sendMail({ to: email, subject, text, html });
-            console.log(`Email de redefinição enviado para ${email}`);
-            res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
-        } catch (mailError) {
-            console.error('Erro ao enviar email de redefinição:', mailError);
-            // Mesmo com erro no envio, retornamos sucesso para não expor informações
-            res.status(200).json({ message: 'Se um usuário com este email existir, um link de redefinição de senha foi enviado.' });
-        }
+        res.status(200).json({ message: 'Código de verificação enviado para o seu e-mail.' });
 
     } catch (error) {
-        console.error('Erro ao solicitar redefinição de senha:', error);
-        res.status(500).json({ message: 'Ocorreu um problema ao processar sua solicitação.' }); // Retornar 500 para erro interno
+        console.error('Erro ao solicitar código de redefinição:', error);
+        res.status(500).json({ error: 'Erro interno ao processar a solicitação.', details: error.message });
     }
 };
 
-exports.resetPassword = async (req, res) => {
-    const { token } = req.params;
-    const { password } = req.body;
+/**
+ * PASSO 2: Validar o código e redefinir a senha.
+ * (Chamado por POST /auth/reset-password-with-code)
+ */
+exports.resetPasswordWithCode = async (req, res) => {
+    const { email, codigo, password } = req.body; // 'password' vem do frontend
 
-    if (!password) {
-        return res.status(400).json({ message: 'A nova senha é obrigatória.' });
+    if (!email || !codigo || !password) {
+        return res.status(400).json({ error: 'E-mail, código e nova senha são obrigatórios.' });
     }
 
     try {
-        const now = new Date();
+        // 1. Validar o código (lógica idêntica à de validação de cadastro)
+        const dadosCodigo = codigosVerificacao[email];
 
-        // **** CORREÇÃO AQUI (SELECT) ****
-        const [users] = await pool.query(
-            'SELECT id FROM usuarios WHERE resetPasswordToken = ? AND resetPasswordExpires > ?',
-            [token, now]
-        );
-
-        if (users.length === 0) {
-            return res.status(400).json({ message: 'Token inválido ou expirado.' });
+        if (!dadosCodigo) {
+            return res.status(400).json({ error: 'Código inválido ou não solicitado para este e-mail.' });
         }
 
-        const userId = users[0].id;
+        if (Date.now() > dadosCodigo.expiracao) {
+            delete codigosVerificacao[email]; // Limpa código expirado
+            return res.status(400).json({ error: 'Código de verificação expirado. Solicite um novo.' });
+        }
 
-        // Hash da nova senha
+        if (dadosCodigo.codigo !== codigo) {
+            return res.status(400).json({ error: 'Código de verificação inválido.' });
+        }
+
+        // 2. Se o código for válido, redefinir a senha
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // **** CORREÇÃO AQUI (UPDATE) ****
-        await pool.query(
-            'UPDATE usuarios SET senha = ?, resetPasswordToken = NULL, resetPasswordExpires = NULL WHERE id = ?',
-            [hashedPassword, userId]
+        // Atualiza a senha no banco ONDE o email corresponder
+        const [result] = await pool.query(
+            'UPDATE usuarios SET senha = ? WHERE email = ?',
+            [hashedPassword, email]
         );
+
+        if (result.affectedRows === 0) {
+            // Isso não deve acontecer se a verificação de email no passo 1 funcionou
+            return res.status(404).json({ error: 'Usuário não encontrado para atualizar a senha.' });
+        }
+        
+        // 3. Limpar o código da memória após o sucesso
+        delete codigosVerificacao[email];
 
         res.status(200).json({ message: 'Senha redefinida com sucesso!' });
 
     } catch (error) {
-        console.error('Erro ao redefinir senha:', error);
-        res.status(500).json({ message: 'Erro ao redefinir a senha.', error: error.message });
+        console.error('Erro ao redefinir senha com código:', error);
+        res.status(500).json({ error: 'Erro interno ao redefinir a senha.', details: error.message });
     }
 };

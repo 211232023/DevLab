@@ -1,8 +1,8 @@
 // RH_Projetos/frontend/src/pages/candidatos/Login.jsx
-import React, { useState, useEffect } from "react"; // <-- Importe useEffect
+import React, { useState } from "react"; // <-- Removido useEffect
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { Link, useNavigate, useParams } from "react-router-dom"; // <-- Importe useParams
+import { Link, useNavigate } from "react-router-dom"; // <-- Removido useParams
 import { useAuth } from "../../AuthContext";
 import api from "../../api";
 import "./Login.css"; // Importa os estilos
@@ -18,7 +18,8 @@ const Login = () => {
     // Estado para o formulário de Recuperação de Senha
     const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
 
-    // --- NOVOS ESTADOS para Redefinir Senha ---
+    // --- ESTADOS ATUALIZADOS para Redefinir Senha ---
+    const [codigoVerificacao, setCodigoVerificacao] = useState(""); // <-- ADICIONADO
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     // ------------------------------------------
@@ -29,16 +30,8 @@ const Login = () => {
 
     const { login } = useAuth();
     const navigate = useNavigate();
-    const { token } = useParams(); // <-- Pega o :token da URL
-
-    // --- NOVO EFEITO para verificar o token na URL ---
-    useEffect(() => {
-        // Se um token estiver presente na URL, mude para a view de redefinição
-        if (token) {
-            setView('resetPassword');
-        }
-    }, [token]); // Executa sempre que o 'token' da URL mudar
-    // -------------------------------------------------
+    
+    // --- REMOVIDO: Bloco de useEffect e useParams que verificava o token na URL ---
 
     /**
      * Lida com o submit do formulário de login.
@@ -80,6 +73,7 @@ const Login = () => {
 
     /**
      * Lida com o submit do formulário de solicitação de recuperação de senha.
+     * (PASSO 1: Enviar código)
      */
     const handleForgotPasswordSubmit = async (e) => {
         e.preventDefault();
@@ -91,10 +85,12 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            await api.post('/auth/forgot-password', { email: forgotPasswordEmail });
+            // ATENÇÃO: A rota foi alterada para refletir a nova ação de enviar código
+            await api.post('/auth/forgot-password-send-code', { email: forgotPasswordEmail });
             
-            setMessage("Se o e-mail estiver cadastrado em nosso sistema, você receberá um link para redefinir sua senha em breve.");
-            setForgotPasswordEmail("");
+            // ATUALIZADO: Muda de view em vez de só mostrar a mensagem
+            setMessage("Código de verificação enviado para o seu e-mail.");
+            setView('resetPassword'); // Manda o usuário para a tela de inserir o código e a nova senha
             
         } catch (error) {
             console.error("Erro ao solicitar recuperação de senha:", error);
@@ -106,13 +102,17 @@ const Login = () => {
         }
     };
 
-    // --- NOVA FUNÇÃO: Lida com o submit do formulário de redefinição de senha ---
+    /**
+     * Lida com o submit do formulário de redefinição de senha.
+     * (PASSO 2: Verificar código e Redefinir)
+     */
     const handleResetPasswordSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
 
-        if (!newPassword || !confirmPassword) {
-            setMessage('Por favor, preencha as duas senhas.');
+        // ATUALIZADO: Verifica o código também
+        if (!codigoVerificacao || !newPassword || !confirmPassword) {
+            setMessage('Por favor, preencha todos os campos (código, nova senha e confirmação).');
             return;
         }
 
@@ -123,22 +123,32 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // Envia o token (da URL) e a nova senha
-            const response = await api.post(`/auth/reset-password/${token}`, {
+            // ATUALIZADO: Envia email, código e nova senha.
+            // ATENÇÃO: A rota foi alterada para refletir a nova ação com código
+            const response = await api.post(`/auth/reset-password-with-code`, {
+                email: forgotPasswordEmail, // Email digitado no passo anterior
+                codigo: codigoVerificacao,
                 password: newPassword
             });
 
             setMessage(response.data.message + " Redirecionando para o login em 3 segundos...");
 
-            // Desabilita o botão e redireciona para o login após 3 segundos
             setTimeout(() => {
                 navigate('/login');
+                // Limpa os estados por segurança ao voltar para o login
+                setView('login');
+                setForgotPasswordEmail('');
+                setCodigoVerificacao('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setMessage(''); // Limpa a mensagem de sucesso
             }, 3000);
 
         } catch (error) {
             console.error("Erro ao redefinir senha:", error);
             setMessage(
-                error.response?.data?.message || 'Erro ao processar sua solicitação. O link pode ter expirado.'
+                // Mensagem atualizada
+                error.response?.data?.message || 'Erro ao processar sua solicitação. O código pode estar inválido ou ter expirado.'
             );
         } finally {
             setIsLoading(false);
@@ -152,11 +162,9 @@ const Login = () => {
     const renderMessage = () => {
         if (!message) return null;
         
-        // --- INÍCIO DA CORREÇÃO ---
-        // Converte a mensagem para minúsculas para garantir que a verificação funcione
-        // independentemente de maiúsculas/minúsculas.
         const lowerCaseMessage = message.toLowerCase();
 
+        // Lógica de detecção de erro (mantida)
         const isError = lowerCaseMessage.includes("preencha") || 
                         lowerCaseMessage.includes("erro") || 
                         lowerCaseMessage.includes("não foi") ||
@@ -164,11 +172,10 @@ const Login = () => {
                         lowerCaseMessage.includes("não foi possível") ||
                         lowerCaseMessage.includes("inválidos") ||
                         lowerCaseMessage.includes("inválido") ||
-                        lowerCaseMessage.includes("inválidas") || // <-- Adicionado para "Credenciais Inválidas"
-                        lowerCaseMessage.includes("não encontrado") || // <-- Adicionado para "Usuário não encontrado"
+                        lowerCaseMessage.includes("inválidas") ||
+                        lowerCaseMessage.includes("não encontrado") ||
                         lowerCaseMessage.includes("expirado") ||
                         lowerCaseMessage.includes("coincidem");
-        // --- FIM DA CORREÇÃO ---
         
         const messageClass = isError 
             ? "message-area error-message" 
@@ -182,7 +189,7 @@ const Login = () => {
     };
 
     /**
-     * Renderiza o formulário de Login.
+     * Renderiza o formulário de Login. (Sem alterações)
      */
     const renderLoginView = () => (
         <form onSubmit={handleLoginSubmit}>
@@ -235,13 +242,14 @@ const Login = () => {
     );
 
     /**
-     * Renderiza o formulário de Recuperação de Senha.
+     * Renderiza o formulário de Recuperação de Senha (Passo 1: Inserir E-mail).
      */
     const renderForgotPasswordView = () => (
         <form onSubmit={handleForgotPasswordSubmit}>
             <h2>Recuperar Senha</h2>
             <p className="forgot-password-instructions">
-                Digite o e-mail associado à sua conta e enviaremos um link para redefinir sua senha.
+                {/* Texto atualizado */}
+                Digite o e-mail associado à sua conta e enviaremos um código de verificação.
             </p>
             {renderMessage()}
             <div className="form-group">
@@ -257,7 +265,8 @@ const Login = () => {
                 />
             </div>
             <Button type="submit" className="login-btn" disabled={isLoading}>
-                {isLoading ? "Enviando..." : "Enviar Link"}
+                 {/* Texto atualizado */}
+                {isLoading ? "Enviando..." : "Enviar Código"}
             </Button>
             
             <span
@@ -272,15 +281,34 @@ const Login = () => {
         </form>
     );
 
-    // --- NOVA FUNÇÃO: Renderiza o formulário de Redefinição de Senha ---
+    /**
+     * Renderiza o formulário de Redefinição de Senha (Passo 2: Inserir Código + Nova Senha).
+     */
     const renderResetPasswordView = () => (
         <form onSubmit={handleResetPasswordSubmit}>
             <h2>Redefinir Senha</h2>
             <p className="forgot-password-instructions">
-                Digite sua nova senha.
+                 {/* Texto atualizado para incluir o e-mail */}
+                Verifique seu e-mail (<strong>{forgotPasswordEmail}</strong>) e insira o código recebido.
             </p>
             {renderMessage()}
             
+            {/* --- CAMPO DE CÓDIGO ADICIONADO --- */}
+            <div className="form-group">
+                <label htmlFor="codigoVerificacao">Código de Verificação:</label>
+                <Input
+                    type="text"
+                    id="codigoVerificacao"
+                    placeholder="Código de 6 dígitos"
+                    value={codigoVerificacao}
+                    onChange={(e) => setCodigoVerificacao(e.target.value)}
+                    maxLength="6"
+                    required
+                    disabled={isLoading}
+                />
+            </div>
+            {/* --- FIM DA ADIÇÃO --- */}
+
             <div className="form-group">
                 <label htmlFor="newPassword">Nova Senha:</label>
                 <Input
@@ -307,8 +335,25 @@ const Login = () => {
             </div>
             
             <Button type="submit" className="login-btn" disabled={isLoading}>
-                {isLoading ? 'Salvando...' : 'Salvar Nova Senha'}
+                 {/* Texto atualizado */}
+                {isLoading ? 'Salvando...' : 'Verificar e Salvar'}
             </Button>
+
+            {/* --- LINK DE CANCELAR ADICIONADO --- */}
+            <span
+                className="back-to-login-link"
+                onClick={() => {
+                    setView('login');
+                    setMessage('');
+                    setForgotPasswordEmail(''); // Limpa o email
+                    setCodigoVerificacao('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                }}
+            >
+                Cancelar e Voltar para Login
+            </span>
+            {/* --- FIM DA ADIÇÃO --- */}
         </form>
     );
     // --------------------------------------------------------------------
@@ -316,11 +361,10 @@ const Login = () => {
     return (
         <div className="login-page-wrapper">
             <div className="login-container">
-                {/* --- LÓGICA DE RENDERIZAÇÃO ATUALIZADA --- */}
+                {/* Lógica de renderização mantida */}
                 {view === 'login' && renderLoginView()}
                 {view === 'forgotPassword' && renderForgotPasswordView()}
                 {view === 'resetPassword' && renderResetPasswordView()}
-                {/* ------------------------------------------- */}
             </div>
         </div>
     );

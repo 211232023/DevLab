@@ -42,7 +42,7 @@ const Etapas = () => {
     const testeRealizado = candidatura?.pontuacao_teste != null;
 
     const etapasConfig = [
-        { nome: 'Inscrição Realizada', statusEnum: 'Aguardando Teste', path: null, icon: <FaFileAlt />, descricao: 'Sua inscrição foi recebida com sucesso e está em análise.' },
+        { nome: 'Inscrcição Realizada', statusEnum: 'Aguardando Teste', path: null, icon: <FaFileAlt />, descricao: 'Sua inscrição foi recebida com sucesso e está em análise.' },
         { 
             nome: 'Teste Online', statusEnum: 'Teste Disponível',
             path: teste && !testeRealizado ? `/teste/${teste.id}/${candidaturaId}` : null,
