@@ -3,6 +3,7 @@ const pool = require(path.resolve(__dirname, '../config/db'));
 const { sendMail } = require('../../nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const db = require('../config/db');
 
 const codigosVerificacao = {};
 
@@ -249,21 +250,87 @@ exports.updateUsuario = async (req, res) => {
 
 // DELETE
 exports.deleteUsuario = async (req, res) => {
+  const id = Number(req.params.id);
+  console.log('deleteUsuario called, id=', id, 'req.user=', req.user && { id: req.user.id });
+
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ message: 'ID inválido.' });
+  }
+
+  // evita deletar a si mesmo
+  if (req.user && Number(req.user.id) === id) {
+    return res.status(400).json({ message: 'Não é possível deletar o próprio usuário.' });
+  }
+
+  let connection;
   try {
-    const { id } = req.params;
-    const [result] = await pool.query('DELETE FROM usuarios WHERE id = ?', [id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
-    res.json({ message: 'Usuário removido com sucesso' });
-  } catch (err) {
-    console.error('Erro ao remover usuário:', err);
-    // Adicionar verificação de chave estrangeira se necessário (ex: ER_ROW_IS_REFERENCED_2)
-    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
-        return res.status(400).json({ error: 'Não é possível remover o usuário pois ele possui registros relacionados (ex: candidaturas).' });
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 1) Deleta documentos vinculados às candidaturas deste usuário
+    await connection.query(
+      `DELETE d
+       FROM documentos d
+       JOIN candidaturas c ON d.candidatura_id = c.id
+       WHERE c.candidato_id = ?`,
+      [id]
+    );
+
+    // 2) Deleta candidaturas do usuário
+    await connection.query('DELETE FROM candidaturas WHERE candidato_id = ?', [id]);
+
+    // 3) Tratar vagas onde o usuário é RH (evita FK fk_vagas_usuarios)
+    //    - Deleta documentos de candidaturas vinculadas a essas vagas
+    //    - Deleta candidaturas dessas vagas
+    //    - Deleta as vagas em si
+    await connection.query(
+      `DELETE d
+       FROM documentos d
+       JOIN candidaturas c ON d.candidatura_id = c.id
+       JOIN vagas v ON c.vaga_id = v.id
+       WHERE v.rh_id = ?`,
+      [id]
+    );
+
+    await connection.query(
+      `DELETE c
+       FROM candidaturas c
+       JOIN vagas v ON c.vaga_id = v.id
+       WHERE v.rh_id = ?`,
+      [id]
+    );
+
+    await connection.query('DELETE FROM vagas WHERE rh_id = ?', [id]);
+
+    // 4) Se houver outras tabelas com FK para usuarios, adicionar remoções aqui
+    //    ex: entrevistas, mensagens, etc.
+    //    await connection.query('DELETE FROM entrevistas WHERE usuario_id = ?', [id]);
+
+    // 5) Finalmente deleta o usuário
+    const [result] = await connection.query('DELETE FROM usuarios WHERE id = ?', [id]);
+    if (!result || result.affectedRows === 0) {
+      await connection.rollback();
+      connection.release();
+      console.log('deleteUsuario - usuário não encontrado id=', id);
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
-    res.status(500).json({ error: 'Erro ao remover usuário.', details: err.message });
+
+    await connection.commit();
+    connection.release();
+    console.log('deleteUsuario - removido com sucesso id=', id);
+    return res.status(200).json({ message: 'Usuário removido com sucesso.' });
+  } catch (err) {
+    console.error('deleteUsuario error:', err && err.stack ? err.stack : err);
+    if (connection) {
+      try { await connection.rollback(); } catch (e) { /* ignore */ }
+      try { connection.release(); } catch (e) { /* ignore */ }
+    }
+    if (err && err.code && (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED')) {
+      return res.status(409).json({ message: 'Não foi possível remover: existem registros dependentes.', details: err.message });
+    }
+    return res.status(500).json({ message: 'Erro interno ao remover usuário.', details: err.message });
   }
 };
-
 // --- NOVAS FUNÇÕES PARA REDEFINIÇÃO DE SENHA COM CÓDIGO ---
 
 /**
@@ -364,42 +431,23 @@ exports.resetPasswordWithCode = async (req, res) => {
     }
 };
 
-exports.updateUsuarioTipo = async (req, res) => {
-  const { id } = req.params;
-  const { tipo } = req.body;
-
-  // 1. Validação básica do tipo recebido
-  if (!tipo || !['ADMIN', 'RH', 'CANDIDATO'].includes(tipo)) {
-    return res.status(400).json({ error: 'Tipo de usuário inválido ou não fornecido.' });
-  }
-
-  // 2. Verificação de segurança (Opcional, mas recomendado)
-  // Se o seu 'authMiddleware' adicionar o usuário logado ao 'req.user',
-  // é uma boa prática descomentar e adaptar o código abaixo
-  // para impedir que um admin altere o seu próprio status.
-  /*
-  if (req.user && parseInt(req.user.id, 10) === parseInt(id, 10)) {
-     return res.status(403).json({ error: 'Você não pode alterar seu próprio tipo de usuário.' });
-  }
-  */
-  
+exports.updateTipo = async (req, res) => {
   try {
-    // 3. Atualiza o banco de dados
-    const [result] = await pool.query(
-      'UPDATE usuarios SET tipo = ? WHERE id = ?',
-      [tipo, id]
-    );
+    const id = Number(req.params.id);
+    const { tipo } = req.body;
+    if (!tipo) return res.status(400).json({ message: 'tipo é obrigatório' });
 
-    // 4. Verifica se a atualização funcionou
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
+    // validação mínima de tipos aceitos (ajuste conforme sua app)
+    const tiposValidos = ['ADMIN', 'RH', 'CANDIDATO'];
+    if (!tiposValidos.includes(tipo)) return res.status(400).json({ message: 'tipo inválido' });
 
-    // 5. Resposta de sucesso
-    res.json({ message: 'Tipo de usuário atualizado com sucesso!', id, novoTipo: tipo });
+    const [result] = await db.query('UPDATE usuarios SET tipo = ? WHERE id = ?', [tipo, id]);
+    if (result.affectedRows === 0) return res.status(404).json({ message: 'Usuário não encontrado' });
 
+    const [rows] = await db.query('SELECT id, nome, email, tipo FROM usuarios WHERE id = ?', [id]);
+    return res.status(200).json(rows[0]);
   } catch (err) {
-    console.error('Erro ao atualizar tipo de usuário:', err);
-    res.status(500).json({ error: 'Erro interno ao atualizar tipo de usuário.', details: err.message });
+    console.error('updateTipo error:', err);
+    return res.status(500).json({ message: 'Erro interno' });
   }
-};  
+};

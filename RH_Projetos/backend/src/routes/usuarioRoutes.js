@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
+const { protect } = require('../middleware/authMiddleware');
 
 router.post('/enviar-codigo', usuarioController.enviarCodigoVerificacao);
 
@@ -14,8 +15,8 @@ router.get('/:id', usuarioController.getUsuarioById);
 
 router.put('/:id', usuarioController.updateUsuario);
 
-router.delete('/:id', usuarioController.deleteUsuario);
+router.put('/:id/tipo', protect, usuarioController.updateTipo);
 
-router.put('/:id/tipo', usuarioController.updateUsuarioTipo);
+router.delete('/:id', protect, usuarioController.deleteUsuario);
 
 module.exports = router;
